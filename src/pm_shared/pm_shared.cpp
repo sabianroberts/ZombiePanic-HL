@@ -460,7 +460,7 @@ void PM_PlayStepSound(int step, float fvol)
 	VectorCopy(pmove->velocity, hvel);
 	hvel[2] = 0.0;
 
-	if (pmove->multiplayer && (!g_onladder && hvel.Length() <= 220))
+	if (pmove->multiplayer && (!g_onladder && hvel.Length() <= 50))
 		return;
 
 	// irand - 0,1 for right foot, 2,3 for left foot
