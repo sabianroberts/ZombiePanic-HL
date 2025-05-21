@@ -1,0 +1,15 @@
+add_sources(
+	CMakeLists.txt
+	trigger_endround.cpp
+	weapon_swipe.cpp
+	weapon_556ar.cpp
+	zp_gamerules.cpp
+	zp_gamerules.h
+	gamemodes/zp_gamemodebase.cpp
+	gamemodes/zp_survival.cpp
+	gamemodes/zp_survival.h
+	gamemodes/zp_objective.cpp
+	gamemodes/zp_objective.h
+	gamemodes/zp_dev.cpp
+	gamemodes/zp_dev.h
+)

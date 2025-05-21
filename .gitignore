@@ -1,0 +1,8 @@
+# CMake build directory
+/build
+/build_*
+/_build
+/_build_*
+
+# macOS garbage
+.DS_Store
