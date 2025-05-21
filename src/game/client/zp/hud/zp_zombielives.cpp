@@ -72,5 +72,6 @@ int CHudZombieLives::MsgFunc_ZombieLives( const char *pszName, int iSize, void *
 	char text[12];
 	sprintf( text, "%i", lives );
 	m_pLives->SetText( text );
+	m_pLives->SetVisible( true );
 	return 1;
 }

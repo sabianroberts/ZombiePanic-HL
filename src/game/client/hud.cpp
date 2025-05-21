@@ -289,6 +289,7 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_Logo>("Logo");
 	HookHudMessage<&CHud::MsgFunc_ResetHUD>("ResetHUD");
 	HookHudMessage<&CHud::MsgFunc_GameMode>("GameMode");
+	HookHudMessage<&CHud::MsgFunc_Rounds>("Rounds");
 	HookHudMessage<&CHud::MsgFunc_InitHUD>("InitHUD");
 	HookHudMessage<&CHud::MsgFunc_ViewMode>("ViewMode");
 	HookHudMessage<&CHud::MsgFunc_SetFOV>("SetFOV");

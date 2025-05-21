@@ -7,6 +7,7 @@
 #include "nodes.h"
 #include "player.h"
 #include "gamerules.h"
+#include "zp/zp_shared.h"
 
 #define SWIPE_BODYHIT_VOLUME 128
 #define SWIPE_WALLHIT_VOLUME 512
@@ -32,6 +33,7 @@ void CSwipe::Spawn()
 	m_iId = WEAPON_SWIPE;
 	SET_MODEL(ENT(pev), "models/w_swipe.mdl");
 	m_iClip = -1;
+	pev->team = ZP::TEAM_ZOMBIE;
 
 	FallInit(); // get ready to fall down.
 }
@@ -59,7 +61,7 @@ int CSwipe::GetItemInfo(ItemInfo *p)
 	p->iMaxAmmo2 = -1;
 	p->iMaxClip = WEAPON_NOCLIP;
 	p->iSlot = 0;
-	p->iPosition = 0;
+	p->iPosition = 1;
 	p->iId = WEAPON_SWIPE;
 	p->iWeight = CROWBAR_WEIGHT;
 	return 1;
@@ -67,6 +69,7 @@ int CSwipe::GetItemInfo(ItemInfo *p)
 
 int CSwipe::AddToPlayer(CBasePlayer *pPlayer)
 {
+	if ( pPlayer->pev->team != ZP::TEAM_ZOMBIE ) return FALSE;
 	if (CBasePlayerWeapon::AddToPlayer(pPlayer))
 	{
 		CBasePlayerWeapon::SendWeaponPickup(pPlayer);

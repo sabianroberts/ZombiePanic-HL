@@ -30,6 +30,7 @@
 #include "soundent.h"
 #include "decals.h"
 #include "gamerules.h"
+#include "zp/zp_shared.h"
 
 extern CGraph WorldGraph;
 extern int gEvilImpulse101;
@@ -1087,11 +1088,9 @@ void CBasePlayerAmmo::Materialize(void)
 void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 {
 	if (!pOther->IsPlayer())
-	{
 		return;
-	}
 
-	if (IsPlayerBusting(pOther))
+	if ( pOther->pev->team == ZP::TEAM_ZOMBIE )
 		return;
 
 	if (AddAmmo(pOther))

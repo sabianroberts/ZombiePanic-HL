@@ -21,6 +21,7 @@
 #include "player.h"
 #include "items.h"
 #include "gamerules.h"
+#include "zp/zp_shared.h"
 
 class CHealthKit : public CItem
 {
@@ -68,6 +69,9 @@ BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
 	{
 		return FALSE;
 	}
+
+	if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+		return false;
 
 	if (pPlayer->TakeHealth(gSkillData.healthkitCapacity, DMG_GENERIC))
 	{

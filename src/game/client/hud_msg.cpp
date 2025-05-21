@@ -143,6 +143,13 @@ int CHud::MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
+int CHud::MsgFunc_Rounds(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+	m_MapRounds = READ_BYTE();
+	return 1;
+}
+
 int CHud::MsgFunc_ViewMode(const char *pszName, int iSize, void *pbuf)
 {
 	CAM_ToFirstPerson();

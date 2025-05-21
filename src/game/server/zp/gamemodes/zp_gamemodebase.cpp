@@ -67,7 +67,7 @@ void CBaseGameMode::OnGameModeThink()
 			float flRoundBeginsIn = m_flRoundBeginsIn - gpGlobals->time;
 			if ( flRoundBeginsIn <= 0 )
 			{
-				m_flRoundBeginsIn = 0;
+			    m_flRoundBeginsIn = gpGlobals->time + 0.1f;
 				SetRoundState( ZP::RoundState_PickVolunteers );
 			}
 		}
@@ -75,7 +75,12 @@ void CBaseGameMode::OnGameModeThink()
 
 		case ZP::RoundState_PickVolunteers:
 		{
-			SetRoundState( ZP::RoundState_RoundHasBegunPost );
+			float flRoundBeginsIn = m_flRoundBeginsIn - gpGlobals->time;
+			if ( flRoundBeginsIn <= 0 )
+			{
+			    m_flRoundBeginsIn = 0;
+				SetRoundState( ZP::RoundState_RoundHasBegunPost );
+			}
 		}
 	    break;
 
@@ -116,12 +121,13 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 {
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CBaseEntity *plr = UTIL_PlayerByIndex( i );
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 		if ( plr && plr->IsAlive() )
 		{
 			int iTeam = plr->pev->team;
 			if ( iTeam == ZP::TEAM_SURVIVIOR )
-				GiveWeapons( (CBasePlayer *)plr );
+				GiveWeapons( plr );
+			plr->m_iHideHUD = 0;
 		}
 	}
 }
@@ -143,6 +149,4 @@ void CBaseGameMode::GiveWeapons(CBasePlayer *pPlayer)
 		pPlayer->GiveNamedItem( "weapon_9mmhandgun" );
 		pPlayer->GiveAmmo( 68, "9mm", _9MM_MAX_CARRY ); // 4 full reloads
 	}
-
-	pPlayer->m_iHideHUD = 0;
 }

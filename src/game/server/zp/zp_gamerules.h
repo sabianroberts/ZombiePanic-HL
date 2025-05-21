@@ -42,8 +42,6 @@ public:
 	virtual void PlayerSpawn(CBasePlayer *pPlayer);
 	virtual BOOL ClientCommand(CBasePlayer *pPlayer, const char *pcmd);
 
-	// Used by the Gamemodes
-
 private:
 	bool HasAlreadyJoined(CBasePlayer *pPlayer);
 
@@ -57,6 +55,7 @@ private:
 	IGameModeBase *m_pGameMode;
 	std::vector<int> m_Volunteers;
 	std::vector<int> m_Rejoiners;
+	bool m_bRequireNewMap;
 };
 
 #endif

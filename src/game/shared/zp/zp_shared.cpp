@@ -69,7 +69,7 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 	}
 
 	// Now check the weapons we got.
-	float flNewSpeed = 220 - iHowFatAmI;
+	float flNewSpeed = ZP::MaxSpeeds[0] - iHowFatAmI;
 	if ( flNewSpeed < 50 )
 		flNewSpeed = 50;
 

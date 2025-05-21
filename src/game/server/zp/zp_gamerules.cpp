@@ -10,13 +10,29 @@
 
 extern DLL_GLOBAL BOOL g_fGameOver;
 
+// Our max rounds! (before we change to another level)
+extern cvar_t roundlimit;
+int g_iMapRounds = 0;
+string_t g_szCurrentMap = NULL;
+
 CZombiePanicGameRules::CZombiePanicGameRules()
 {
 	m_DisableDeathMessages = FALSE;
 	m_DisableDeathPenalty = FALSE;
 	m_bHasPickedVolunteer = false;
+	m_bRequireNewMap = false;
 	m_Volunteers.clear();
 	m_Rejoiners.clear();
+
+	// Check the map names, if they differ
+	if ( g_szCurrentMap != gpGlobals->mapname )
+	{
+		// They differ, reset the rounds and set this
+		// as the new map to validate with.
+		g_szCurrentMap = gpGlobals->mapname;
+		g_iMapRounds = 0;
+	}
+
 	m_GameModeType = ZP::IsValidGameModeMap( STRING( gpGlobals->mapname ) );
 	switch ( m_GameModeType )
 	{
@@ -25,6 +41,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 		default: m_pGameMode = new ZPGameMode_Dev; break;
 	}
 	ZP::SetCurrentGameMode( m_pGameMode );
+	g_iMapRounds++;
 }
 
 CZombiePanicGameRules::~CZombiePanicGameRules()
@@ -50,6 +67,15 @@ void CZombiePanicGameRules ::Think(void)
 	IGameModeBase::WinState_e eWinState = m_pGameMode->GetWinState();
 	if ( eWinState >= IGameModeBase::WinState_e::State_Draw )
 	{
+		int iRoundLimit = (int)roundlimit.value;
+		if ( iRoundLimit > 0 )
+		{
+			if ( g_iMapRounds >= iRoundLimit )
+			{
+				// Tell us that we need to change to a NEW map
+				m_bRequireNewMap = true;
+			}
+		}
 		GoToIntermission();
 		return;
 	}
@@ -63,40 +89,6 @@ void CZombiePanicGameRules ::Think(void)
 		case ZP::RoundState::RoundState_WaitingForPlayers: ResetVolunteers(); break;
 		case ZP::RoundState::RoundState_PickVolunteers: PickRandomVolunteer(); break;
 	}
-
-#if 0
-	float flFragLimit = fraglimit.value;
-	if (flFragLimit)
-	{
-		int bestfrags = 9999;
-		int remain;
-
-		// check if any team is over the frag limit
-		for (int i = 0; i < ZP::MAX_TEAM; i++)
-		{
-			if (ZP::Teams[i] >= flFragLimit)
-			{
-				GoToIntermission();
-				return;
-			}
-
-			remain = flFragLimit - team_scores[i];
-			if (remain < bestfrags)
-			{
-				bestfrags = remain;
-			}
-		}
-		frags_remaining = bestfrags;
-	}
-
-	// Updates when frags change
-	if (frags_remaining != last_frags)
-	{
-		g_engfuncs.pfnCvar_DirectSet(&fragsleft, UTIL_VarArgs("%i", frags_remaining));
-	}
-
-	last_frags = frags_remaining;
-#endif
 }
 
 extern int gmsgGameMode;
@@ -104,11 +96,15 @@ extern int gmsgSayText;
 extern int gmsgTeamInfo;
 extern int gmsgTeamNames;
 extern int gmsgScoreInfo;
+extern int gmsgRounds;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
 	MESSAGE_BEGIN(MSG_ONE, gmsgGameMode, NULL, pPlayer->edict());
 	WRITE_BYTE(m_GameModeType);
+	MESSAGE_END();
+	MESSAGE_BEGIN(MSG_ONE, gmsgRounds, NULL, pPlayer->edict());
+	WRITE_BYTE(g_iMapRounds);
 	MESSAGE_END();
 }
 
@@ -196,6 +192,7 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 {
 	if ( m_bHasPickedVolunteer ) return;
 	m_bHasPickedVolunteer = true;
+
 	// We have no volunteers, so lets pick some random survivors
 	if ( m_Volunteers.size() == 0 )
 	{
@@ -203,7 +200,7 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 		{
 			CBaseEntity *plr = UTIL_PlayerByIndex(i);
 			if ( plr && plr->IsAlive() && plr->pev->team == ZP::TEAM_SURVIVIOR )
-				m_Volunteers.push_back( plr->entindex() );
+				m_Volunteers.push_back( i );
 		}
 	}
 
@@ -212,7 +209,7 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 	if ( iVolunteers == 0 )
 		iPlayerIndex = m_Volunteers[0];
 	else
-		iPlayerIndex = rand() % iVolunteers;
+		iPlayerIndex = m_Volunteers[RANDOM_LONG( 0, iVolunteers )];
 
 	if ( iPlayerIndex == 0 ) return;
 	CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( iPlayerIndex );
@@ -308,9 +305,9 @@ void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)
 	);
 
 	if ( iTeam == ZP::TEAM_SURVIVIOR )
-		pPlayer->pev->maxspeed = 220;
+		pPlayer->pev->maxspeed = ZP::MaxSpeeds[0];
 	else
-		pPlayer->pev->maxspeed = 250;
+		pPlayer->pev->maxspeed = ZP::MaxSpeeds[1];
 }
 
 //=========================================================

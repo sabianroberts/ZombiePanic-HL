@@ -265,6 +265,9 @@ public:
 	BOOL AddPlayerItem(CBasePlayerItem *pItem);
 	BOOL RemovePlayerItem(CBasePlayerItem *pItem);
 	void DropPlayerItem(char *pszItemName);
+	void DropActiveWeapon();
+	void DropSelectedAmmo();
+	void DoPanic();
 	BOOL HasPlayerItem(CBasePlayerItem *pCheckItem);
 	BOOL HasNamedPlayerItem(const char *pszItemName);
 	BOOL HasPlayerItemFromID(int nID);

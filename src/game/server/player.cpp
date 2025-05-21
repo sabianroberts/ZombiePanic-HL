@@ -180,6 +180,7 @@ int gmsgCurWeapon = 0;
 int gmsgHealth = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
+int gmsgRounds = 0;
 int gmsgZombieLives = 0;
 int gmsgRoundState = 0;
 int gmsgTrain = 0;
@@ -245,6 +246,7 @@ void LinkUserMessages(void)
 	gmsgDamage = REG_USER_MSG("Damage", 12);
 	gmsgBattery = REG_USER_MSG("Battery", 2);
 	gmsgZombieLives = REG_USER_MSG("ZombieLives", 2);
+	gmsgRounds = REG_USER_MSG("Rounds", -1);
 	gmsgRoundState = REG_USER_MSG("RoundState", 2);
 	gmsgTrain = REG_USER_MSG("Train", 1);
 	gmsgHudText = REG_USER_MSG("HudText", -1);
@@ -4096,7 +4098,13 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 		pInsert = pInsert->m_pNext;
 	}
 
-	if (pItem->AddToPlayer(this))
+	bool bCanPlayerPickup = false;
+	if ( pev->team == ZP::TEAM_SURVIVIOR )
+		bCanPlayerPickup = pItem->AddToPlayer(this);
+	else if ( pev->team == ZP::TEAM_ZOMBIE )
+		bCanPlayerPickup = pItem->pev->team == ZP::TEAM_ZOMBIE ? pItem->AddToPlayer(this) : false;
+
+	if ( bCanPlayerPickup )
 	{
 		g_pGameRules->PlayerGotWeapon(this, pItem);
 		pItem->CheckRespawn();
@@ -5018,11 +5026,7 @@ int CBasePlayer ::GetCustomDecalFrames(void)
 //=========================================================
 void CBasePlayer::DropPlayerItem(char *pszItemName)
 {
-	if (!g_pGameRules->IsMultiplayer() || (weaponstay.value > 0))
-	{
-		// no dropping in single player.
-		return;
-	}
+	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
 
 	CBasePlayerItem *pWeapon;
 	if (!strlen(pszItemName))
@@ -5067,16 +5071,8 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 	pWeaponBox->PackWeapon(pWeapon);
 	pWeaponBox->pev->velocity = gpGlobals->v_forward * 300 + gpGlobals->v_forward * 100;
 
-	if (mp_weapondrop_time.GetFloat() > 0)
-	{
-		pWeaponBox->SetThink(&CWeaponBox::Kill);
-		pWeaponBox->pev->nextthink = gpGlobals->time + mp_weapondrop_time.GetFloat();
-	}
-	else
-	{
-		// Stays forever
-		pWeaponBox->pev->nextthink = 0;
-	}
+	// Stays forever
+	pWeaponBox->pev->nextthink = 0;
 
 	// drop half of the ammo for this weapon.
 	int iAmmoIndex = GetAmmoIndex(pWeapon->pszAmmo1()); // ???
@@ -5098,6 +5094,21 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 			m_rgAmmo[iAmmoIndex] -= ammoDrop;
 		}
 	}
+}
+
+void CBasePlayer::DropActiveWeapon()
+{
+	// TODO: Drop active weapon
+}
+
+void CBasePlayer::DropSelectedAmmo()
+{
+	// TODO: Drop selected ammo
+}
+
+void CBasePlayer::DoPanic()
+{
+	// TODO: Player goes "oh no, am panic"
 }
 
 //=========================================================

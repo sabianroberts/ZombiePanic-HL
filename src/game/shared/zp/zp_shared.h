@@ -25,6 +25,11 @@ namespace ZP
 		MAX_TEAM
 	};
 
+	static int MaxSpeeds[2] = {
+		220,	// Human Max Speed
+		250		// Zombie Max Speed
+	};
+
 	static const char *Teams[MAX_TEAM] = {
 	    "",
 	    "Observer",

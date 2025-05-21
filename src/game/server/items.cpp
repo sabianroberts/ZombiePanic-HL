@@ -28,6 +28,7 @@
 #include "skill.h"
 #include "items.h"
 #include "gamerules.h"
+#include "zp/zp_shared.h"
 
 extern int gmsgItemPickup;
 
@@ -243,6 +244,9 @@ class CItemBattery : public CItem
 			return FALSE;
 		}
 
+		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+			return false;
+
 		if ((pPlayer->pev->armorvalue < MAX_NORMAL_BATTERY) && (pPlayer->pev->weapons & (1 << WEAPON_SUIT)))
 		{
 			int pct;
@@ -288,6 +292,8 @@ class CItemAntidote : public CItem
 	}
 	BOOL MyTouch(CBasePlayer *pPlayer)
 	{
+		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+			return false;
 		pPlayer->SetSuitUpdate("!HEV_DET4", FALSE, SUIT_NEXT_IN_1MIN);
 
 		pPlayer->m_rgItems[ITEM_ANTIDOTE] += 1;
@@ -311,6 +317,8 @@ class CItemSecurity : public CItem
 	}
 	BOOL MyTouch(CBasePlayer *pPlayer)
 	{
+		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+			return false;
 		pPlayer->m_rgItems[ITEM_SECURITY] += 1;
 		return TRUE;
 	}
@@ -332,6 +340,9 @@ class CItemLongJump : public CItem
 	}
 	BOOL MyTouch(CBasePlayer *pPlayer)
 	{
+		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+			return false;
+
 		if (pPlayer->m_fLongJump)
 		{
 			return FALSE;

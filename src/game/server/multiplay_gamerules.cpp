@@ -1218,23 +1218,6 @@ void CHalfLifeMultiplay ::GoToIntermission(void)
 	m_iEndIntermissionButtonHit = FALSE;
 }
 
-#define MAX_RULE_BUFFER 1024
-
-typedef struct mapcycle_item_s
-{
-	struct mapcycle_item_s *next;
-
-	char mapname[32];
-	int minplayers, maxplayers;
-	char rulebuffer[MAX_RULE_BUFFER];
-} mapcycle_item_t;
-
-typedef struct mapcycle_s
-{
-	struct mapcycle_item_s *items;
-	struct mapcycle_item_s *next_item;
-} mapcycle_t;
-
 /*
 ==============
 DestroyMapCycle
@@ -1588,7 +1571,7 @@ void CHalfLifeMultiplay ::ChangeLevel(void)
 	char szCommands[1500];
 	char szRules[1500];
 	int minplayers = 0, maxplayers = 0;
-	UTIL_strcpy(szFirstMapInList, "hldm1"); // the absolute default level is hldm1
+	UTIL_strcpy(szFirstMapInList, "zp_clubzombo"); // the absolute default level is zp_clubzombo
 
 	int curplayers;
 	BOOL do_cycle = TRUE;

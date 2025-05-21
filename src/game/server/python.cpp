@@ -95,8 +95,7 @@ void CPython::Precache(void)
 
 BOOL CPython::Deploy()
 {
-	pev->body = 0;
-	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", UseDecrement(), pev->body);
+	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", UseDecrement());
 }
 
 void CPython::Holster(int skiplocal /* = 0 */)

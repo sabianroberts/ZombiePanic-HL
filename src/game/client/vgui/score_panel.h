@@ -210,11 +210,6 @@ private:
 	Color GetPlayerBgColor(CPlayerInfo *pi);
 
 	/**
-	 * Calculates efficiency based on hud_scoreboard_efftype.
-	 */
-	float CalculateEfficiency(int kills, int deaths);
-
-	/**
 	 * Returns client icon size.
 	 */
 	int GetClientIconSize();

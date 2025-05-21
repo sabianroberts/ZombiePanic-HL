@@ -26,10 +26,7 @@
 ConVar hud_scoreboard_mousebtn("hud_scoreboard_mousebtn", "1", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showavatars("hud_scoreboard_showavatars", "1", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showloss("hud_scoreboard_showloss", "1", FCVAR_ARCHIVE);
-ConVar hud_scoreboard_efftype("hud_scoreboard_efftype", "0", FCVAR_ARCHIVE);
-ConVar hud_scoreboard_effpercent("hud_scoreboard_effpercent", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showsteamid("hud_scoreboard_showsteamid", "1", FCVAR_ARCHIVE);
-ConVar hud_scoreboard_showeff("hud_scoreboard_showeff", "1", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_size("hud_scoreboard_size", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_spacing_normal("hud_scoreboard_spacing_normal", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_spacing_compact("hud_scoreboard_spacing_compact", "0", FCVAR_ARCHIVE);
@@ -502,14 +499,6 @@ void CScorePanel::CreateSection(int nTeamID)
 		    m_iColumnWidthSteamID);
 	}
 
-	// Efficiency
-	if (hud_scoreboard_showeff.GetBool())
-	{
-		m_pPlayerList->AddColumnToSection(nTeamID, "eff", nTeamID == HEADER_SECTION_ID ? "#ZP_Scores_ColEff" : "???",
-		    vgui2::SectionedListPanel::COLUMN_BRIGHT,
-		    m_iColumnWidthEff);
-	}
-
 	// Frags
 	m_pPlayerList->AddColumnToSection(nTeamID, "frags", nTeamID == HEADER_SECTION_ID ? "#PlayerScore" : "???",
 	    vgui2::SectionedListPanel::COLUMN_BRIGHT,
@@ -618,14 +607,6 @@ void CScorePanel::UpdateClientInfo(int client)
 
 		// SteamID
 		playerKv->SetString("steamid", pi->GetSteamID());
-
-		// Efficiency
-		float eff = CalculateEfficiency(pi->GetFrags(), pi->GetDeaths());
-		if (hud_scoreboard_effpercent.GetBool())
-			snprintf(buf, sizeof(buf), "%.0f%%", eff * 100.0);
-		else
-			snprintf(buf, sizeof(buf), "%.2f", eff);
-		playerKv->SetString("eff", buf);
 
 		// Frags & deaths
 		playerKv->SetInt("frags", pi->GetFrags());
@@ -755,15 +736,6 @@ void CScorePanel::UpdateScoresAndCounts()
 		V_snwprintf(wbuf, 128, L"%s (%d/%d)", localizedName, td.iPlayerCount, iPlayerCount);
 		m_pPlayerList->ModifyColumn(nTeamID, "name", wbuf);
 
-		// Team efficiency
-		float eff = CalculateEfficiency(td.iFrags, td.iDeaths);
-		if (hud_scoreboard_effpercent.GetBool())
-			snprintf(buf, sizeof(buf), "%.0f%%", eff * 100.0);
-		else
-			snprintf(buf, sizeof(buf), "%.2f", eff);
-		g_pVGuiLocalize->ConvertANSIToUnicode(buf, wbuf, sizeof(wbuf));
-		m_pPlayerList->ModifyColumn(nTeamID, "eff", wbuf);
-
 		// Team frags
 		snprintf(buf, sizeof(buf), "%d", td.iFrags);
 		g_pVGuiLocalize->ConvertANSIToUnicode(buf, wbuf, sizeof(wbuf));
@@ -809,9 +781,6 @@ int CScorePanel::GetNameColumnWidth()
 	if (!hud_scoreboard_showsteamid.GetBool())
 		w += m_iColumnWidthSteamID;
 
-	if (!hud_scoreboard_showeff.GetBool())
-		w += m_iColumnWidthEff;
-
 	return w;
 }
 
@@ -851,38 +820,6 @@ Color CScorePanel::GetPlayerBgColor(CPlayerInfo *pi)
 	}
 
 	return Color(0, 0, 0, 0);
-}
-
-float CScorePanel::CalculateEfficiency(int kills, int deaths)
-{
-	int type = clamp(hud_scoreboard_efftype.GetInt(), 0, 2);
-
-	switch (type)
-	{
-	case 0:
-	{
-		// K / D
-		if (deaths == 0)
-			deaths = 1;
-		return (float)kills / deaths;
-	}
-	case 1:
-	{
-		// K / (D + 1)
-		if (deaths == -1)
-			deaths = 0;
-		return (float)kills / (deaths + 1);
-	}
-	case 2:
-	{
-		// K / (K + D)
-		if (kills + deaths == 0)
-			return 1.0f;
-		return (float)kills / (kills + deaths);
-	}
-	}
-
-	return 0;
 }
 
 int CScorePanel::GetClientIconSize()

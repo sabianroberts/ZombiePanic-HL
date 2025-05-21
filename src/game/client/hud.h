@@ -120,6 +120,7 @@ public:
 	int m_iFOV;
 	ZP::GameModeType_e m_GameMode;
 	ZP::RoundState m_RoundState;
+	int m_MapRounds;
 	int m_iRes = -1;
 	int m_iFontHeight;		//!< Sprite font height
 	int m_iWeaponBits;
@@ -192,7 +193,7 @@ public:
 	int MsgFunc_Logo(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_Damage(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_GameMode(const char *pszName, int iSize, void *pbuf);
-	int MsgFunc_RoundState(const char *pszName, int iSize, void *pbuf);
+	int MsgFunc_Rounds(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_ViewMode(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_SetFOV(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_Concuss(const char *pszName, int iSize, void *pbuf);

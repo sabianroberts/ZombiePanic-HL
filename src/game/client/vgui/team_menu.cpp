@@ -28,7 +28,6 @@ CTeamMenu::CTeamMenu()
 	m_pGameModeInfo = new vgui2::RichText(this, "GameModeInfo");
 	m_pLabelCurrentMapValue = new vgui2::Label(this, "LabelCurrentMapValue", "");
 	m_pLabelGameModeName = new vgui2::Label(this, "LabelGameModeName", "");
-	// TODO: Use message for rounds!!
 	m_pLabelRounds = new vgui2::Label(this, "LabelRounds", "Rounds: 1");
 
 	ReloadLayout();
@@ -140,6 +139,9 @@ void CTeamMenu::Update()
 				break;
 			}
 			m_bUpdatedGameModeInfo = true;
+			char buf[64];
+			sprintf( buf, "Rounds: %i", gHUD.m_MapRounds );
+			m_pLabelRounds->SetText( buf );
 		}
 	}
 }
