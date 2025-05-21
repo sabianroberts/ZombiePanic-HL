@@ -8,6 +8,8 @@
 extern int gmsgZombieLives;
 extern int gmsgRoundState;
 
+#define REQUIRED_PLAYERS_TO_START_ROUND 2
+
 class IGameModeBase
 {
 public:
@@ -34,6 +36,21 @@ public:
 
 private:
 	ZP::RoundState m_iRoundState = ZP::RoundState::RoundState_WaitingForPlayers;
+};
+
+class CBaseGameMode : public IGameModeBase
+{
+public:
+	virtual void OnGameModeThink();
+	virtual void GiveWeaponsOnRoundStart();
+	virtual void GiveWeapons(CBasePlayer *pPlayer);
+	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor ) {}
+	virtual void OnPlayerSpawned( CBasePlayer *pPlayer ) {}
+
+protected:
+	float m_flRoundBeginsIn;
+	bool m_bTimeRanOut;
+	bool m_bAllSurvivorsDead;
 };
 
 namespace ZP

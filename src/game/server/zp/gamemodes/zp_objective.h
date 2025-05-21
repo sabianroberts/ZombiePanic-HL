@@ -2,16 +2,14 @@
 #define SERVER_GAMEMODE_OBJECTIVE
 #pragma once
 
-class ZPGameMode_Objective : public IGameModeBase
+class ZPGameMode_Objective : public CBaseGameMode
 {
+	SET_BASECLASS( CBaseGameMode );
 public:
 	ZPGameMode_Objective();
 
 protected:
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
-	virtual void OnGameModeThink();
-	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor );
-	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
 	virtual WinState_e GetWinState();
 	virtual void SetWinState(WinState_e state) override
 	{
@@ -23,13 +21,7 @@ protected:
 		}
 	}
 
-	virtual void GiveWeaponsOnRoundStart();
-	virtual void GiveWeapons(CBasePlayer *pPlayer);
-
 private:
-	float m_flRoundBeginsIn;
-	bool m_bTimeRanOut;
-	bool m_bAllSurvivorsDead;
 	bool m_bHasPlayersReachedEnd;
 };
 

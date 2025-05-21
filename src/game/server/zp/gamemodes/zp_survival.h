@@ -2,8 +2,9 @@
 #define SERVER_GAMEMODE_SURVIVAL
 #pragma once
 
-class ZPGameMode_Survival : public IGameModeBase
+class ZPGameMode_Survival : public CBaseGameMode
 {
+	SET_BASECLASS( CBaseGameMode );
 public:
 	ZPGameMode_Survival();
 
@@ -18,13 +19,9 @@ protected:
 
 	virtual void UpdateZombieLifesForClient();
 	virtual void GiveWeaponsOnRoundStart();
-	virtual void GiveWeapons(CBasePlayer *pPlayer);
 
 private:
 	int m_iZombieLives;
-	float m_flRoundBeginsIn;
-	bool m_bTimeRanOut;
-	bool m_bAllSurvivorsDead;
 };
 
 #endif

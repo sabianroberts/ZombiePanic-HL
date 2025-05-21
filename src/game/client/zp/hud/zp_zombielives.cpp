@@ -69,7 +69,7 @@ int CHudZombieLives::MsgFunc_ZombieLives( const char *pszName, int iSize, void *
 {
 	BEGIN_READ( pbuf, iSize );
 	int lives = READ_SHORT();
-	char text[4];
+	char text[12];
 	sprintf( text, "%i", lives );
 	m_pLives->SetText( text );
 	return 1;
