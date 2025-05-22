@@ -32,11 +32,6 @@ private:
 	vgui2::Label *m_pVerTextLabel = nullptr;
 	vgui2::Label *m_pVerLabel = nullptr;
 
-	vgui2::Label *m_pLatestVerTextLabel = nullptr;
-	vgui2::Label *m_pLatestVerLabel = nullptr;
-	vgui2::Label *m_pUpdateLabel = nullptr;
-	vgui2::Button *m_pCheckUpdatesButton = nullptr;
-
 	CCvarCheckButton *m_pAutoCheck = nullptr;
 	vgui2::URLLabel *m_pGitHubLink = nullptr;
 	vgui2::URLLabel *m_pAghlLink = nullptr;

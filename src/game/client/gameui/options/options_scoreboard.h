@@ -26,11 +26,6 @@ private:
 	CCvarCheckButton *m_pShowSteamId = nullptr;
 	CCvarCheckButton *m_pShowPacketLoss = nullptr;
 
-	CCvarCheckButton *m_pShowEff = nullptr;
-	vgui2::Label *m_pEffTypeLabel = nullptr;
-	vgui2::ComboBox *m_pEffTypeBox = nullptr;
-	int m_EffTypeItems[3];
-
 	vgui2::Label *m_pMouseLabel = nullptr;
 	vgui2::ComboBox *m_pMouseBox = nullptr;
 	int m_MouseItems[3];
@@ -41,7 +36,6 @@ private:
 
 	CCvarTextEntry *m_pShowInHud = nullptr;
 
-	void ApplyEffType();
 	void ApplyMouse();
 	void ApplySize();
 };

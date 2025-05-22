@@ -99,11 +99,6 @@ CAboutSubOptions::CAboutSubOptions(vgui2::Panel *parent)
 	m_pVerTextLabel = new vgui2::Label(this, "VerTextLabel", "#ZP_AdvOptions_About_Version");
 	m_pVerLabel = new vgui2::Label(this, "VerLabel", "?");
 
-	m_pLatestVerTextLabel = new vgui2::Label(this, "LatestVerTextLabel", "#ZP_AdvOptions_About_NewVersion");
-	m_pLatestVerLabel = new vgui2::Label(this, "LatestVerLabel", "#ZP_AdvOptions_About_NoUpdater");
-	m_pUpdateLabel = new vgui2::Label(this, "UpdateLable", "#ZP_AdvOptions_About_NewUpdate");
-	m_pCheckUpdatesButton = new vgui2::Button(this, "CheckUpdatesButton", "#ZP_AdvOptions_About_Check", this, "CheckUpd");
-
 	m_pGitHubLink = new vgui2::URLLabel(this, "GitHubLink", "#ZP_AdvOptions_About_GitHub", "URL goes here");
 	m_pAghlLink = new vgui2::URLLabel(this, "AghlLink", "#ZP_AdvOptions_About_AGHL", "URL goes here");
 	m_pOSSCredits = new COptionsURLButton(this, "OSSCredits", "#ZP_AdvOptions_About_OSSCredits");
@@ -125,7 +120,6 @@ CAboutSubOptions::~CAboutSubOptions()
 void CAboutSubOptions::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
-	m_pUpdateLabel->SetFgColor(m_GreenColor);
 }
 
 void CAboutSubOptions::PerformLayout()
@@ -144,7 +138,6 @@ void CAboutSubOptions::PerformLayout()
 	};
 
 	fnPositionAfter(m_pVerTextLabel, m_pVerLabel);
-	fnPositionAfter(m_pLatestVerTextLabel, m_pLatestVerLabel);
 
 	UpdateControls();
 }
@@ -213,11 +206,7 @@ void CAboutSubOptions::UpdateControls()
 		m_pVerLabel->SetText(wbuf);
 	}
 
-#if !USE_UPDATER
-	m_pLatestVerLabel->SetText("#ZP_AdvOptions_About_NoUpdater");
-	m_pUpdateLabel->SetVisible(false);
-	m_pCheckUpdatesButton->SetEnabled(false);
-#else
+#if USE_UPDATER
 	m_pCheckUpdatesButton->SetEnabled(true);
 
 	CGameVersion latestVer = CUpdateChecker::Get().GetLatestVersion();

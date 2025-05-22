@@ -16,13 +16,6 @@ CScoreboardSubOptions::CScoreboardSubOptions(vgui2::Panel *parent)
 	m_pShowSteamId = new CCvarCheckButton(this, "ShowSteamId", "#ZP_AdvOptions_Scores_ShowSteamId", "hud_scoreboard_showsteamid");
 	m_pShowPacketLoss = new CCvarCheckButton(this, "ShowPacketLoss", "#ZP_AdvOptions_Scores_ShowLoss", "hud_scoreboard_showloss");
 
-	m_pShowEff = new CCvarCheckButton(this, "ShowEff", "#ZP_AdvOptions_Scores_ShowEff", "hud_scoreboard_showeff");
-	m_pEffTypeLabel = new vgui2::Label(this, "EffTypeLabel", "#ZP_AdvOptions_Scores_EffType");
-	m_pEffTypeBox = new vgui2::ComboBox(this, "EffTypeBox", 3, false);
-	m_EffTypeItems[0] = m_pEffTypeBox->AddItem("#ZP_AdvOptions_Scores_EffType0", new KeyValues("Type0", "value", 0));
-	m_EffTypeItems[1] = m_pEffTypeBox->AddItem("#ZP_AdvOptions_Scores_EffType1", new KeyValues("Type1", "value", 1));
-	m_EffTypeItems[2] = m_pEffTypeBox->AddItem("#ZP_AdvOptions_Scores_EffType2", new KeyValues("Type2", "value", 2));
-
 	m_pMouseLabel = new vgui2::Label(this, "MouseLabel", "#ZP_AdvOptions_Scores_Mouse");
 	m_pMouseBox = new vgui2::ComboBox(this, "MouseBox", 3, false);
 	m_MouseItems[0] = m_pMouseBox->AddItem("#ZP_AdvOptions_Scores_Mouse0", new KeyValues("None", "value", 0));
@@ -45,14 +38,9 @@ void CScoreboardSubOptions::OnResetData()
 	m_pShowAvatars->ResetData();
 	m_pShowSteamId->ResetData();
 	m_pShowPacketLoss->ResetData();
-	m_pShowEff->ResetData();
 	m_pShowInHud->ResetData();
 
-	int type = gEngfuncs.pfnGetCvarFloat("hud_scoreboard_efftype");
-	type = clamp(type, 0, 2);
-	m_pEffTypeBox->ActivateItem(m_EffTypeItems[type]);
-
-	type = gEngfuncs.pfnGetCvarFloat("hud_scoreboard_mousebtn");
+	int type = gEngfuncs.pfnGetCvarFloat("hud_scoreboard_mousebtn");
 	type = clamp(type, 0, 2);
 	m_pMouseBox->ActivateItem(m_MouseItems[type]);
 
@@ -66,22 +54,9 @@ void CScoreboardSubOptions::OnApplyChanges()
 	m_pShowAvatars->ApplyChanges();
 	m_pShowSteamId->ApplyChanges();
 	m_pShowPacketLoss->ApplyChanges();
-	m_pShowEff->ApplyChanges();
 	m_pShowInHud->ApplyChanges();
-	ApplyEffType();
 	ApplyMouse();
 	ApplySize();
-}
-
-void CScoreboardSubOptions::ApplyEffType()
-{
-	KeyValues *userdata = m_pEffTypeBox->GetActiveItemUserData();
-	Assert(userdata);
-	int val = userdata->GetInt("value", 0);
-
-	char buf[128];
-	snprintf(buf, sizeof(buf), "hud_scoreboard_efftype %d", val);
-	gEngfuncs.pfnClientCmd(buf);
 }
 
 void CScoreboardSubOptions::ApplyMouse()

@@ -40,7 +40,7 @@ CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
 	AddPage(new CHudSubOptionsRoot(this), "#ZP_AdvOptions_HUD");
 	AddPage(new CChatSubOptions(this), "#ZP_AdvOptions_Chat");
 	AddPage(new CScoreboardSubOptions(this), "#ZP_AdvOptions_Scores");
-	//AddPage(new CCrosshairSubOptions(this), "#ZP_AdvOptions_Cross");
+	AddPage(new CCrosshairSubOptions(this), "#ZP_AdvOptions_Cross");
 	//AddPage(new CModelSubOptions(this), "#ZP_AdvOptions_Models");
 	AddPage(new CAboutSubOptions(this), "#ZP_AdvOptions_About");
 

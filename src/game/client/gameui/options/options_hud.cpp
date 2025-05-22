@@ -30,12 +30,6 @@ CHudSubOptions::CHudSubOptions(vgui2::Panel *parent)
 	m_pCenterIdCvar = new CCvarCheckButton(this, "CenterIdCvar", "#ZP_AdvOptions_HUD_CenterId", "hud_centerid");
 	m_pRainbowCvar = new CCvarCheckButton(this, "RainbowCvar", "#ZP_AdvOptions_HUD_Rainbow", "hud_rainbow");
 
-	m_pSpeedCheckbox = new CCvarCheckButton(this, "SpeedCheckbox", "#ZP_AdvOptions_HUD_Speed", "hud_speedometer");
-	m_pSpeedCrossCheckbox = new CCvarCheckButton(this, "SpeedCrossCheckbox", "#ZP_AdvOptions_HUD_SpeedCross", "hud_speedometer_below_cross");
-
-	m_pJumpSpeedCheckbox = new CCvarCheckButton(this, "JumpSpeedCheckbox", "#ZP_AdvOptions_HUD_JumpSpeed", "hud_jumpspeed");
-	m_pJumpSpeedCrossCheckbox = new CCvarCheckButton(this, "JumpSpeedCrossCheckbox", "#ZP_AdvOptions_HUD_JumpSpeedCross", "hud_jumpspeed_below_cross");
-
 	m_pDeathnoticeVGui = new CCvarCheckButton(this, "DeathnoticeCheckbox", "#ZP_AdvOptions_HUD_Deathnotice", "hud_deathnotice_vgui");
 
 	m_pTimerBox = new CCVarComboBox(this, "TimerBox", "hud_timer");
@@ -83,10 +77,6 @@ void CHudSubOptions::OnResetData()
 	m_pWeaponSpriteCheckbox->ResetData();
 	m_pCenterIdCvar->ResetData();
 	m_pRainbowCvar->ResetData();
-	m_pSpeedCheckbox->ResetData();
-	m_pSpeedCrossCheckbox->ResetData();
-	m_pJumpSpeedCheckbox->ResetData();
-	m_pJumpSpeedCrossCheckbox->ResetData();
 
 	if (m_pDeathnoticeVGui->IsEnabled())
 		m_pDeathnoticeVGui->ResetData();
@@ -108,10 +98,6 @@ void CHudSubOptions::OnApplyChanges()
 	m_pWeaponSpriteCheckbox->ApplyChanges();
 	m_pCenterIdCvar->ApplyChanges();
 	m_pRainbowCvar->ApplyChanges();
-	m_pSpeedCheckbox->ApplyChanges();
-	m_pSpeedCrossCheckbox->ApplyChanges();
-	m_pJumpSpeedCheckbox->ApplyChanges();
-	m_pJumpSpeedCrossCheckbox->ApplyChanges();
 
 	if (m_pDeathnoticeVGui->IsEnabled())
 		m_pDeathnoticeVGui->ApplyChanges();
