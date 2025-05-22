@@ -32,6 +32,7 @@ HistoryResource gHR;
 #define AMMO_PICKUP_GAP         (gHR.iHistoryGap + 5)
 #define AMMO_PICKUP_PICK_HEIGHT (32 + (gHR.iHistoryGap * 2))
 #define AMMO_PICKUP_HEIGHT_MAX  (ScreenHeight - 100)
+#define AMMO_HISTORY_YADJUST    200
 
 #define MAX_ITEM_NAME 32
 int HISTORY_DRAW_TIME = 5;
@@ -138,7 +139,7 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 				ScaleColors(r, g, b, a);
 
 				// Draw the pic
-				int ypos = ScreenHeight - (AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
+				int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
 				int xpos = ScreenWidth - rcPic.GetWidth() - SPR_RES_SCALED(4);
 				if (spr && *spr) // weapon isn't loaded yet so just don't draw the pic
 				{ // the dll has to make sure it has sent info the weapons you need
@@ -170,7 +171,7 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 
 				ScaleColors(r, g, b, a);
 
-				int ypos = ScreenHeight - (AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
+				int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
 				int xpos = ScreenWidth - weap->rcInactive.GetWidth() - weaponMarginRight;
 				SPR_Set(weap->hInactive, r, g, b);
 				SPR_DrawAdditive(0, xpos, ypos, &weap->rcInactive);
@@ -191,7 +192,7 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 				gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
 				ScaleColors(r, g, b, a);
 
-				int ypos = ScreenHeight - (AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
+				int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
 				int xpos = ScreenWidth - rect.GetWidth() / 2 - itemMarginRight;
 
 				SPR_Set(gHUD.GetSprite(rgAmmoHistory[i].iId), r, g, b);

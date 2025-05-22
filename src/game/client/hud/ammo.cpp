@@ -49,6 +49,9 @@ int g_ActiveAmmoIndex = 0;
 
 int g_weaponselect = 0;
 
+#define SET_WEAPON_SELECTION_XPOS 180
+#define SET_WEAPON_SELECTION_YPOS 20
+
 void WeaponsResource::LoadAllWeaponSprites(void)
 {
 	for (int i = 0; i < MAX_WEAPONS; i++)
@@ -1082,8 +1085,8 @@ int CHudAmmo::DrawWList(float flTime)
 	else
 		iActiveSlot = gpActiveSel->iSlot;
 
-	x = 10; //!!!
-	y = 10; //!!!
+	x = SET_WEAPON_SELECTION_XPOS;
+	y = SET_WEAPON_SELECTION_YPOS;
 
 	// Ensure that there are available choices in the active slot
 	if (iActiveSlot > 0)
@@ -1128,12 +1131,12 @@ int CHudAmmo::DrawWList(float flTime)
 		x += iWidth + 5;
 	}
 
-	x = 10;
+	x = SET_WEAPON_SELECTION_XPOS;
 
 	// Draw all of the buckets
 	for (i = 0; i <= m_iMaxSlot; i++)
 	{
-		y = giBucketHeight + 10;
+		y = giBucketHeight + SET_WEAPON_SELECTION_YPOS;
 
 		// If this is the active slot, draw the bigger pictures,
 		// otherwise just draw boxes
