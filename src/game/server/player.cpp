@@ -5178,7 +5178,7 @@ int CBasePlayer::AmmoIndexToDropArray( int ammoindex )
 		// 556ar
 	    case 3: return 2;
 		// 357
-	    case 5: return 3;
+	    case 4: return 3;
 	}
 	return 0;
 }
@@ -5194,7 +5194,7 @@ int CBasePlayer::DefaultAmmoToDrop(int ammoindex)
 		// 556ar
 	    case 3: return AMMO_AR556CLIP_GIVE;
 		// 357
-	    case 5: return AMMO_357BOX_GIVE;
+	    case 4: return AMMO_357BOX_GIVE;
 	}
 	return 0;
 }
@@ -5210,7 +5210,7 @@ const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)
 		// 556ar
 	    case 3: return "ammo_556AR";
 		// 357
-	    case 5: return "ammo_357";
+	    case 4: return "ammo_357";
 	}
 	return "ammo_9mmclip";
 }

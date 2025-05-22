@@ -224,7 +224,7 @@ int CHudAmmoBank::AmmoDropToAmmoIndex( int index )
 		// 556ar
 	    case 2: return 3;
 		// 357
-	    case 3: return 5;
+	    case 3: return 4;
 	}
 	return 0;
 }
