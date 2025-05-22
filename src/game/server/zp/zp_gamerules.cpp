@@ -303,6 +303,9 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 		// Zombie arms!
 		// That's all that the zombies get!
 		pPlayer->GiveNamedItem( "weapon_swipe" );
+
+		// Zombies can't choose weapons, they only got their arms.
+		pPlayer->m_iHideHUD |= HIDEHUD_WEAPONS;
 	}
 
 	FireTargets("game_playerspawn", pPlayer, pPlayer, USE_TOGGLE, 0);

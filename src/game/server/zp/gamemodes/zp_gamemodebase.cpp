@@ -157,6 +157,9 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 			if ( iTeam == ZP::TEAM_SURVIVIOR )
 				GiveWeapons( plr );
 			plr->m_iHideHUD = 0;
+			// Zombies can't choose weapons, they only got their arms.
+			if ( iTeam == ZP::TEAM_ZOMBIE )
+				plr->m_iHideHUD |= HIDEHUD_WEAPONS;
 		}
 	}
 }
