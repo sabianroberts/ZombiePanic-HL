@@ -249,13 +249,16 @@ int CSwipe::Swing(int fFirst)
 			}
 
 			// also play crowbar strike
-			switch (RANDOM_LONG(0, 1))
+			switch (RANDOM_LONG(0, 2))
 			{
 			case 0:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_hit1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike1.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			case 1:
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_hit2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike2.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
+				break;
+			case 2:
+				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/claw_strike3.wav", fvolbar, ATTN_NORM, 0, 98 + RANDOM_LONG(0, 3));
 				break;
 			}
 
