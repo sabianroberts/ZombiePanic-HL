@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -69,12 +70,17 @@ int CSwipe::GetItemInfo(ItemInfo *p)
 
 int CSwipe::AddToPlayer(CBasePlayer *pPlayer)
 {
-	if ( pPlayer->pev->team != ZP::TEAM_ZOMBIE ) return FALSE;
+	if ( pPlayer->pev->team != ZP::TEAM_ZOMBIE )
+	{
+		UTIL_Remove( this );
+		return FALSE;
+	}
 	if (CBasePlayerWeapon::AddToPlayer(pPlayer))
 	{
 		CBasePlayerWeapon::SendWeaponPickup(pPlayer);
 		return TRUE;
 	}
+	UTIL_Remove( this );
 	return FALSE;
 }
 

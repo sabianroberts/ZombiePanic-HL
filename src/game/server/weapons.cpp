@@ -692,6 +692,8 @@ void CBasePlayerItem::DestroyItem(void)
 
 int CBasePlayerItem::AddToPlayer(CBasePlayer *pPlayer)
 {
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return FALSE;
+
 	m_pPlayer = pPlayer;
 
 	return TRUE;
@@ -745,6 +747,8 @@ int CBasePlayerWeapon::AddDuplicate(CBasePlayerItem *pOriginal)
 
 int CBasePlayerWeapon::AddToPlayer(CBasePlayer *pPlayer)
 {
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return FALSE;
+
 	int bResult = CBasePlayerItem::AddToPlayer(pPlayer);
 
 	pPlayer->pev->weapons |= (1 << m_iId);
@@ -1087,6 +1091,8 @@ void CBasePlayerAmmo::Materialize(void)
 
 void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 {
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return;
+
 	if (!pOther->IsPlayer())
 		return;
 
@@ -1095,16 +1101,9 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 
 	if (AddAmmo(pOther))
 	{
-		if (g_pGameRules->AmmoShouldRespawn(this) == GR_AMMO_RESPAWN_YES)
-		{
-			Respawn();
-		}
-		else
-		{
-			SetTouch(NULL);
-			SetThink(&CBasePlayerAmmo::SUB_Remove);
-			pev->nextthink = gpGlobals->time + .1;
-		}
+		SetTouch(NULL);
+		SetThink(&CBasePlayerAmmo::SUB_Remove);
+		pev->nextthink = gpGlobals->time + .1;
 	}
 	else if (gEvilImpulse101)
 	{
@@ -1270,6 +1269,8 @@ void CWeaponBox::Kill(void)
 //=========================================================
 void CWeaponBox::Touch(CBaseEntity *pOther)
 {
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return;
+
 	if (!(pev->flags & FL_ONGROUND))
 	{
 		return;

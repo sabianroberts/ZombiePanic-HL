@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -25,6 +26,7 @@ void ZPGameMode_Survival::OnHUDInit(CBasePlayer *pPlayer)
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());
 	MESSAGE_END();
+	BaseClass::OnHUDInit(pPlayer);
 }
 
 void ZPGameMode_Survival::OnGameModeThink()

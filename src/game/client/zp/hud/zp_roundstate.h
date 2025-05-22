@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #ifndef HUD_ROUNDSTATE_H
 #define HUD_ROUNDSTATE_H
 #include <vgui_controls/Panel.h>

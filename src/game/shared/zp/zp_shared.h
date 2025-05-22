@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #ifndef SHARED_ZOMBIEPANIC
 #define SHARED_ZOMBIEPANIC
 #pragma once

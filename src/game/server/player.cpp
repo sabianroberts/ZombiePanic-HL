@@ -35,6 +35,7 @@
 #include "gamerules.h"
 #include "game.h"
 #include "hltv.h"
+#include "zp/gamemodes/zp_gamemodebase.h"
 #include "zp/zp_shared.h"
 
 // #define DUCKFIX
@@ -55,9 +56,6 @@ extern bool IsBustingGame();
 
 // the world node graph
 extern CGraph WorldGraph;
-
-ConVar mp_weaponbox_time("mp_weaponbox_time", "120", FCVAR_SERVER, "Dead player's weapons will stay for this many seconds, 0 disables them, -1 forever");
-ConVar mp_weapondrop_time("mp_weapondrop_time", "0", FCVAR_SERVER, "Manually dropped weapons will stay for this many seconds, 0 forever");
 
 #define TRAIN_ACTIVE  0x80
 #define TRAIN_NEW     0xc0
@@ -406,22 +404,36 @@ void CBasePlayer ::DeathSound(void)
 	}
 	*/
 
-	// temporarily using pain sounds for death sounds
-	switch (RANDOM_LONG(1, 5))
+	if ( pev->team == ZP::TEAM_ZOMBIE )
 	{
-	case 1:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain5.wav", 1, ATTN_NORM);
-		break;
-	case 2:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
-		break;
-	case 3:
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
-		break;
+		switch (RANDOM_LONG(1, 3))
+		{
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/zombiedeath1.wav", 1, ATTN_NORM);
+			break;
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/zombiedeath2.wav", 1, ATTN_NORM);
+			break;
+		case 3:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/zombiedeath3.wav", 1, ATTN_NORM);
+			break;
+		}
 	}
-
-	// play one of the suit death alarms
-	EMIT_GROUPNAME_SUIT(ENT(pev), "HEV_DEAD");
+	else
+	{
+		switch (RANDOM_LONG(1, 3))
+		{
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/deathscream1.wav", 1, ATTN_NORM);
+			break;
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/deathscream2.wav", 1, ATTN_NORM);
+			break;
+		case 3:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/deathscream3.wav", 1, ATTN_NORM);
+			break;
+		}
+	}
 }
 
 // override takehealth
@@ -732,6 +744,12 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 //=========================================================
 void CBasePlayer::PackDeadPlayerItems(void)
 {
+	if ( pev->team != ZP::TEAM_SURVIVIOR )
+	{
+		RemoveAllItems( TRUE );
+		return;
+	}
+
 	int iWeaponRules;
 	int iAmmoRules;
 	int i;
@@ -747,12 +765,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	iWeaponRules = g_pGameRules->DeadPlayerWeapons(this);
 	iAmmoRules = g_pGameRules->DeadPlayerAmmo(this);
 
-	if (mp_weaponbox_time.GetFloat() == 0 || (iWeaponRules == GR_PLR_DROP_GUN_NO && iAmmoRules == GR_PLR_DROP_AMMO_NO))
-	{
-		// nothing to pack. Remove the weapons and return. Don't call create on the box!
-		RemoveAllItems(TRUE);
-		return;
-	}
+	bool bInPanic = IsInPanic();
 
 	// go through all of the weapons and make a list of the ones to pack
 	for (i = 0; i < MAX_ITEM_TYPES && iPW < MAX_WEAPONS; i++)
@@ -761,6 +774,9 @@ void CBasePlayer::PackDeadPlayerItems(void)
 		{
 			// there's a weapon here. Should I pack it?
 			CBasePlayerItem *pPlayerItem = m_rgpPlayerItems[i];
+
+			// Check if this is the crowbar, if so, do not pack it!
+			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) ) continue;
 
 			while (pPlayerItem && iPW < MAX_WEAPONS)
 			{
@@ -839,16 +855,12 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	pWeaponBox->pev->angles.x = 0; // don't let weaponbox tilt.
 	pWeaponBox->pev->angles.z = 0;
 
-	if (mp_weaponbox_time.GetFloat() > 0)
-	{
-		pWeaponBox->SetThink(&CWeaponBox::Kill);
-		pWeaponBox->pev->nextthink = gpGlobals->time + mp_weaponbox_time.GetFloat();
-	}
-	else
-	{
-		// Stays forever
-		pWeaponBox->pev->nextthink = 0;
-	}
+	// Stays forever
+	pWeaponBox->pev->nextthink = 0;
+
+	// We just shat ourselves, refuse any pickup for this item for X amount of seconds
+	if ( bInPanic )
+		pWeaponBox->DisallowPickupFor( 2.5f );
 
 	// back these two lists up to their first elements
 	iPA = 0;
@@ -886,6 +898,16 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	pWeaponBox->pev->velocity = pev->velocity * 1.2; // weaponbox has player's velocity, then some.
 
 	RemoveAllItems(TRUE); // now strip off everything that wasn't handled by the code above.
+
+	// If we are in a panic state, give our crowbar back!
+	if ( bInPanic )
+	{
+		// Give back our "suit"
+		pev->weapons |= (1 << WEAPON_SUIT);
+		// Reset our HUD back to default
+		m_iHideHUD = 0;
+		GiveNamedItem( "weapon_crowbar" );
+	}
 }
 
 void CBasePlayer::RemoveAllItems(BOOL removeSuit)
@@ -1030,6 +1052,9 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
+
+	if ( pev->team == ZP::TEAM_SURVIVIOR )
+		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
 }
 
 // Set the activity based on an event or current state
@@ -1212,6 +1237,7 @@ all the ammo we have into the ammo vars.
 void CBasePlayer::TabulateAmmo()
 {
 	ammo_9mm = AmmoInventory(GetAmmoIndex("9mm"));
+	ammo_556ar = AmmoInventory(GetAmmoIndex("556ar"));
 	ammo_357 = AmmoInventory(GetAmmoIndex("357"));
 	ammo_argrens = AmmoInventory(GetAmmoIndex("ARgrenades"));
 	ammo_bolts = AmmoInventory(GetAmmoIndex("bolts"));
@@ -1642,7 +1668,7 @@ void CBasePlayer::SendScoreInfo()
 	WRITE_SHORT(pev->frags); // Score
 	WRITE_SHORT(m_iDeaths); // Deaths
 	WRITE_SHORT(0); // TFC class
-	WRITE_SHORT(g_pGameRules->GetTeamIndex(TeamID()) + 1); // Team index
+	WRITE_SHORT(g_pGameRules->GetTeamIndex(TeamID())); // Team index
 	MESSAGE_END();
 }
 
@@ -1998,6 +2024,16 @@ void CBasePlayer::UpdateStatusBar()
 			m_izSBarState[i] = newSBarState[i];
 		}
 	}
+}
+
+bool CBasePlayer::IsInPanic()
+{
+	return ( m_flPanicTime - gpGlobals->time > 0 ) ? true : false;
+}
+
+bool CBasePlayer::CanPanicSinceLastTime()
+{
+	return ( m_flLastPanic - gpGlobals->time <= 0 ) ? true : false;
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
@@ -2784,6 +2820,37 @@ void CBasePlayer::PostThink()
 	// do weapon stuff
 	ItemPostFrame();
 
+	// If the player is falling to their death (survivor only) cause them to scream in agony!!
+	// And make sure they are not on the ground
+	if ( !(FBitSet(pev->flags, FL_ONGROUND)) &&
+		(pev->health > 0) &&
+		m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD &&
+		!m_bFallingToMyDeath &&
+		pev->team == ZP::TEAM_SURVIVIOR
+		)
+	{
+		float flFallDamage = m_flFallVelocity * DAMAGE_FOR_FALL_SPEED;
+		if ( flFallDamage > pev->health )
+		{
+			m_bFallingToMyDeath = true;
+			switch (RANDOM_LONG(1, 2))
+			{
+				case 1:
+					EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/fallscream1.wav", 1, ATTN_NORM);
+					break;
+				case 2:
+					EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/fallscream2.wav", 1, ATTN_NORM);
+					break;
+			}
+		}
+	}
+
+	if ( pev->health > 0 && pev->team == ZP::TEAM_ZOMBIE && ( m_flLastZombieMoan - gpGlobals->time <= 0 ) )
+	{
+		m_flLastZombieMoan = gpGlobals->time + 8.5f;
+		EMIT_SOUND( ENT(pev), CHAN_VOICE, UTIL_VarArgs( "player/zomambient%i.wav", RANDOM_LONG(1, 15) ), 1, ATTN_NORM );
+	}
+
 	// check to see if player landed hard enough to make a sound
 	// falling farther than half of the maximum safe distance, but not as far a max safe distance will
 	// play a bootscrape sound, and no damage will be inflicted. Fallling a distance shorter than half
@@ -3319,6 +3386,16 @@ void CBasePlayer::Spawn(void)
 	m_flNextChatTime = 0; // Not using gpGlobals->time - see Host_Say
 	m_flNextFullupdate[0] = gpGlobals->time;
 	m_flNextFullupdate[1] = gpGlobals->time;
+
+	// Just to make sure we can't spam the crap
+	m_flLastWeaponDrop = gpGlobals->time;
+	m_flLastAmmoDrop = gpGlobals->time;
+	m_flLastPanic = gpGlobals->time;
+	m_flPanicTime = gpGlobals->time;
+	m_flLastUnusedDrop = gpGlobals->time;
+	m_flLastZombieMoan = gpGlobals->time + RANDOM_FLOAT( 6, 10 );
+	m_bFallingToMyDeath = false;
+	m_iAmmoTypeToDrop = 0;
 
 	g_pGameRules->PlayerSpawn(this);
 }
@@ -4107,7 +4184,6 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 	if ( bCanPlayerPickup )
 	{
 		g_pGameRules->PlayerGotWeapon(this, pItem);
-		pItem->CheckRespawn();
 
 		pItem->m_pNext = m_rgpPlayerItems[pItem->iItemSlot()];
 		m_rgpPlayerItems[pItem->iItemSlot()] = pItem;
@@ -5098,17 +5174,200 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 
 void CBasePlayer::DropActiveWeapon()
 {
-	// TODO: Drop active weapon
+	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	if ( ( m_flLastWeaponDrop - gpGlobals->time > 0 ) ) return;
+	if ( !m_pActiveItem ) return;
+
+	// Check if this is the crowbar, if so, do not drop it!
+	if ( FStrEq( STRING( m_pActiveItem->pev->classname ), "weapon_crowbar" ) ) return;
+
+	CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_pActiveItem;
+	g_pGameRules->GetNextBestWeapon( this, pWeapon );
+
+	// Remove from the player
+	RemovePlayerItem( pWeapon );
+	int nClipWeHad1 = pWeapon->m_iClip;
+	int nDefAmmo = pWeapon->m_iDefaultAmmo;
+	string_t weaponname = pWeapon->pev->classname;
+	UTIL_Remove( pWeapon );
+
+	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + gpGlobals->v_forward * 10, pev->angles, nullptr);
+	if ( !pNewWeapon ) return;
+
+	pNewWeapon->DisallowPickupFor( 2.5f );
+	pNewWeapon->m_iDefaultAmmo = nDefAmmo;
+	pNewWeapon->m_iClip = nClipWeHad1;
+	pNewWeapon->pev->angles.x = 0;
+	pNewWeapon->pev->angles.z = 0;
+	pNewWeapon->pev->velocity = gpGlobals->v_forward * 300 + gpGlobals->v_forward * 100;
+}
+
+int CBasePlayer::AmmoIndexToDrop( int ammoindex )
+{
+	int idx = ammoindex;
+	if ( ammoindex == -1 )
+		idx = m_iAmmoTypeToDrop;
+	switch ( idx )
+	{
+		case 0: return GetAmmoIndex("buckshot");
+		case 1: return GetAmmoIndex("9mm");
+		case 2: return GetAmmoIndex("556ar");
+		case 3: return GetAmmoIndex("357");
+	}
+	return 0;
+}
+
+int CBasePlayer::AmmoIndexToDropArray( int ammoindex )
+{
+	switch ( ammoindex )
+	{
+		// Buckshot
+		case 1: return 0;
+		// 9mm
+	    case 2: return 1;
+		// 556ar
+	    case 3: return 2;
+		// 357
+	    case 5: return 3;
+	}
+	return 0;
+}
+
+int CBasePlayer::DefaultAmmoToDrop(int ammoindex)
+{
+	switch ( ammoindex )
+	{
+		// Buckshot
+		case 1: return AMMO_BUCKSHOTBOX_GIVE;
+		// 9mm
+	    case 2: return AMMO_GLOCKCLIP_GIVE;
+		// 556ar
+	    case 3: return AMMO_AR556CLIP_GIVE;
+		// 357
+	    case 5: return AMMO_357BOX_GIVE;
+	}
+	return 0;
+}
+
+const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)
+{
+	switch ( ammoindex )
+	{
+		// Buckshot
+		case 1: return "ammo_buckshot";
+		// 9mm
+	    case 2: return "ammo_9mmclip";
+		// 556ar
+	    case 3: return "ammo_556AR";
+		// 357
+	    case 5: return "ammo_357";
+	}
+	return "ammo_9mmclip";
 }
 
 void CBasePlayer::DropSelectedAmmo()
 {
-	// TODO: Drop selected ammo
+	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	if ( ( m_flLastAmmoDrop - gpGlobals->time > 0 ) ) return;
+	int iAmmoType = AmmoIndexToDrop();
+	int amount = m_rgAmmo[ iAmmoType ];
+	int ammoDrop = DefaultAmmoToDrop( iAmmoType );
+	if ( amount < ammoDrop )
+		ammoDrop = amount;
+	if ( ammoDrop == 0 ) return;
+	if ( !DropAmmo( iAmmoType, ammoDrop ) ) return;
+	m_rgAmmo[ iAmmoType ] -= ammoDrop;
+}
+
+bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel )
+{
+	CBasePlayerAmmo *pAmmoItem = (CBasePlayerAmmo *)CBaseEntity::Create((char *)szAmmoToDropClassnames(ammoindex), Dir, pev->angles, nullptr);
+	if ( !pAmmoItem ) return false;
+
+	pAmmoItem->DisallowPickupFor( 2.5f );
+	pAmmoItem->m_iDroppedOverride = amount;
+	pAmmoItem->pev->angles.x = 0;
+	pAmmoItem->pev->angles.z = 0;
+	if ( pukevel )
+		pAmmoItem->pev->velocity = gpGlobals->v_forward * 300 + RandomVector(-200, 200);
+	else
+		pAmmoItem->pev->velocity = gpGlobals->v_forward * 300;
+	return true;
+}
+
+bool CBasePlayer::DropAmmo( int ammoindex, int amount )
+{
+	return DropAmmo( ammoindex, amount, pev->origin + gpGlobals->v_forward * 10, false );
+}
+
+void CBasePlayer::ChangeAmmoTypeToDrop()
+{
+	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	int iAmmoType = m_iAmmoTypeToDrop;
+	iAmmoType++;
+	if ( iAmmoType > 3 ) iAmmoType = 0;
+	m_iAmmoTypeToDrop = iAmmoType;
+	// TODO: Tell the client that we changed ammotype
+}
+
+void CBasePlayer::DropUnuseableAmmo()
+{
+	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	if ( ( m_flLastUnusedDrop - gpGlobals->time > 0 ) ) return;
+
+	// Goldsrc does not use a propper Ammotable array.
+	// The ammo gets registered dynamically, which means
+	// we have to make this hacky shit.
+	// TODO: Re-write the entire ammo table to use our 4 ammo types (+ the AR grenades if used? if not, ignore it)
+	int iAmmoThatShouldBeDropped[4];
+	iAmmoThatShouldBeDropped[0] = AmmoIndexToDrop(0);
+	iAmmoThatShouldBeDropped[1] = AmmoIndexToDrop(1);
+	iAmmoThatShouldBeDropped[2] = AmmoIndexToDrop(2);
+	iAmmoThatShouldBeDropped[3] = AmmoIndexToDrop(3);
+
+	for ( int i = 0; i < MAX_ITEM_TYPES; i++ )
+	{
+		CBasePlayerItem *pWeapon = m_rgpPlayerItems[i];
+		while ( pWeapon )
+		{
+			int iAmmoIndex = GetAmmoIndex( pWeapon->pszAmmo1() );
+			if ( iAmmoIndex != -1 )
+				iAmmoThatShouldBeDropped[ AmmoIndexToDropArray( iAmmoIndex ) ] = -1;
+			pWeapon = pWeapon->m_pNext;
+		}
+	}
+
+	for ( int i = 0; i < 4; i++ )
+	{
+		int iAmmoIndex = iAmmoThatShouldBeDropped[i];
+		if ( iAmmoIndex == -1 ) continue;
+		if ( m_rgAmmo[ iAmmoIndex ] == 0 ) continue;
+		DropAmmo( iAmmoIndex, m_rgAmmo[ iAmmoIndex ], pev->origin + gpGlobals->v_forward, true );
+		m_rgAmmo[ iAmmoIndex ] = 0;
+	}
 }
 
 void CBasePlayer::DoPanic()
 {
-	// TODO: Player goes "oh no, am panic"
+	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	if ( IsInPanic() ) return;
+	if ( !CanPanicSinceLastTime() ) return;
+
+	m_flLastPanic = gpGlobals->time + 30;
+	m_flPanicTime = gpGlobals->time + 3.5;
+
+	switch (RANDOM_LONG(0, 1))
+	{
+	case 0:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/panicscream1.wav", 1, ATTN_NORM);
+		break;
+	case 1:
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/panicscream2.wav", 1, ATTN_NORM);
+		break;
+	}
+
+	// Drop everything in a backpack.
+	PackDeadPlayerItems();
 }
 
 //=========================================================

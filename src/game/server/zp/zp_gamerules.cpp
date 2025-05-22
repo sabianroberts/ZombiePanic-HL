@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -180,6 +181,27 @@ void CZombiePanicGameRules::ChangePlayerTeam(CBasePlayer *pPlayer, const char *p
 	pPlayer->SendScoreInfo();
 }
 
+float CZombiePanicGameRules::FlPlayerFallDamage(CBasePlayer *pPlayer)
+{
+	int iFallDamage = (int)falldamage.value;
+	switch ( iFallDamage )
+	{
+		// progressive
+		case 1:
+		{
+			pPlayer->m_flFallVelocity -= PLAYER_MAX_SAFE_FALL_SPEED;
+			float flRes = pPlayer->m_flFallVelocity * DAMAGE_FOR_FALL_SPEED;
+		    if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+			    flRes = clamp( flRes, 0, 15 );
+		    return flRes;
+		}
+		// no damage
+		case 2: return 0;
+		// fixed
+		default: return 10;
+	}
+}
+
 void CZombiePanicGameRules::ResetVolunteers()
 {
 	if ( !m_bHasPickedVolunteer ) return;
@@ -192,6 +214,10 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 {
 	if ( m_bHasPickedVolunteer ) return;
 	m_bHasPickedVolunteer = true;
+	if ( m_pGameMode->IsTestModeActive() ) return;
+	int iMoreRequired = 0;
+
+add_one_more_zombie:
 
 	// We have no volunteers, so lets pick some random survivors
 	if ( m_Volunteers.size() == 0 )
@@ -206,18 +232,42 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 
 	int iVolunteers = m_Volunteers.size() - 1;
 	int iPlayerIndex = 0;
-	if ( iVolunteers == 0 )
-		iPlayerIndex = m_Volunteers[0];
-	else
-		iPlayerIndex = m_Volunteers[RANDOM_LONG( 0, iVolunteers )];
+	int iVolunteerIndex = 0;
+	if ( iVolunteers > 0 )
+		iVolunteerIndex = RANDOM_LONG( 0, iVolunteers );
+	iPlayerIndex = m_Volunteers[iVolunteerIndex];
 
 	if ( iPlayerIndex == 0 ) return;
+	m_Volunteers.erase( m_Volunteers.begin() + iVolunteerIndex );
 	CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( iPlayerIndex );
 	if ( plr )
 	{
 		ChangePlayerTeam( plr, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
 		plr->Spawn();
+		iMoreRequired--;
 	}
+
+	// Count the survivors. If we have 8 survivors, add 1 more.
+	// and if we got more than 15, make sure we always have 3 zombies.
+	if ( iMoreRequired == -1 )
+	{
+		int iSurvivors = 0;
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBaseEntity *plr = UTIL_PlayerByIndex(i);
+			if ( plr && plr->IsAlive() && plr->pev->team == ZP::TEAM_SURVIVIOR )
+				iSurvivors++;
+		}
+
+		if ( iSurvivors > 15 )
+			iMoreRequired = 2;
+		else if ( iSurvivors >= 8 )
+			iMoreRequired = 1;
+	}
+
+	// If it's higher than 0, then add the next one.
+	if ( iMoreRequired > 0 )
+		goto add_one_more_zombie;
 }
 
 void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
@@ -271,7 +321,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			const char *pVolunteer = CMD_ARGV(1);
 			if ( pVolunteer && pVolunteer[0] )
 			{
-				if (FStrEq(pcmd, "volunteer"))
+				if (FStrEq(pVolunteer, "volunteer"))
 					m_Volunteers.push_back( pPlayer->entindex() );
 			}
 			bool bLateJoin = ( m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundHasBegun ) ? true : false;
@@ -285,6 +335,64 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 				pPlayer->m_iHideHUD = HIDEHUD_WEAPONS | HIDEHUD_HEALTH | HIDEHUD_FLASHLIGHT;
 		}
 		return TRUE;
+	}
+	else if (FStrEq(pcmd, "dropcurrentweapon"))
+	{
+		if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+			pPlayer->DropActiveWeapon();
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "dropammo"))
+	{
+		if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+			pPlayer->DropSelectedAmmo();
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "changeammotype"))
+	{
+		if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+			pPlayer->ChangeAmmoTypeToDrop();
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "dua"))
+	{
+		if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+			pPlayer->DropUnuseableAmmo();
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "panic"))
+	{
+		if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+			pPlayer->DoPanic();
+		return TRUE;
+	}
+
+	if ( m_pGameMode->IsTestModeActive() )
+	{
+		if (FStrEq(pcmd, "dev_spec"))
+		{
+			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
+			pPlayer->StartObserver();
+			return TRUE;
+		}
+		else if (FStrEq(pcmd, "dev_zombie"))
+		{
+			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE);
+			if ( pPlayer->IsObserver() )
+				pPlayer->StopObserver();
+			else
+				pPlayer->StopWelcomeCam();
+			return TRUE;
+		}
+		else if (FStrEq(pcmd, "dev_human"))
+		{
+			ChangePlayerTeam(pPlayer, ZP::Teams[ZP::TEAM_SURVIVIOR], FALSE, FALSE);
+			if ( pPlayer->IsObserver() )
+				pPlayer->StopObserver();
+			else
+				pPlayer->StopWelcomeCam();
+			return TRUE;
+		}
 	}
 	return BaseClass::ClientCommand(pPlayer, pcmd);
 }
@@ -356,8 +464,6 @@ void CZombiePanicGameRules ::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKill
 	{
 		m_pGameMode->OnPlayerDied( pVictim, pKiller, pInflictor );
 		BaseClass::PlayerKilled(pVictim, pKiller, pInflictor);
-		if ( pVictim->pev->team == ZP::TEAM_SURVIVIOR )
-			ChangePlayerTeam( pVictim, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
 	}
 }
 

@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -29,6 +30,7 @@ void CTriggerEndRound::OnEndRoundTouch(CBaseEntity *pOther)
 	if ( m_bActivated ) return;
 	if ( !pOther->IsPlayer() ) return;
 	if ( !pOther->IsAlive() ) return;
+	if ( pOther->pev->team != ZP::TEAM_SURVIVIOR ) return;
 	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
 	if ( !pGameMode ) return;
 	m_bActivated = true;

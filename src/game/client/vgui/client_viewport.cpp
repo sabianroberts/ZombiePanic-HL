@@ -14,6 +14,7 @@
 #include "hud/text_message.h"
 #include "hud/spectator.h"
 #include "cl_util.h"
+#include "zp/zp_shared.h"
 
 #include "score_panel.h"
 #include "client_motd.h"
@@ -621,7 +622,7 @@ void CClientViewport::MsgFunc_ScoreInfo(const char *pszName, int iSize, void *pb
 		info->m_ExtraInfo.frags = frags;
 		info->m_ExtraInfo.deaths = deaths;
 		info->m_ExtraInfo.playerclass = playerclass;
-		info->m_ExtraInfo.teamnumber = clamp(teamnumber, 0, MAX_TEAMS);
+		info->m_ExtraInfo.teamnumber = clamp(teamnumber, ZP::TEAM_NONE, ZP::MAX_TEAM);
 
 		UpdateOnPlayerInfo(cl);
 	}

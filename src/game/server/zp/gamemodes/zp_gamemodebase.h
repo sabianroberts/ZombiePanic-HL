@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #ifndef SERVER_GAMEMODE_BASE
 #define SERVER_GAMEMODE_BASE
 #pragma once
@@ -7,8 +9,6 @@
 
 extern int gmsgZombieLives;
 extern int gmsgRoundState;
-
-#define REQUIRED_PLAYERS_TO_START_ROUND 2
 
 class IGameModeBase
 {
@@ -21,6 +21,7 @@ public:
 		State_SurvivorWin
 	};
 
+	virtual bool IsTestModeActive() const = 0;
 	virtual void OnHUDInit(CBasePlayer *pPlayer) = 0;
 	virtual void GetZombieLifeData( int &current, int &max ) { current = max = 0; };
 	virtual void OnZombieLifeUpdated( bool bIncreased ) { };
@@ -41,6 +42,8 @@ private:
 class CBaseGameMode : public IGameModeBase
 {
 public:
+	virtual bool IsTestModeActive() const;
+	virtual void OnHUDInit(CBasePlayer *pPlayer);
 	virtual void OnGameModeThink();
 	virtual void GiveWeaponsOnRoundStart();
 	virtual void GiveWeapons(CBasePlayer *pPlayer);
@@ -49,14 +52,16 @@ public:
 
 protected:
 	float m_flRoundBeginsIn;
-	bool m_bTimeRanOut;
-	bool m_bAllSurvivorsDead;
+	bool m_bTimeRanOut = false;
+	bool m_bAllSurvivorsDead = false;
+	bool m_bHasPlayersConnected = false;
 };
 
 namespace ZP
 {
 	IGameModeBase *GetCurrentGameMode();
 	void SetCurrentGameMode( IGameModeBase *pGameMode );
+	ZP::RoundState GetCurrentRoundState();
 }
 
 #endif

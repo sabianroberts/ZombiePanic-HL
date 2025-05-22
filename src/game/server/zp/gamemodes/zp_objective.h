@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #ifndef SERVER_GAMEMODE_OBJECTIVE
 #define SERVER_GAMEMODE_OBJECTIVE
 #pragma once

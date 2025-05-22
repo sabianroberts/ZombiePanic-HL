@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -23,6 +24,7 @@ enum ar556ar_e
 };
 
 LINK_ENTITY_TO_CLASS(weapon_556ar, C556AR);
+LINK_ENTITY_TO_CLASS(weapon_9mmar, C556AR); // Only for old maps, DO NOT USE THIS.
 
 //=========================================================
 //=========================================================
@@ -33,6 +35,7 @@ int C556AR::SecondaryAmmoIndex(void)
 
 void C556AR::Spawn()
 {
+	pev->classname = MAKE_STRING( "weapon_556ar" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_556AR.mdl");
 	m_iId = WEAPON_556AR;
@@ -68,7 +71,6 @@ void C556AR::Precache(void)
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 
 	m_usHUD = PRECACHE_EVENT(1, "events/m16.sc");
-	m_usHUD2 = PRECACHE_EVENT(1, "events/m162.sc");
 }
 
 int C556AR::GetItemInfo(ItemInfo *p)
@@ -76,11 +78,11 @@ int C556AR::GetItemInfo(ItemInfo *p)
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "556ar";
 	p->iMaxAmmo1 = _556AR_MAX_CARRY;
-	p->pszAmmo2 = "ARgrenades";
-	p->iMaxAmmo2 = M203_GRENADE_MAX_CARRY;
+	p->pszAmmo2 = NULL;
+	p->iMaxAmmo2 = -1;
 	p->iMaxClip = AR556_MAX_CLIP;
 	p->iSlot = 2;
-	p->iPosition = 0;
+	p->iPosition = 1;
 	p->iFlags = 0;
 	p->iId = m_iId = WEAPON_556AR;
 	p->iWeight = AR556_WEIGHT;
@@ -170,61 +172,11 @@ void C556AR::PrimaryAttack()
 	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
 }
 
-void C556AR::SecondaryAttack(void)
-{
-	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
-	{
-		PlayEmptySound();
-		m_flNextPrimaryAttack = 0.15;
-		return;
-	}
-
-	if (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] == 0)
-	{
-		PlayEmptySound();
-		return;
-	}
-
-	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
-	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
-
-	m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
-	m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
-
-	m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
-
-	// player "shoot" animation
-	m_pPlayer->SetAnimation(PLAYER_ATTACK1);
-
-	UTIL_MakeVectors(m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle);
-
-	// we don't add in player velocity anymore.
-	CGrenade::ShootContact(m_pPlayer->pev,
-	    m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16,
-	    gpGlobals->v_forward * 800);
-
-	int flags;
-#if defined(CLIENT_WEAPONS)
-	flags = FEV_NOTHOST;
-#else
-	flags = 0;
-#endif
-
-	PLAYBACK_EVENT(flags, m_pPlayer->edict(), m_usHUD2);
-
-	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 1;
-	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1;
-	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5; // idle pretty soon after shooting.
-
-	if (!m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType])
-		// HEV suit - indicate out of ammo condition
-		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
-}
+void C556AR::SecondaryAttack(void) { }
 
 void C556AR::Reload(void)
 {
-	if (m_pPlayer->ammo_9mm <= 0)
+	if (m_pPlayer->ammo_556ar <= 0)
 		return;
 
 	DefaultReload(AR556_MAX_CLIP, AR556_RELOAD, 1.5);
@@ -264,6 +216,7 @@ class C556ARAmmoClip : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_556ARclip.mdl");
 		CBasePlayerAmmo::Spawn();
+		m_iAmmoToGive = AMMO_AR556CLIP_GIVE;
 	}
 	void Precache(void)
 	{
@@ -272,10 +225,10 @@ class C556ARAmmoClip : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo(CBaseEntity *pOther)
 	{
-		int bResult = (pOther->GiveAmmo(AMMO_AR556CLIP_GIVE, "556ar", _556AR_MAX_CARRY) != -1);
+		int bResult = (pOther->GiveAmmo(AmmoToGive(), "556ar", _556AR_MAX_CARRY) != -1);
 		if (bResult)
 		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/556clip1.wav", 1, ATTN_NORM);
 		}
 		return bResult;
 	}
@@ -289,6 +242,7 @@ class C556ARChainammo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_556box.mdl");
 		CBasePlayerAmmo::Spawn();
+		m_iAmmoToGive = AMMO_AR556BOX_GIVE;
 	}
 	void Precache(void)
 	{
@@ -297,10 +251,10 @@ class C556ARChainammo : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo(CBaseEntity *pOther)
 	{
-		int bResult = (pOther->GiveAmmo(AMMO_AR556BOX_GIVE, "556ar", _556AR_MAX_CARRY) != -1);
+		int bResult = (pOther->GiveAmmo(AmmoToGive(), "556ar", _556AR_MAX_CARRY) != -1);
 		if (bResult)
 		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/556clip1.wav", 1, ATTN_NORM);
 		}
 		return bResult;
 	}
@@ -314,19 +268,20 @@ class C556ARAmmoGrenade : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_ARgrenade.mdl");
 		CBasePlayerAmmo::Spawn();
+		m_iAmmoToGive = AMMO_M203BOX_GIVE;
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_ARgrenade.mdl");
-		PRECACHE_SOUND("items/9mmclip1.wav");
+		PRECACHE_SOUND("items/556clip1.wav");
 	}
 	BOOL AddAmmo(CBaseEntity *pOther)
 	{
-		int bResult = (pOther->GiveAmmo(AMMO_M203BOX_GIVE, "ARgrenades", M203_GRENADE_MAX_CARRY) != -1);
+		int bResult = (pOther->GiveAmmo(AmmoToGive(), "ARgrenades", M203_GRENADE_MAX_CARRY) != -1);
 
 		if (bResult)
 		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/556clip1.wav", 1, ATTN_NORM);
 		}
 		return bResult;
 	}

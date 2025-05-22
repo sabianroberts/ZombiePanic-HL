@@ -58,11 +58,13 @@ extern "C"
 	void EV_FireGlock2(struct event_args_s *args);
 	void EV_FireShotGunSingle(struct event_args_s *args);
 	void EV_FireShotGunDouble(struct event_args_s *args);
+	void EV_FireM16(struct event_args_s *args);
 	void EV_FireMP5(struct event_args_s *args);
 	void EV_FireMP52(struct event_args_s *args);
 	void EV_FirePython(struct event_args_s *args);
 	void EV_FireGauss(struct event_args_s *args);
 	void EV_SpinGauss(struct event_args_s *args);
+	void EV_Swipe(struct event_args_s *args);
 	void EV_Crowbar(struct event_args_s *args);
 	void EV_FireCrossbow(struct event_args_s *args);
 	void EV_FireCrossbow2(struct event_args_s *args);
@@ -701,9 +703,9 @@ void EV_FireShotGunSingle(event_args_t *args)
 //======================
 
 //======================
-//	    MP5 START
+//	    M16 START
 //======================
-void EV_FireMP5(event_args_t *args)
+void EV_FireM16(event_args_t *args)
 {
 	int idx;
 	Vector origin;
@@ -746,6 +748,66 @@ void EV_FireMP5(event_args_t *args)
 		break;
 	case 1:
 		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/hks2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+		break;
+	}
+
+	EV_GetGunPosition(args, vecSrc, origin);
+	VectorCopy(forward, vecAiming);
+
+	// Array overflow fix: Use increased tracerCount array and wrap indexes in case if amount of entities is set very high, with hope that they will not overlap after wrap.
+	// If they do, well ... it will not hurt much.
+	EV_HLDM_FireBullets(idx, forward, right, up, 1, vecSrc, vecAiming, 8192, BULLET_PLAYER_MP5, 2, &tracerCount[idx % ARRAYSIZE(tracerCount) - 1], args->fparam1, args->fparam2);
+}
+
+//======================
+//	    MP5 START
+//======================
+void EV_FireMP5(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	Vector ShellVelocity;
+	Vector ShellOrigin;
+	int shell;
+	Vector vecSrc, vecAiming;
+	Vector up, right, forward;
+	float flSpread = 0.01;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+	VectorCopy(args->angles, angles);
+	VectorCopy(args->velocity, velocity);
+
+	AngleVectors(angles, forward, right, up);
+
+	shell = gEngfuncs.pEventAPI->EV_FindModelIndex("models/shell.mdl"); // brass shell
+
+	if (EV_IsLocal(idx))
+	{
+		// Add muzzle flash to current weapon model
+		EV_MuzzleFlash();
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(MP5_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
+
+		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
+	}
+
+	EV_GetDefaultShellInfo(args, origin, velocity, ShellVelocity, ShellOrigin, forward, right, up, 20, -12, 4);
+
+	EV_EjectBrass(ShellOrigin, ShellVelocity, angles[YAW], shell, TE_BOUNCE_SHELL);
+
+	switch (gEngfuncs.pfnRandomLong(0, 2))
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/mp5-fire.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/mp5-fire2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
+		break;
+	case 2:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/mp5-fire3.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
 		break;
 	}
 
@@ -1196,6 +1258,45 @@ void EV_Crowbar(event_args_t *args)
 
 	//Play Swing sound
 	gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/cbar_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+
+	if (EV_IsLocal(idx))
+	{
+		switch ((g_iSwing++) % 3)
+		{
+		case 0:
+			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK1MISS, 1);
+			break;
+		case 1:
+			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK2MISS, 1);
+			break;
+		case 2:
+			gEngfuncs.pEventAPI->EV_WeaponAnimation(CROWBAR_ATTACK3MISS, 1);
+			break;
+		}
+	}
+}
+
+// Same as crowbar, but we use the zombie moan rawr xdx
+void EV_Swipe(event_args_t *args)
+{
+	int idx;
+	Vector origin;
+	Vector angles;
+	Vector velocity;
+
+	idx = args->entindex;
+	VectorCopy(args->origin, origin);
+
+	//Play Swing sound
+	switch (gEngfuncs.pfnRandomLong(0, 1))
+	{
+	case 0:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/claw_miss1.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+		break;
+	case 1:
+		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/claw_miss2.wav", 1, ATTN_NORM, 0, PITCH_NORM);
+		break;
+	}
 
 	if (EV_IsLocal(idx))
 	{

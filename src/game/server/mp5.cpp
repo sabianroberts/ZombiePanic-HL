@@ -36,7 +36,6 @@ enum mp5_e
 };
 
 LINK_ENTITY_TO_CLASS(weapon_mp5, CMP5);
-LINK_ENTITY_TO_CLASS(weapon_9mmAR, CMP5);
 
 //=========================================================
 //=========================================================
@@ -47,9 +46,8 @@ int CMP5::SecondaryAmmoIndex(void)
 
 void CMP5::Spawn()
 {
-	pev->classname = MAKE_STRING("weapon_9mmAR"); // hack to allow for old names
 	Precache();
-	SET_MODEL(ENT(pev), "models/w_9mmAR.mdl");
+	SET_MODEL(ENT(pev), "models/w_mp5.mdl");
 	m_iId = WEAPON_MP5;
 
 	m_iDefaultAmmo = gpGlobals->maxClients > 1 ? MP5_MAX_CLIP : MP5_DEFAULT_GIVE;
@@ -59,9 +57,9 @@ void CMP5::Spawn()
 
 void CMP5::Precache(void)
 {
-	PRECACHE_MODEL("models/v_9mmAR.mdl");
-	PRECACHE_MODEL("models/w_9mmAR.mdl");
-	PRECACHE_MODEL("models/p_9mmAR.mdl");
+	PRECACHE_MODEL("models/v_mp5.mdl");
+	PRECACHE_MODEL("models/w_mp5.mdl");
+	PRECACHE_MODEL("models/p_mp5.mdl");
 
 	m_iShell = PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
 
@@ -111,7 +109,7 @@ int CMP5::AddToPlayer(CBasePlayer *pPlayer)
 
 BOOL CMP5::Deploy()
 {
-	return DefaultDeploy("models/v_9mmAR.mdl", "models/p_9mmAR.mdl", MP5_DEPLOY, "mp5");
+	return DefaultDeploy("models/v_mp5.mdl", "models/p_mp5.mdl", MP5_DEPLOY, "mp5");
 }
 
 void CMP5::PrimaryAttack()
@@ -227,6 +225,7 @@ class CMP5AmmoClip : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_9mmARclip.mdl");
 		CBasePlayerAmmo::Spawn();
+		m_iAmmoToGive = AMMO_MP5CLIP_GIVE;
 	}
 	void Precache(void)
 	{
@@ -235,7 +234,7 @@ class CMP5AmmoClip : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo(CBaseEntity *pOther)
 	{
-		int bResult = (pOther->GiveAmmo(AMMO_MP5CLIP_GIVE, "9mm", _9MM_MAX_CARRY) != -1);
+		int bResult = (pOther->GiveAmmo(AmmoToGive(), "9mm", _9MM_MAX_CARRY) != -1);
 		if (bResult)
 		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
@@ -253,6 +252,7 @@ class CMP5Chainammo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_chainammo.mdl");
 		CBasePlayerAmmo::Spawn();
+		m_iAmmoToGive = AMMO_CHAINBOX_GIVE;
 	}
 	void Precache(void)
 	{
@@ -261,7 +261,7 @@ class CMP5Chainammo : public CBasePlayerAmmo
 	}
 	BOOL AddAmmo(CBaseEntity *pOther)
 	{
-		int bResult = (pOther->GiveAmmo(AMMO_CHAINBOX_GIVE, "9mm", _9MM_MAX_CARRY) != -1);
+		int bResult = (pOther->GiveAmmo(AmmoToGive(), "9mm", _9MM_MAX_CARRY) != -1);
 		if (bResult)
 		{
 			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);

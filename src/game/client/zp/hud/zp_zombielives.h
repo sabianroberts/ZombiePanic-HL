@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #ifndef HUD_ZOMBIELIVES_H
 #define HUD_ZOMBIELIVES_H
 #include <vgui_controls/Panel.h>

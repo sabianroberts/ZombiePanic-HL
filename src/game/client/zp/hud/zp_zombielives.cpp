@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #include <vgui_controls/Panel.h>
 #include <vgui/ISurface.h>
 #include <vgui/ILocalize.h>

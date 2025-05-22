@@ -264,6 +264,8 @@ public:
 
 	virtual int UpdateClientData(CBasePlayer *pPlayer) { return 0; }
 
+	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
+
 	virtual CBasePlayerItem *GetWeaponPtr(void) { return NULL; };
 
 	static EXPORT ItemInfo ItemInfoArray[MAX_WEAPONS];
@@ -287,6 +289,7 @@ public:
 
 	// int		m_iIdPrimary;										// Unique Id for primary ammo
 	// int		m_iIdSecondary;										// Unique Id for secondary ammo
+	float		m_flDisallowPickup = -1;
 };
 
 // inventory items that
@@ -373,9 +376,20 @@ public:
 	virtual void EXPORT Spawn(void);
 	void EXPORT DefaultTouch(CBaseEntity *pOther); // default weapon touch
 	virtual BOOL AddAmmo(CBaseEntity *pOther) { return TRUE; };
+	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
+	int AmmoToGive() const
+	{
+		if ( m_iDroppedOverride > 0 )
+			return m_iDroppedOverride;
+		return m_iAmmoToGive;
+	}
 
 	CBaseEntity *Respawn(void);
 	void EXPORT Materialize(void);
+
+	float m_flDisallowPickup = -1;
+	int m_iAmmoToGive = 0;
+	int m_iDroppedOverride = 0;
 };
 
 extern DLL_GLOBAL short g_sModelIndexLaser; // holds the index for the laser beam
@@ -451,6 +465,7 @@ class CWeaponBox : public CBaseEntity
 	void SetObjectCollisionBox(void);
 
 public:
+	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
 	void EXPORT Kill(void);
 	int Save(CSave &save);
 	int Restore(CRestore &restore);
@@ -466,6 +481,7 @@ public:
 	int m_rgAmmo[MAX_AMMO_SLOTS]; // ammo quantities
 
 	int m_cAmmoTypes; // how many ammo types packed into this box (if packed by a level designer)
+	float m_flDisallowPickup = -1;
 };
 
 #ifdef CLIENT_DLL
@@ -658,7 +674,6 @@ public:
 
 private:
 	unsigned short m_usHUD;
-	unsigned short m_usHUD2;
 };
 
 class CCrossbow : public CBasePlayerWeapon

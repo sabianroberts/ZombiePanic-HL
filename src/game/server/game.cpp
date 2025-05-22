@@ -36,6 +36,8 @@ cvar_t spectator_cmd_delay = { "spectator_cmd_delay", "5" };
 // multiplayer server rules
 cvar_t fragsleft = { "mp_fragsleft", "0", 0 }; // Don't spam console/log files/users with this changing
 cvar_t timeleft = { "mp_timeleft", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
+cvar_t startdelay = { "mp_startdelay", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
+cvar_t testmode = { "sv_testmode", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
 
 // multiplayer server rules
 cvar_t teamplay = { "mp_teamplay", "0", FCVAR_SERVER };
@@ -43,7 +45,6 @@ cvar_t fraglimit = { "mp_fraglimit", "0", 0 };
 cvar_t timelimit = { "mp_timelimit", "0", FCVAR_SERVER };
 cvar_t roundlimit = { "mp_roundlimit", "5", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
 cvar_t friendlyfire = { "mp_friendlyfire", "0", FCVAR_SERVER };
-cvar_t bunnyhop = { "mp_bunnyhop", "1", FCVAR_SERVER };
 cvar_t ducktap = { "mp_ducktap", "1", FCVAR_SERVER };
 cvar_t falldamage = { "mp_falldamage", "0", FCVAR_SERVER };
 cvar_t weaponstay = { "mp_weaponstay", "0", FCVAR_SERVER };
@@ -52,9 +53,6 @@ cvar_t forcerespawn = { "mp_forcerespawn", "1", FCVAR_SERVER };
 cvar_t flashlight = { "mp_flashlight", "0", FCVAR_SERVER };
 cvar_t aimcrosshair = { "mp_autocrosshair", "1", FCVAR_SERVER };
 cvar_t decalfrequency = { "decalfrequency", "30", FCVAR_SERVER };
-cvar_t teamlist = { "mp_teamlist", "hgrunt;scientist", FCVAR_SERVER };
-cvar_t teamoverride = { "mp_teamoverride", "1" }; // Could or not a map override team list
-cvar_t defaultteam = { "mp_defaultteam", "0" }; // Players are forced to first team in the team list
 cvar_t allowmonsters = { "mp_allowmonsters", "0", FCVAR_SERVER };
 
 cvar_t mp_chattime = { "mp_chattime", "10", FCVAR_SERVER };
@@ -503,11 +501,14 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&fraglimit);
 	CVAR_REGISTER(&timelimit);
 
+	CVAR_REGISTER(&roundlimit);
+	CVAR_REGISTER(&testmode);
+	CVAR_REGISTER(&startdelay);
+
 	CVAR_REGISTER(&fragsleft);
 	CVAR_REGISTER(&timeleft);
 
 	CVAR_REGISTER(&friendlyfire);
-	CVAR_REGISTER(&bunnyhop);
 	CVAR_REGISTER(&ducktap);
 	CVAR_REGISTER(&falldamage);
 	CVAR_REGISTER(&weaponstay);
@@ -516,9 +517,6 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&flashlight);
 	CVAR_REGISTER(&aimcrosshair);
 	CVAR_REGISTER(&decalfrequency);
-	CVAR_REGISTER(&teamlist);
-	CVAR_REGISTER(&teamoverride);
-	CVAR_REGISTER(&defaultteam);
 	CVAR_REGISTER(&allowmonsters);
 
 	CVAR_REGISTER(&mp_chattime);
@@ -935,13 +933,11 @@ void GameDLLInit(void)
 	if (!dedicated && deathmatch->value == 0.0 && coop->value == 0.0)
 	{
 		// Set bunnyhop and clock_window initially off for singleplayer
-		CVAR_SET_FLOAT(bunnyhop.name, 0.0);
 		CVAR_SET_FLOAT("clockwindow", 0.0);
 	}
 	else
 	{
 		// Set bunnyhop and clock_window to default values for multiplayer
-		CVAR_SET_FLOAT(bunnyhop.name, 1.0);
 		CVAR_SET_FLOAT("clockwindow", 0.5);
 
 		// Execute server startup config file for multiplayer only.

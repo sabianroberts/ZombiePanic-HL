@@ -472,7 +472,7 @@ void CHalfLifeMultiplay ::InitHUD(CBasePlayer *pl)
 			WRITE_SHORT(plr->pev->frags);
 			WRITE_SHORT(plr->m_iDeaths);
 			WRITE_SHORT(0);
-			WRITE_SHORT(GetTeamIndex(plr->TeamID()) + 1);
+			WRITE_SHORT(GetTeamIndex(plr->TeamID()));
 			MESSAGE_END();
 
 			if (!g_teamplay)

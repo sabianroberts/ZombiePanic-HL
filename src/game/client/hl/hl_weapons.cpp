@@ -816,6 +816,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 	player.ammo_buckshot = (int)from->client.ammo_shells;
 	player.ammo_uranium = (int)from->client.ammo_cells;
 	player.ammo_hornets = (int)from->client.vuser2[0];
+	player.ammo_556ar = (int)from->client.vuser2[1];
 	player.ammo_rockets = (int)from->client.ammo_rockets;
 
 	// Point to current weapon object
@@ -891,6 +892,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 	to->client.ammo_shells = player.ammo_buckshot;
 	to->client.ammo_cells = player.ammo_uranium;
 	to->client.vuser2[0] = player.ammo_hornets;
+	to->client.vuser2[1] = player.ammo_556ar;
 	to->client.ammo_rockets = player.ammo_rockets;
 
 #if 0

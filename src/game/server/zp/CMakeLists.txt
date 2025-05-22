@@ -1,6 +1,11 @@
 add_sources(
 	CMakeLists.txt
 	trigger_endround.cpp
+	info_random_base.cpp
+	info_random_base.h
+	info_random_item.cpp
+	info_random_ammo.cpp
+	info_random_weapon.cpp
 	weapon_swipe.cpp
 	weapon_556ar.cpp
 	zp_gamerules.cpp

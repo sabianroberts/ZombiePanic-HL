@@ -267,7 +267,15 @@ public:
 	void DropPlayerItem(char *pszItemName);
 	void DropActiveWeapon();
 	void DropSelectedAmmo();
+	bool DropAmmo( int ammoindex, int amount );
+	bool DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel );
+	void ChangeAmmoTypeToDrop();
+	void DropUnuseableAmmo();
 	void DoPanic();
+	int AmmoIndexToDrop( int ammoindex = -1 );
+	int AmmoIndexToDropArray( int ammoindex );
+	int DefaultAmmoToDrop( int ammoindex );
+	const char *szAmmoToDropClassnames( int ammoindex );
 	BOOL HasPlayerItem(CBasePlayerItem *pCheckItem);
 	BOOL HasNamedPlayerItem(const char *pszItemName);
 	BOOL HasPlayerItemFromID(int nID);
@@ -330,6 +338,21 @@ public:
 	int m_iChatFlood;
 	float m_flNextChatTime;
 	int m_iAutoWepSwitch;
+
+	//-----------------------------------------------------
+	// Zombie Panic! related stuff for weapon & ammo drop crap
+	//-----------------------------------------------------
+	float m_flLastWeaponDrop;
+	float m_flLastAmmoDrop;
+	float m_flLastPanic;
+	float m_flPanicTime;
+	float m_flLastUnusedDrop;
+	float m_flLastZombieMoan;
+	bool m_bFallingToMyDeath;
+	int m_iAmmoTypeToDrop;
+
+	bool IsInPanic();
+	bool CanPanicSinceLastTime();
 
 	//-----------------------------------------------------
 	// BEGIN BUGFIXED HL FIELDS

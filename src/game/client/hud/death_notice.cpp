@@ -42,7 +42,7 @@ struct DeathNoticeItem
 };
 
 extern ConVar hud_deathnotice_vgui;
-ConVar cl_killsound("cl_killsound", "1", FCVAR_BHL_ARCHIVE, "Play a sound on kill");
+ConVar cl_killsound("cl_killsound", "0", FCVAR_BHL_ARCHIVE, "Play a sound on kill");
 ConVar cl_killsound_path("cl_killsound_path", "buttons/bell1.wav", FCVAR_BHL_ARCHIVE, "Path to a sound on kill");
 ConVar hud_deathnotice_time("hud_deathnotice_time", "6", FCVAR_ARCHIVE | FCVAR_BHL_ARCHIVE, "How long should death notice stay up for");
 ConVar hud_deathnotice_color("hud_deathnotice_color", "255 80 0", FCVAR_BHL_ARCHIVE, "Color of death notice sprite");

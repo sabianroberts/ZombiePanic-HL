@@ -394,7 +394,7 @@ void CScorePanel::RefreshItems()
 	// Override team scores and add them to sorting list
 	int iTeamCount = 0;
 
-	for (int i = 0; i <= MAX_TEAMS; i++)
+	for (int i = 0; i < ZP::MAX_TEAM; i++)
 	{
 		TeamData &td = m_TeamData[i];
 
@@ -683,7 +683,7 @@ void CScorePanel::UpdateClientIcon(CPlayerInfo *pi)
 void CScorePanel::UpdateScoresAndCounts()
 {
 	// Reset team data
-	for (int i = 1; i <= MAX_TEAMS; i++)
+	for (int i = 1; i < ZP::MAX_TEAM; i++)
 	{
 		TeamData &td = m_TeamData[i];
 		td.iPlayerCount = 0;
@@ -748,7 +748,7 @@ void CScorePanel::UpdateScoresAndCounts()
 	};
 
 	// Update team score and player count
-	for (int i = 1; i <= MAX_TEAMS; i++)
+	for (int i = 1; i < ZP::MAX_TEAM; i++)
 	{
 		TeamData &td = m_TeamData[i];
 
@@ -763,7 +763,7 @@ void CScorePanel::UpdateScoresAndCounts()
 			td.iDeaths = ti->GetDeaths();
 		}
 
-		fnUpdateTeamHeader(ti->GetDisplayName(), i);
+		fnUpdateTeamHeader(ZP::Teams[i], i);
 	}
 
 	// Update spectator team

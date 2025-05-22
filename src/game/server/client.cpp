@@ -951,6 +951,37 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/pl_pain6.wav");
 	PRECACHE_SOUND("player/pl_pain7.wav");
 
+	// Survivor sounds
+	PRECACHE_SOUND("player/deathscream1.wav");
+	PRECACHE_SOUND("player/deathscream2.wav");
+	PRECACHE_SOUND("player/deathscream3.wav");
+	PRECACHE_SOUND("player/fallscream1.wav");
+	PRECACHE_SOUND("player/fallscream2.wav");
+
+	// Panic
+	PRECACHE_SOUND("player/panicscream1.wav");
+	PRECACHE_SOUND("player/panicscream2.wav");
+
+	// Zombie sounds
+	PRECACHE_SOUND("player/zomambient1.wav");
+	PRECACHE_SOUND("player/zomambient2.wav");
+	PRECACHE_SOUND("player/zomambient3.wav");
+	PRECACHE_SOUND("player/zomambient4.wav");
+	PRECACHE_SOUND("player/zomambient5.wav");
+	PRECACHE_SOUND("player/zomambient6.wav");
+	PRECACHE_SOUND("player/zomambient7.wav");
+	PRECACHE_SOUND("player/zomambient8.wav");
+	PRECACHE_SOUND("player/zomambient9.wav");
+	PRECACHE_SOUND("player/zomambient10.wav");
+	PRECACHE_SOUND("player/zomambient12.wav");
+	PRECACHE_SOUND("player/zomambient13.wav");
+	PRECACHE_SOUND("player/zomambient14.wav");
+	PRECACHE_SOUND("player/zomambient15.wav");
+	PRECACHE_SOUND("player/zombieclick.wav");
+	PRECACHE_SOUND("player/zombiedeath1.wav");
+	PRECACHE_SOUND("player/zombiedeath2.wav");
+	PRECACHE_SOUND("player/zombiedeath3.wav");
+
 	PRECACHE_MODEL("models/player.mdl");
 
 	// hud sounds
@@ -1805,6 +1836,7 @@ void UpdateClientData(const struct edict_s *ent, int sendweapons, struct clientd
 			cd->ammo_rockets = pl->ammo_rockets;
 			cd->ammo_cells = pl->ammo_uranium;
 			cd->vuser2.x = pl->ammo_hornets;
+			cd->vuser2.y = pl->ammo_556ar;
 
 			if (pl->m_pActiveItem)
 			{

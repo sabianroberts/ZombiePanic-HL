@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -5,6 +6,7 @@
 #include "player.h"
 #include "weapons.h"
 
+#include "zp/info_random_base.h"
 #include "zp_gamemodebase.h"
 
 static IGameModeBase *s_GameModeBase = nullptr;
@@ -21,27 +23,50 @@ void ZP::SetCurrentGameMode( IGameModeBase *pGameMode )
 	s_GameModeBase = pGameMode;
 }
 
+ZP::RoundState ZP::GetCurrentRoundState()
+{
+	IGameModeBase *pGameMode = GetCurrentGameMode();
+	if ( !pGameMode ) return ZP::RoundState_Invalid;
+	return pGameMode->GetRoundState();
+}
+
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 
 extern cvar_t timeleft;
+extern cvar_t testmode;
+extern cvar_t startdelay;
+
+bool CBaseGameMode::IsTestModeActive() const
+{
+	return (testmode.value >= 1) ? true : false;
+}
+
+void CBaseGameMode::OnHUDInit(CBasePlayer *pPlayer)
+{
+	if ( !m_bHasPlayersConnected )
+		m_bHasPlayersConnected = true;
+}
 
 void CBaseGameMode::OnGameModeThink()
 {
+	// Nobody has connected, don't do any thinking.
+	if ( !m_bHasPlayersConnected ) return;
+
 	// Check who is alive (survivors only)
 	bool bHasSomeoneAlive = false;
 	int iSurvivorsFound = 0;
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
-		CBaseEntity *plr = UTIL_PlayerByIndex( i );
-		if ( plr )
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr && plr->IsConnected() )
 		{
 			int iTeam = plr->pev->team;
-			if ( iTeam == ZP::TEAM_SURVIVIOR )
+			if ( iTeam == ZP::TEAM_SURVIVIOR && plr->IsAlive() )
 			{
 				if ( GetRoundState() == ZP::RoundState_WaitingForPlayers )
 					iSurvivorsFound++;
-				else if ( plr->IsAlive() && !bHasSomeoneAlive )
+				else if ( !bHasSomeoneAlive )
 					bHasSomeoneAlive = true;
 			}
 		}
@@ -51,9 +76,9 @@ void CBaseGameMode::OnGameModeThink()
 	{
 		case ZP::RoundState_WaitingForPlayers:
 		{
-			if ( iSurvivorsFound >= REQUIRED_PLAYERS_TO_START_ROUND )
+			if ( iSurvivorsFound >= 2 || IsTestModeActive() )
 			{
-				m_flRoundBeginsIn = gpGlobals->time + 5;
+			    m_flRoundBeginsIn = gpGlobals->time + startdelay.value;
 				SetRoundState( ZP::RoundState_RoundIsStarting );
 				MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
 				WRITE_SHORT(GetRoundState());
@@ -91,6 +116,7 @@ void CBaseGameMode::OnGameModeThink()
 		    WRITE_SHORT(GetRoundState());
 		    MESSAGE_END();
 		    GiveWeaponsOnRoundStart();
+		    ZP::SpawnWeaponsFromRandomEntities();
 		}
 	    break;
 	}
@@ -111,6 +137,9 @@ void CBaseGameMode::OnGameModeThink()
 	if (timeleft.value != last_time)
 		g_engfuncs.pfnCvar_DirectSet(&timeleft, UTIL_VarArgs("%i", time_remaining));
 	last_time = time_remaining;
+
+	// Sorry pal, we don't care if everyone is dead.
+	if ( IsTestModeActive() ) return;
 
 	// If we did not find anyone, then they may be all be dead (or disconnected)
 	if ( !bHasSomeoneAlive )

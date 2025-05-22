@@ -32,7 +32,7 @@ DEFINE_HUD_ELEM(CHudGeiger);
 void CHudGeiger::Init(void)
 {
 	BaseHudClass::Init();
-	HookMessage<&CHudGeiger::MsgFunc_Geiger>("Geiger");
+	//HookMessage<&CHudGeiger::MsgFunc_Geiger>("Geiger");
 
 	m_iGeigerRange = 0;
 	m_iFlags = 0;

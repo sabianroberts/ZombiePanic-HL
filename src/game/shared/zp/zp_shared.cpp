@@ -1,3 +1,4 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
 
 #include "extdll.h"
 #include "util.h"
@@ -37,13 +38,13 @@ float CBasePlayer::GetAmmoWeight( const char *szAmmo )
 	switch ( ammoindex )
 	{
 		// Buckshot
-		case 0: return amount * 1.25f;
+		case 1: return amount * 1.25f;
 		// 9mm
-	    case 1: return amount * 0.21f;
-		// 556AR
 	    case 2: return amount * 0.21f;
+		// 556AR
+	    case 3: return amount * 0.21f;
 		// 357
-	    case 3: return amount * 0.65f;
+	    case 5: return amount * 0.65f;
 	}
 	return 0.0f;
 }
@@ -67,6 +68,12 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 		if ( m_rgpPlayerItems[i] )
 			iHowFatAmI += m_rgpPlayerItems[i]->iWeight();
 	}
+
+#if !defined( CLIENT_DLL )
+	// If we are in panic, ignore our weight
+	if ( IsInPanic() )
+		iHowFatAmI = 0;
+#endif
 
 	// Now check the weapons we got.
 	float flNewSpeed = ZP::MaxSpeeds[0] - iHowFatAmI;

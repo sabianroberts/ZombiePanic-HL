@@ -1,3 +1,5 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
 #ifndef SERVER_ZOMBIEPANIC_GAMERULES
 #define SERVER_ZOMBIEPANIC_GAMERULES
 #pragma once
@@ -16,6 +18,7 @@ public:
 	CZombiePanicGameRules();
 	~CZombiePanicGameRules();
 
+	//virtual int ItemShouldRespawn(CItem *pItem) { return FALSE; }
 	virtual void ClientUserInfoChanged(CBasePlayer *pPlayer, char *infobuffer);
 	virtual BOOL IsTeamplay(void);
 	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker);
@@ -35,6 +38,7 @@ public:
 	virtual BOOL IsValidTeam(const char *pTeamName);
 	const char *SetDefaultPlayerTeam(CBasePlayer *pPlayer);
 	virtual void ChangePlayerTeam(CBasePlayer *pPlayer, const char *pTeamName, BOOL bKill, BOOL bGib);
+	virtual float FlPlayerFallDamage(CBasePlayer *pPlayer);
 
 	virtual void ResetVolunteers();
 	virtual void PickRandomVolunteer();
