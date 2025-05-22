@@ -3,7 +3,7 @@
 #include "hud.h"
 #include "cl_util.h"
 
-static ConVar cl_cross_enable("cl_cross_enable", "1", FCVAR_BHL_ARCHIVE);
+static ConVar cl_cross_enable("cl_cross_enable", "0", FCVAR_BHL_ARCHIVE);
 static ConVar cl_cross_red("cl_cross_red", "0", FCVAR_BHL_ARCHIVE);
 static ConVar cl_cross_green("cl_cross_green", "255", FCVAR_BHL_ARCHIVE);
 static ConVar cl_cross_blue("cl_cross_blue", "255", FCVAR_BHL_ARCHIVE);
