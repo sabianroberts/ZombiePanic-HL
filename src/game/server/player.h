@@ -350,6 +350,7 @@ public:
 	float m_flLastZombieMoan;
 	bool m_bFallingToMyDeath;
 	int m_iAmmoTypeToDrop;
+	int m_iClientAmmoType;
 
 	bool IsInPanic();
 	bool CanPanicSinceLastTime();

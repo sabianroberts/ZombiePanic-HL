@@ -35,16 +35,17 @@ float CBasePlayer::GetAmmoWeight( const char *szAmmo )
 	int amount = m_rgAmmo[ GetAmmoIndex( szAmmo ) ];
 	// These are set via W_Precache, trough UTIL_PrecacheOtherWeapon!
 	// It's not like Source Engine, where it has a proper AmmoDef class!!
+	// !!! The client uses a copy of this under zp_ammobank.cpp, so if this changes, change that too!
 	switch ( ammoindex )
 	{
 		// Buckshot
-		case 1: return amount * 1.25f;
+		case 1: return amount * AMMOWEIGHT_BUCKSHOT;
 		// 9mm
-	    case 2: return amount * 0.21f;
+	    case 2: return amount * AMMOWEIGHT_9MM;
 		// 556AR
-	    case 3: return amount * 0.21f;
+	    case 3: return amount * AMMOWEIGHT_556AR;
 		// 357
-	    case 5: return amount * 0.65f;
+	    case 5: return amount * AMMOWEIGHT_357;
 	}
 	return 0.0f;
 }

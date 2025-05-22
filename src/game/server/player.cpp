@@ -179,6 +179,7 @@ int gmsgHealth = 0;
 int gmsgDamage = 0;
 int gmsgBattery = 0;
 int gmsgRounds = 0;
+int gmsgAmmoBankUpdate = 0;
 int gmsgZombieLives = 0;
 int gmsgRoundState = 0;
 int gmsgTrain = 0;
@@ -245,6 +246,7 @@ void LinkUserMessages(void)
 	gmsgBattery = REG_USER_MSG("Battery", 2);
 	gmsgZombieLives = REG_USER_MSG("ZombieLives", 2);
 	gmsgRounds = REG_USER_MSG("Rounds", -1);
+	gmsgAmmoBankUpdate = REG_USER_MSG("AmmoBank", -1);
 	gmsgRoundState = REG_USER_MSG("RoundState", 2);
 	gmsgTrain = REG_USER_MSG("Train", 1);
 	gmsgHudText = REG_USER_MSG("HudText", -1);
@@ -744,12 +746,6 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 //=========================================================
 void CBasePlayer::PackDeadPlayerItems(void)
 {
-	if ( pev->team != ZP::TEAM_SURVIVIOR )
-	{
-		RemoveAllItems( TRUE );
-		return;
-	}
-
 	int iWeaponRules;
 	int iAmmoRules;
 	int i;
@@ -777,75 +773,23 @@ void CBasePlayer::PackDeadPlayerItems(void)
 
 			// Check if this is the crowbar, if so, do not pack it!
 			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) ) continue;
+			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) ) continue;
 
 			while (pPlayerItem && iPW < MAX_WEAPONS)
 			{
-				switch (iWeaponRules)
-				{
-				case GR_PLR_DROP_GUN_ACTIVE:
-					if (m_pActiveItem && pPlayerItem == m_pActiveItem)
-					{
-						CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
-						int nIndex = iPW++;
-
-						// this is the active item. Pack it.
-						rgpPackWeapons[nIndex] = pWeapon;
-
-						//Reload the weapon before dropping it if we have ammo
-						int j = min(pWeapon->iMaxClip() - pWeapon->m_iClip, m_rgAmmo[pWeapon->m_iPrimaryAmmoType]);
-
-						// Add them to the clip
-						pWeapon->m_iClip += j;
-						m_rgAmmo[pWeapon->m_iPrimaryAmmoType] -= j;
-
-						TabulateAmmo();
-					}
-					break;
-
-				case GR_PLR_DROP_GUN_ALL:
-					rgpPackWeapons[iPW++] = (CBasePlayerWeapon *)pPlayerItem;
-					break;
-
-				default:
-					break;
-				}
-
+				rgpPackWeapons[iPW++] = (CBasePlayerWeapon *)pPlayerItem;
 				pPlayerItem = pPlayerItem->m_pNext;
 			}
 		}
 	}
 
 	// now go through ammo and make a list of which types to pack.
-	if (iAmmoRules != GR_PLR_DROP_AMMO_NO)
+	for (i = 0; i < MAX_AMMO_SLOTS; i++)
 	{
-		for (i = 0; i < MAX_AMMO_SLOTS; i++)
+		if (m_rgAmmo[i] > 0)
 		{
-			if (m_rgAmmo[i] > 0)
-			{
-				// player has some ammo of this type.
-				switch (iAmmoRules)
-				{
-				case GR_PLR_DROP_AMMO_ALL:
-					iPackAmmo[iPA++] = i;
-					break;
-
-				case GR_PLR_DROP_AMMO_ACTIVE:
-					if (m_pActiveItem && i == m_pActiveItem->PrimaryAmmoIndex())
-					{
-						// this is the primary ammo type for the active weapon
-						iPackAmmo[iPA++] = i;
-					}
-					else if (m_pActiveItem && i == m_pActiveItem->SecondaryAmmoIndex())
-					{
-						// this is the secondary ammo type for the active weapon
-						iPackAmmo[iPA++] = i;
-					}
-					break;
-
-				default:
-					break;
-				}
-			}
+			// player has some ammo of this type.
+			iPackAmmo[iPA++] = i;
 		}
 	}
 
@@ -866,33 +810,20 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	iPA = 0;
 	iPW = 0;
 
-	bool bPackItems = TRUE;
-
-	if (iAmmoRules == GR_PLR_DROP_AMMO_ACTIVE && iWeaponRules == GR_PLR_DROP_GUN_ACTIVE)
+	// pack the ammo
+	while (iPackAmmo[iPA] != -1)
 	{
-		if (rgpPackWeapons[0] && FClassnameIs(rgpPackWeapons[0]->pev, "weapon_satchel") && (iPackAmmo[0] == -1 || (m_rgAmmo[iPackAmmo[0]] == 0)))
-		{
-			bPackItems = FALSE;
-		}
+		pWeaponBox->PackAmmo(MAKE_STRING(CBasePlayerItem::AmmoInfoArray[iPackAmmo[iPA]].pszName), m_rgAmmo[iPackAmmo[iPA]]);
+		iPA++;
 	}
 
-	if (bPackItems)
+	// now pack all of the items in the lists
+	while (rgpPackWeapons[iPW])
 	{
-		// pack the ammo
-		while (iPackAmmo[iPA] != -1)
-		{
-			pWeaponBox->PackAmmo(MAKE_STRING(CBasePlayerItem::AmmoInfoArray[iPackAmmo[iPA]].pszName), m_rgAmmo[iPackAmmo[iPA]]);
-			iPA++;
-		}
+		// weapon unhooked from the player. Pack it into der box.
+		pWeaponBox->PackWeapon(rgpPackWeapons[iPW]);
 
-		// now pack all of the items in the lists
-		while (rgpPackWeapons[iPW])
-		{
-			// weapon unhooked from the player. Pack it into der box.
-			pWeaponBox->PackWeapon(rgpPackWeapons[iPW]);
-
-			iPW++;
-		}
+		iPW++;
 	}
 
 	pWeaponBox->pev->velocity = pev->velocity * 1.2; // weaponbox has player's velocity, then some.
@@ -1013,6 +944,14 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 	MESSAGE_BEGIN(MSG_ONE, gmsgHealth, NULL, pev);
 	WRITE_BYTE(m_iClientHealth);
 	MESSAGE_END();
+
+	m_iClientAmmoType = 0;
+	if ( gmsgAmmoBankUpdate > 0 )
+	{
+		MESSAGE_BEGIN(MSG_ONE, gmsgAmmoBankUpdate, NULL, pev);
+		WRITE_SHORT(m_iClientAmmoType);
+		MESSAGE_END();
+	}
 
 	// Tell Ammo Hud that the player is dead
 	MESSAGE_BEGIN(MSG_ONE, gmsgCurWeapon, NULL, pev);
@@ -2824,7 +2763,7 @@ void CBasePlayer::PostThink()
 	// And make sure they are not on the ground
 	if ( !(FBitSet(pev->flags, FL_ONGROUND)) &&
 		(pev->health > 0) &&
-		m_flFallVelocity >= PLAYER_FALL_PUNCH_THRESHHOLD &&
+		m_flFallVelocity >= PLAYER_FATAL_FALL_SPEED &&
 		!m_bFallingToMyDeath &&
 		pev->team == ZP::TEAM_SURVIVIOR
 		)
@@ -2872,6 +2811,7 @@ void CBasePlayer::PostThink()
 		else if (m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED)
 		{ // after this point, we start doing damage
 
+			m_bFallingToMyDeath = false;
 			float flFallDamage = g_pGameRules->FlPlayerFallDamage(this);
 
 			if (flFallDamage > pev->health)
@@ -3862,6 +3802,7 @@ void CBasePlayer ::ForceClientDllUpdate(void)
 	m_iClientHideHUD = -1;
 	m_iClientFOV = -1; // make sure fov reset is sent
 	m_iClientHealth = -1;
+	m_iClientAmmoType = -1;
 	m_iClientBattery = -1;
 	m_iTrain |= TRAIN_NEW; // Force new train message.
 	m_fWeapon = FALSE; // Force weapon send
@@ -4539,6 +4480,14 @@ void CBasePlayer ::UpdateClientData(void)
 		gDisplayTitle = 0;
 	}
 
+	if ( m_iAmmoTypeToDrop != m_iClientAmmoType && gmsgAmmoBankUpdate > 0 )
+	{
+		MESSAGE_BEGIN(MSG_ONE, gmsgAmmoBankUpdate, NULL, pev);
+		WRITE_SHORT(m_iAmmoTypeToDrop);
+		MESSAGE_END();
+		m_iClientAmmoType = m_iAmmoTypeToDrop;
+	}
+
 	float fHealth = pPlayer->pev->health;
 	int iHealth = fHealth <= 0.0 ? 0 : (fHealth <= 1.0 ? 1 : (fHealth > 255.0 ? 255 : (int)fHealth));
 	if (iHealth != m_iClientHealth)
@@ -4701,6 +4650,7 @@ void CBasePlayer ::UpdateClientData(void)
 			WRITE_BYTE(II.iPosition); // byte		bucket pos
 			WRITE_BYTE(II.iId); // byte		id (bit index into pev->weapons)
 			WRITE_BYTE(II.iFlags); // byte		Flags
+			WRITE_BYTE(II.iWeight); // byte		Flags
 			MESSAGE_END();
 		}
 	}
@@ -5307,7 +5257,6 @@ void CBasePlayer::ChangeAmmoTypeToDrop()
 	iAmmoType++;
 	if ( iAmmoType > 3 ) iAmmoType = 0;
 	m_iAmmoTypeToDrop = iAmmoType;
-	// TODO: Tell the client that we changed ammotype
 }
 
 void CBasePlayer::DropUnuseableAmmo()

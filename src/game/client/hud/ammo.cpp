@@ -44,6 +44,9 @@ client_sprite_t *GetSpriteFromList(client_sprite_t *pList, const char *psz, int 
 
 WeaponsResource gWR;
 
+// Used by zp_ammobank.cpp
+int g_ActiveAmmoIndex = 0;
+
 int g_weaponselect = 0;
 
 void WeaponsResource::LoadAllWeaponSprites(void)
@@ -283,6 +286,7 @@ void CHudAmmo::Init()
 void CHudAmmo::Reset(void)
 {
 	m_fFade = 0;
+	g_ActiveAmmoIndex = -1;
 	m_pWeapon = NULL;
 	m_fOnTarget = false;
 	m_iFlags |= HUD_ACTIVE; //!!!
@@ -556,6 +560,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf)
 
 	if (iId < 1)
 	{
+		g_ActiveAmmoIndex = -1;
 		m_pWeapon = NULL;
 		SetCrosshair(0, nullrc, 0, 0, 0);
 		return 0;
@@ -587,6 +592,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf)
 		return 1;
 
 	m_pWeapon = pWeapon;
+	g_ActiveAmmoIndex = m_pWeapon->iAmmoType;
 
 	UpdateCrosshair();
 
@@ -659,6 +665,7 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf)
 	Weapon.iSlotPos = READ_CHAR();
 	Weapon.iId = READ_CHAR();
 	Weapon.iFlags = READ_BYTE();
+	Weapon.iWeight = READ_BYTE();
 	Weapon.iClip = 0;
 
 	if (Weapon.iId < 0 || Weapon.iId >= MAX_WEAPONS)
@@ -1248,7 +1255,11 @@ int CHudAmmo::GetMaxClip(char *weaponname)
 	{
 		return 17;
 	}
-	else if (!strcmp(weaponname, "weapon_9mmAR"))
+	else if (!strcmp(weaponname, "weapon_mp5"))
+	{
+		return 30;
+	}
+	else if (!strcmp(weaponname, "weapon_556AR"))
 	{
 		return 50;
 	}

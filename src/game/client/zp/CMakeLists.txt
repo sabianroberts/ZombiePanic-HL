@@ -4,4 +4,6 @@ add_sources(
 	hud/zp_zombielives.h
 	hud/zp_roundstate.cpp
 	hud/zp_roundstate.h
+	hud/zp_ammobank.cpp
+	hud/zp_ammobank.h
 )

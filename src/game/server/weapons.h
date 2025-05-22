@@ -93,7 +93,7 @@ enum AvailableWeapons_e
 #define CROWBAR_WEIGHT     0
 #define GLOCK_WEIGHT       10
 #define PYTHON_WEIGHT      15
-#define MP5_WEIGHT         15
+#define MP5_WEIGHT         12
 #define AR556_WEIGHT       18
 #define SHOTGUN_WEIGHT     15
 #define CROSSBOW_WEIGHT    10
@@ -103,8 +103,8 @@ enum AvailableWeapons_e
 #define HORNETGUN_WEIGHT   15
 #define HANDGRENADE_WEIGHT 5
 #define SNARK_WEIGHT       5
-#define SATCHEL_WEIGHT     -10
-#define TRIPMINE_WEIGHT    -10
+#define SATCHEL_WEIGHT     10
+#define TRIPMINE_WEIGHT    10
 
 // weapon clip/carry ammo capacities
 #define URANIUM_MAX_CARRY      100
@@ -211,7 +211,7 @@ typedef struct
 	int iMaxClip;
 	int iId;
 	int iFlags;
-	int iWeight; // this value used to determine this weapon's importance in autoselection.
+	int iWeight;
 } ItemInfo;
 
 typedef struct

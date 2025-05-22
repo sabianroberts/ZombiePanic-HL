@@ -339,7 +339,7 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOther("ammo_ARgrenades");
 
 	// 556 ammo box
-	UTIL_PrecacheOther("w_556box");
+	UTIL_PrecacheOther("ammo_556box");
 
 	// python
 	UTIL_PrecacheOtherWeapon("weapon_357");
