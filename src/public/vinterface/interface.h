@@ -18,8 +18,11 @@
 //#include "tier1/interface.h"
 //#else
 
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#ifndef OLD_INTERFACE_H
+#define OLD_INTERFACE_H
+
+// We don't use this, if we use tier1.lib
+#if !defined(SOURCE_SDK_MIN_STEAM_API)
 
 #if !defined(_WIN32)
 
@@ -129,6 +132,8 @@ extern CSysModule *Sys_LoadModule(const char *pModuleName);
 extern void Sys_UnloadModule(CSysModule *pModule);
 
 extern CreateInterfaceFn Sys_GetFactory(CSysModule *pModule);
+
+#endif
 
 #endif
 //#endif // MSVC 6.0

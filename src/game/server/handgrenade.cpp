@@ -39,14 +39,14 @@ LINK_ENTITY_TO_CLASS(weapon_handgrenade, CHandGrenade);
 void CHandGrenade::Spawn()
 {
 	Precache();
-	m_iId = WEAPON_HANDGRENADE;
 	SET_MODEL(ENT(pev), "models/w_grenade.mdl");
 
 #ifndef CLIENT_DLL
 	pev->dmg = gSkillData.plrDmgHandGrenade;
 #endif
 
-	m_iDefaultAmmo = HANDGRENADE_DEFAULT_GIVE;
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
 }
@@ -56,23 +56,6 @@ void CHandGrenade::Precache(void)
 	PRECACHE_MODEL("models/w_grenade.mdl");
 	PRECACHE_MODEL("models/v_grenade.mdl");
 	PRECACHE_MODEL("models/p_grenade.mdl");
-}
-
-int CHandGrenade::GetItemInfo(ItemInfo *p)
-{
-	p->pszName = STRING(pev->classname);
-	p->pszAmmo1 = "Hand Grenade";
-	p->iMaxAmmo1 = HANDGRENADE_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
-	p->iMaxClip = WEAPON_NOCLIP;
-	p->iSlot = 4;
-	p->iPosition = 0;
-	p->iId = m_iId = WEAPON_HANDGRENADE;
-	p->iWeight = HANDGRENADE_WEIGHT;
-	p->iFlags = ITEM_FLAG_LIMITINWORLD | ITEM_FLAG_EXHAUSTIBLE;
-
-	return 1;
 }
 
 BOOL CHandGrenade::Deploy()

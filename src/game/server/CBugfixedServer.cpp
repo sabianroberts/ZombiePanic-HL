@@ -9,6 +9,8 @@
 #include <appversion.h>
 #include "player.h"
 
+using namespace bhl;
+
 static CBugfixedServer g_staticserver;
 EXPOSE_SINGLE_INTERFACE_GLOBALVAR(CBugfixedServer, IBugfixedServer, IBUGFIXEDSERVER_NAME, g_staticserver);
 

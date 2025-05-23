@@ -487,7 +487,7 @@ preprocess_sources()
 add_library( client SHARED ${PREP_SRCS} )
 check_winxp_support( client )
 add_auto_deploy( client PublishPathClient.txt )
-bhl_version_info( client "client.dll" "BugfixedHL-Rebased Client" )
+bhl_version_info( client "client.dll" "ZombiePanic-HL Client" )
 
 target_include_directories( client PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/src/game/client
@@ -575,7 +575,7 @@ preprocess_sources()
 add_library( hl SHARED ${PREP_SRCS} )
 check_winxp_support( hl )
 add_auto_deploy( hl PublishPathServer.txt )
-bhl_version_info( hl "hl.dll" "BugfixedHL-Rebased Server" )
+bhl_version_info( hl "hl.dll" "ZombiePanic-HL Server" )
 
 target_include_directories( hl PRIVATE
 	#${CMAKE_CURRENT_SOURCE_DIR}/src/game/server	# Already in GAME_COMMON_INCLUDE_PATHS
@@ -605,6 +605,7 @@ endif()
 # Link with dependencies
 target_link_libraries( hl 
 	${SERVER_PLAT_LIBS}
+	${SOURCE_SDK_SERVER_LIBS} # Special version for server binaries
 	semver
 	Threads::Threads
 )

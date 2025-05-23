@@ -38,9 +38,9 @@ void C556AR::Spawn()
 	pev->classname = MAKE_STRING( "weapon_556ar" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_556AR.mdl");
-	m_iId = WEAPON_556AR;
 
-	m_iDefaultAmmo = gpGlobals->maxClients > 1 ? AR556_MAX_CLIP : AR556_DEFAULT_GIVE;
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
 }
@@ -71,23 +71,6 @@ void C556AR::Precache(void)
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 
 	m_usHUD = PRECACHE_EVENT(1, "events/m16.sc");
-}
-
-int C556AR::GetItemInfo(ItemInfo *p)
-{
-	p->pszName = STRING(pev->classname);
-	p->pszAmmo1 = "556ar";
-	p->iMaxAmmo1 = _556AR_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
-	p->iMaxClip = AR556_MAX_CLIP;
-	p->iSlot = 2;
-	p->iPosition = 1;
-	p->iFlags = 0;
-	p->iId = m_iId = WEAPON_556AR;
-	p->iWeight = AR556_WEIGHT;
-
-	return 1;
 }
 
 int C556AR::AddToPlayer(CBasePlayer *pPlayer)

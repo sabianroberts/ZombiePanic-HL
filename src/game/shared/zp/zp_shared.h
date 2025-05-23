@@ -7,10 +7,78 @@
 #include "Color.h"
 #include <vector>
 
-#define AMMOWEIGHT_BUCKSHOT 1.25f
-#define AMMOWEIGHT_9MM 0.21f
-#define AMMOWEIGHT_556AR 0.21f
-#define AMMOWEIGHT_357 0.65f
+/// <summary>
+/// The WeaponID's used by Zombie Panic!
+/// </summary>
+enum ZPWeaponID
+{
+	WEAPON_NONE = 0,
+	WEAPON_CROWBAR,
+	WEAPON_SWIPE,
+	WEAPON_GLOCK,
+	WEAPON_PYTHON,
+	WEAPON_MP5,
+	WEAPON_556AR,
+	WEAPON_SHOTGUN,
+	WEAPON_HANDGRENADE,
+	WEAPON_SATCHEL,
+
+	LAST_WEAPON_ID
+};
+
+/// <summary>
+/// The available ammo types, used by Zombie Panic!.
+/// This is also used by the new ammo table, since
+/// the GoldSrc version sucked ass.
+/// </summary>
+enum ZPAmmoTypes
+{
+	AMMO_NONE = 0,
+	AMMO_PISTOL,
+	AMMO_MAGNUM,
+	AMMO_SHOTGUN,
+	AMMO_RIFLE,
+	AMMO_GRENADE,
+	AMMO_SATCHEL,
+
+	AMMO_MAX
+};
+
+/// <summary>
+/// The required data for our ammo. That's about it.
+/// </summary>
+struct AmmoData
+{
+	ZPAmmoTypes AmmoType;
+	const char *AmmoName;
+	int MaxCarry;
+	float WeightPerBullet;
+};
+AmmoData GetAmmoByName( const char *szAmmoType );
+AmmoData GetAmmoByTableIndex( int id );
+AmmoData GetAmmoByAmmoID( int id );
+AmmoData GetAmmoByWeaponID( ZPWeaponID id, bool bPrimary = true );
+
+struct WeaponData
+{
+	ZPWeaponID WeaponID;
+	int Slot;
+	int Position;
+	char Ammo1[16]; // ammo 1 type
+	char Ammo2[16]; // ammo 2 type
+	int DefaultAmmo;
+	int MaxClip;
+	int Flags;
+	float Weight;
+};
+
+/// <summary>
+/// Grabs the weapon information by using the WeaponID.
+/// </summary>
+/// <param name="WeaponID">The WeaponID we want to look for</param>
+/// <returns>Returns the data from our weapon script file</returns>
+WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID );
+
 
 namespace ZP
 {

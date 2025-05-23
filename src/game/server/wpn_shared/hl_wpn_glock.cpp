@@ -41,10 +41,10 @@ void CGlock::Spawn()
 {
 	pev->classname = MAKE_STRING("weapon_9mmhandgun"); // hack to allow for old names
 	Precache();
-	m_iId = WEAPON_GLOCK;
 	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
 
-	m_iDefaultAmmo = GLOCK_DEFAULT_GIVE;
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
 }
@@ -66,23 +66,6 @@ void CGlock::Precache(void)
 
 	m_usFireGlock1 = PRECACHE_EVENT(1, "events/glock1.sc");
 	m_usFireGlock2 = PRECACHE_EVENT(1, "events/glock2.sc");
-}
-
-int CGlock::GetItemInfo(ItemInfo *p)
-{
-	p->pszName = STRING(pev->classname);
-	p->pszAmmo1 = "9mm";
-	p->iMaxAmmo1 = _9MM_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
-	p->iMaxClip = GLOCK_MAX_CLIP;
-	p->iSlot = 1;
-	p->iPosition = 0;
-	p->iFlags = 0;
-	p->iId = m_iId = WEAPON_GLOCK;
-	p->iWeight = GLOCK_WEIGHT;
-
-	return 1;
 }
 
 int CGlock::AddToPlayer(CBasePlayer *pPlayer)

@@ -35,6 +35,13 @@
 #include "gamerules.h"
 #include "teamplay_gamerules.h"
 
+#include <tier0/dbg.h>
+#include <tier1/interface.h>
+#include <tier1/tier1.h>
+#include "../../source_sdk/tier2/KeyValuesCompat.h"
+
+static bool s_bHasLoadedLibs = false;
+
 extern CGraph WorldGraph;
 extern CSoundEnt *pSoundEnt;
 
@@ -439,6 +446,20 @@ void ResetGlobalState(void)
 	gInitHUD = TRUE; // Init the HUD on a new game / load game
 }
 
+//========================================================================================
+// Initialize on the server
+void InitTier1Lib()
+{
+	if ( s_bHasLoadedLibs ) return;
+	CreateInterfaceFn factory = Sys_GetFactoryThis();
+	ConnectTier1Libraries( &factory, 1 );
+	
+	// Let's load the keyvalues
+	if ( !KV_InitKeyValuesSystemOnServer() ) return;
+}
+//========================================================================================
+
+
 // moved CWorld class definition to cbase.h
 //=======================
 // CWorld
@@ -457,6 +478,8 @@ float g_flWeaponCheat;
 
 void CWorld ::Spawn(void)
 {
+	InitTier1Lib();
+
 	g_fGameOver = FALSE;
 	Precache();
 	g_flWeaponCheat = CVAR_GET_FLOAT("sv_cheats"); // Is the impulse 101 command allowed?

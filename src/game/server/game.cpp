@@ -18,6 +18,13 @@
 #include "game.h"
 #include "convar.h"
 
+#include <tier0/dbg.h>
+#include <tier1/interface.h>
+#include <tier1/tier1.h>
+#include <tier2/tier2.h>
+#include "FileSystem.h"
+#include "zp/zp_shared.h"
+
 #include "appversion.h"
 #include "CBugfixedServer.h"
 
@@ -475,6 +482,42 @@ cvar_t sk_player_leg3 = { "sk_player_leg3", "1" };
 cvar_t sv_pushable_fixed_tick_fudge = { "sv_pushable_fixed_tick_fudge", "15" };
 
 cvar_t sv_busters = { "sv_busters", "0" };
+
+// We need to load this before anything else.
+class IGameDLLInit : public IBaseInterface
+{
+public:
+	IGameDLLInit()
+	{
+		if ( !InitTier2Lib() )
+		{
+			Error( "tier2: Failed to initialize KeyValues on the server!\n" );
+			Assert(false);
+		}
+	}
+	~IGameDLLInit()
+	{
+		DisconnectTier1Libraries();
+		DisconnectTier2Libraries();
+	}
+	bool InitTier2Lib();
+};
+
+static IGameDLLInit g_gamedll;
+EXPOSE_SINGLE_INTERFACE_GLOBALVAR(IGameDLLInit, IBaseInterface, "IGameDLLInit_001", g_gamedll);
+
+bool IGameDLLInit::InitTier2Lib()
+{
+	CSysModule *pModule = nullptr;
+	void *pInterface = nullptr;
+	bool bRet = Sys_LoadInterface( "FileSystem_Stdio", FILESYSTEM_INTERFACE_VERSION, &pModule, &pInterface );
+	if ( !bRet ) return false;
+
+	// Load fileystem
+	g_pFullFileSystem = (IFileSystem *)pInterface;
+
+	return true;
+}
 
 // Register your console variables here
 // This gets called one time when the game is initialied

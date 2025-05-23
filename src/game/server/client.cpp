@@ -973,6 +973,7 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zomambient8.wav");
 	PRECACHE_SOUND("player/zomambient9.wav");
 	PRECACHE_SOUND("player/zomambient10.wav");
+	PRECACHE_SOUND("player/zomambient11.wav");
 	PRECACHE_SOUND("player/zomambient12.wav");
 	PRECACHE_SOUND("player/zomambient13.wav");
 	PRECACHE_SOUND("player/zomambient14.wav");

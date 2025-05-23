@@ -97,3 +97,16 @@ bool KV_InitKeyValuesSystem( CreateInterfaceFn* pFactories, int iNumFactories )
 
 	return true;
 }
+
+bool KV_InitKeyValuesSystemOnServer()
+{
+	CSysModule *pModule = nullptr;
+	void *pInterface = nullptr;
+	bool bRet = Sys_LoadInterface( "vgui2", IKEYVALUES_INTERFACE_VERSION, &pModule, &pInterface );
+	if ( !bRet ) return false;
+
+	// Let's load our interface for the server
+	g_pKeyValuesInterface = (IKeyValues *)pInterface;
+	g_pKeyValuesInterface->RegisterSizeofKeyValues( sizeof( KeyValues ) );
+	return true;
+}

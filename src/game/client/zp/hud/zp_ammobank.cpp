@@ -217,14 +217,14 @@ int CHudAmmoBank::AmmoDropToAmmoIndex( int index )
 {
 	switch ( index )
 	{
-		// Buckshot
-		case 0: return 1;
 		// 9mm
-	    case 1: return 2;
-		// 556ar
-	    case 2: return 3;
+		case 0: return ZPAmmoTypes::AMMO_PISTOL;
 		// 357
-	    case 3: return 4;
+	    case 1: return ZPAmmoTypes::AMMO_MAGNUM;
+		// buckshot
+	    case 2: return ZPAmmoTypes::AMMO_SHOTGUN;
+		// 556ar
+	    case 3: return ZPAmmoTypes::AMMO_RIFLE;
 	}
 	return 0;
 }
@@ -233,10 +233,10 @@ std::string CHudAmmoBank::GetAmmoName(int index)
 {
 	switch ( index )
 	{
-		case 0: return "Shotgun";
-		case 1: return "Pistol";
-		case 2: return "Rifle";
-		case 3: return "Magnum";
+		case 0: return "Pistol";
+		case 1: return "Magnum";
+		case 2: return "Shotgun";
+		case 3: return "Rifle";
 	}
 	return "null";
 }
@@ -244,28 +244,17 @@ std::string CHudAmmoBank::GetAmmoName(int index)
 float CHudAmmoBank::GetWeightPerBullet( int index, int amount )
 {
 	if ( amount <= 0 ) return 0.0f;
-	switch ( index )
-	{
-		// Buckshot
-		case 1: return amount * AMMOWEIGHT_BUCKSHOT;
-		// 9mm
-	    case 2: return amount * AMMOWEIGHT_9MM;
-		// 556AR
-	    case 3: return amount * AMMOWEIGHT_556AR;
-		// 357
-	    case 5: return amount * AMMOWEIGHT_357;
-	}
-	return 0.0f;
+	AmmoData ammo = GetAmmoByAmmoID( index );
+	return amount * ammo.WeightPerBullet;
 }
 
 float CHudAmmoBank::GetCarry()
 {
 	float flWeight = 0.0f;
-	for ( int index = 0; index < 4; index++ )
+	for ( int index = 0; index < ZPAmmoTypes::AMMO_MAX; index++ )
 	{
-		int iAmmoIndex = AmmoDropToAmmoIndex( index );
-		int iAmmoCount = gWR.CountAmmo( iAmmoIndex );
-		flWeight += GetWeightPerBullet( iAmmoIndex, iAmmoCount );
+		int iAmmoCount = gWR.CountAmmo( index );
+		flWeight += GetWeightPerBullet( index, iAmmoCount );
 	}
 
 	for ( int slot = 0; slot < MAX_WEAPON_SLOTS; slot++ )

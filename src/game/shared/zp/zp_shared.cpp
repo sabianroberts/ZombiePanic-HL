@@ -8,10 +8,168 @@
 #include "strtools.h"
 #endif
 
+#include <tier2/tier2.h>
+#include "FileSystem.h"
+#include <KeyValues.h>
+
 #include "weapons.h"
 #include "player.h"
 
 #include "zp_shared.h"
+
+#define WEAPON_SCRIPT_PATH "scripts/weapon_"
+#define WEAPON_SCRIPT_FILE ".txt"
+static std::vector<WeaponData> sWeaponDataList;
+static AmmoData sAmmoDataList[] = {
+	/* { ZPAmmoTypes AmmoType, const char *AmmoName, int MaxCarry, float WeightPerBullet } */
+	{ AMMO_PISTOL, "9mm", 150, 0.21f },
+	{ AMMO_MAGNUM, "357", 30, 0.65f },
+	{ AMMO_SHOTGUN, "buckshot", 80, 1.25f },
+	{ AMMO_RIFLE, "556ar", 240, 0.21f },
+
+	{ AMMO_GRENADE, "Hand Grenade", 3, 0.0f },
+	{ AMMO_SATCHEL, "Satchel Charge", 5, 0.0f },
+
+	// MUST BE LAST, DO NOT CHANGE THIS.
+	// This is used by Crowbar and Swipe (or any other weapon that has no ammo)
+	{ AMMO_NONE, "", -1, 0.0f }
+};
+
+WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
+{
+	const char *szWeaponScriptFile = nullptr;
+	// TODO: Change this to use pev->classname instead later?
+	// example output should be: "scripts/weapon_crowbar.txt"
+	switch ( WeaponID )
+	{
+		case WEAPON_CROWBAR: szWeaponScriptFile = WEAPON_SCRIPT_PATH "crowbar" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_SWIPE: szWeaponScriptFile = WEAPON_SCRIPT_PATH "swipe" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_GLOCK: szWeaponScriptFile = WEAPON_SCRIPT_PATH "beretta" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_PYTHON: szWeaponScriptFile = WEAPON_SCRIPT_PATH "357" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_MP5: szWeaponScriptFile = WEAPON_SCRIPT_PATH "mp5" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_556AR: szWeaponScriptFile = WEAPON_SCRIPT_PATH "556ar" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_SHOTGUN: szWeaponScriptFile = WEAPON_SCRIPT_PATH "shotgun" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_HANDGRENADE: szWeaponScriptFile = WEAPON_SCRIPT_PATH "grenade" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_SATCHEL: szWeaponScriptFile = WEAPON_SCRIPT_PATH "satchel" WEAPON_SCRIPT_FILE; break;
+		default: szWeaponScriptFile = WEAPON_SCRIPT_PATH "example" WEAPON_SCRIPT_FILE; break;
+	}
+	if ( !szWeaponScriptFile ) return WeaponData();
+#if defined( CLIENT_DLL )
+	UTIL_LogPrintf("[CLIENT] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
+#else
+	UTIL_LogPrintf("[SERVER] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
+#endif
+	KeyValues *pWeaponScript = new KeyValues( "WeaponInfo" );
+	if ( !pWeaponScript->LoadFromFile( g_pFullFileSystem, szWeaponScriptFile ) )
+	{
+		pWeaponScript->deleteThis();
+		return WeaponData();
+	}
+
+	WeaponData slot;
+	slot.WeaponID = WeaponID;
+	slot.Ammo1[0] = 0;
+	slot.Ammo2[0] = 0;
+
+	slot.Slot = pWeaponScript->GetInt( "Slot", 0 );
+	slot.Position = pWeaponScript->GetInt( "Position", 0 );
+
+	const char *szAmmoType = pWeaponScript->GetString( "AmmoType1", NULL );
+	if ( szAmmoType && szAmmoType[0] )
+	{
+		AmmoData ammo = GetAmmoByName( szAmmoType );
+		if ( ammo.MaxCarry != -1 )
+			strcpy_s( slot.Ammo1, szAmmoType );
+	}
+
+	szAmmoType = pWeaponScript->GetString( "AmmoType2", NULL );
+	if ( szAmmoType && szAmmoType[0] )
+	{
+		AmmoData ammo = GetAmmoByName( szAmmoType );
+		if ( ammo.MaxCarry != -1 )
+			strcpy_s( slot.Ammo2, szAmmoType );
+	}
+
+	slot.DefaultAmmo = pWeaponScript->GetInt( "DefaultGive", 0 );
+	slot.MaxClip = pWeaponScript->GetInt( "MaxClip", 0 );
+	slot.Flags = 0;
+
+	// Go trough our flags
+	KeyValues *pWeaponFlags = pWeaponScript->FindKey( "Flags" );
+	if ( pWeaponFlags )
+	{
+		if ( pWeaponFlags->GetBool( "SELECTONEMPTY" ) ) slot.Flags |= ITEM_FLAG_SELECTONEMPTY;
+		if ( pWeaponFlags->GetBool( "NOAUTORELOAD" ) ) slot.Flags |= ITEM_FLAG_NOAUTORELOAD;
+		if ( pWeaponFlags->GetBool( "NOAUTOSWITCHEMPTY" ) ) slot.Flags |= ITEM_FLAG_NOAUTOSWITCHEMPTY;
+		if ( pWeaponFlags->GetBool( "LIMITINWORLD" ) ) slot.Flags |= ITEM_FLAG_LIMITINWORLD;
+		if ( pWeaponFlags->GetBool( "EXHAUSTIBLE" ) ) slot.Flags |= ITEM_FLAG_EXHAUSTIBLE;
+		if ( pWeaponFlags->GetBool( "NOAUTOSWITCHTO" ) ) slot.Flags |= ITEM_FLAG_NOAUTOSWITCHTO;
+	}
+
+	slot.Weight = pWeaponScript->GetFloat( "Weight", 0 );
+
+	pWeaponScript->deleteThis();
+
+#if defined( CLIENT_DLL )
+	UTIL_LogPrintf("[CLIENT] Loaded weapon script \"%s\" [%i]\n", szWeaponScriptFile, slot.WeaponID );
+#else
+	UTIL_LogPrintf("[SERVER] Loaded weapon script \"%s\" [%i]\n", szWeaponScriptFile, slot.WeaponID );
+#endif
+
+	sWeaponDataList.push_back( slot );
+	return slot;
+}
+
+AmmoData GetAmmoByName( const char *szAmmoType )
+{
+	if ( szAmmoType && szAmmoType[0] )
+	{
+		for ( int i = 0; i < ARRAYSIZE( sAmmoDataList ); i++ )
+		{
+			AmmoData ammo = sAmmoDataList[i];
+			if ( !ammo.AmmoName ) continue;
+			if ( FStrEq( ammo.AmmoName, szAmmoType ) )
+				return ammo;
+		}
+	}
+	// If we find nothing, grab the last item in the list.
+	return sAmmoDataList[ ARRAYSIZE( sAmmoDataList ) - 1 ];
+}
+
+AmmoData GetAmmoByTableIndex(int id)
+{
+	int iFind = (int)clamp( id, 0, ARRAYSIZE( sAmmoDataList ) - 1 );
+	return sAmmoDataList[ iFind ];
+}
+
+AmmoData GetAmmoByAmmoID( int id )
+{
+	for ( int i = 0; i < ARRAYSIZE( sAmmoDataList ); i++ )
+	{
+		AmmoData ammo = sAmmoDataList[i];
+		if ( ammo.AmmoType == id )
+			return ammo;
+	}
+	// If we find nothing, grab the last item in the list.
+	return sAmmoDataList[ ARRAYSIZE( sAmmoDataList ) - 1 ];
+}
+
+AmmoData GetAmmoByWeaponID(ZPWeaponID id, bool bPrimary)
+{
+	WeaponData slot = GetWeaponSlotInfo( id );
+	return GetAmmoByName( bPrimary ? slot.Ammo1 : slot.Ammo2 );
+}
+
+WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID )
+{
+	for ( int i = 0; i < sWeaponDataList.size(); i++ )
+	{
+		WeaponData slot = sWeaponDataList[i];
+		if ( slot.WeaponID == WeaponID )
+			return slot;
+	}
+	return CreateWeaponSlotData( WeaponID );
+}
 
 ZP::GameModeType_e ZP::IsValidGameModeMap( const char *szLevel )
 {
@@ -31,23 +189,9 @@ ZP::GameModeType_e ZP::IsValidGameModeMap( const char *szLevel )
 
 float CBasePlayer::GetAmmoWeight( const char *szAmmo )
 {
-	int ammoindex = GetAmmoIndex( szAmmo );
-	int amount = m_rgAmmo[ GetAmmoIndex( szAmmo ) ];
-	// These are set via W_Precache, trough UTIL_PrecacheOtherWeapon!
-	// It's not like Source Engine, where it has a proper AmmoDef class!!
-	// !!! The client uses a copy of this under zp_ammobank.cpp, so if this changes, change that too!
-	switch ( ammoindex )
-	{
-		// Buckshot
-		case 1: return amount * AMMOWEIGHT_BUCKSHOT;
-		// 9mm
-	    case 2: return amount * AMMOWEIGHT_9MM;
-		// 556AR
-	    case 3: return amount * AMMOWEIGHT_556AR;
-		// 357
-	    case 5: return amount * AMMOWEIGHT_357;
-	}
-	return 0.0f;
+	AmmoData ammo = GetAmmoByName( szAmmo );
+	int amount = m_rgAmmo[ ammo.AmmoType ];
+	return amount * ammo.WeightPerBullet;
 }
 
 void CBasePlayer::UpdatePlayerMaxSpeed()

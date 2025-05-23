@@ -116,7 +116,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] = {
 	DEFINE_FIELD(CBasePlayer, m_pActiveItem, FIELD_CLASSPTR),
 	DEFINE_FIELD(CBasePlayer, m_pLastItem, FIELD_CLASSPTR),
 
-	DEFINE_ARRAY(CBasePlayer, m_rgAmmo, FIELD_INTEGER, MAX_AMMO_SLOTS),
+	DEFINE_ARRAY(CBasePlayer, m_rgAmmo, FIELD_INTEGER, ZPAmmoTypes::AMMO_MAX),
 	DEFINE_FIELD(CBasePlayer, m_idrowndmg, FIELD_INTEGER),
 	DEFINE_FIELD(CBasePlayer, m_idrownrestored, FIELD_INTEGER),
 	DEFINE_FIELD(CBasePlayer, m_tSneaking, FIELD_TIME),
@@ -750,7 +750,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	int iAmmoRules;
 	int i;
 	CBasePlayerWeapon *rgpPackWeapons[MAX_WEAPONS];
-	int iPackAmmo[MAX_AMMO_SLOTS];
+	int iPackAmmo[ZPAmmoTypes::AMMO_MAX];
 	int iPW = 0; // index into packweapons array
 	int iPA = 0; // index into packammo array
 
@@ -784,7 +784,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	}
 
 	// now go through ammo and make a list of which types to pack.
-	for (i = 0; i < MAX_AMMO_SLOTS; i++)
+	for (i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 	{
 		if (m_rgAmmo[i] > 0)
 		{
@@ -813,7 +813,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	// pack the ammo
 	while (iPackAmmo[iPA] != -1)
 	{
-		pWeaponBox->PackAmmo(MAKE_STRING(CBasePlayerItem::AmmoInfoArray[iPackAmmo[iPA]].pszName), m_rgAmmo[iPackAmmo[iPA]]);
+		pWeaponBox->PackAmmo( MAKE_STRING( GetAmmoByAmmoID(iPackAmmo[iPA]).AmmoName ), m_rgAmmo[iPackAmmo[iPA]] );
 		iPA++;
 	}
 
@@ -876,7 +876,7 @@ void CBasePlayer::RemoveAllItems(BOOL removeSuit)
 	else
 		pev->weapons &= ~WEAPON_ALLWEAPONS;
 
-	for (i = 0; i < MAX_AMMO_SLOTS; i++)
+	for (i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 		m_rgAmmo[i] = 0;
 
 	// Remove deployed satchels
@@ -3314,7 +3314,7 @@ void CBasePlayer::Spawn(void)
 	m_iClientBattery = -1;
 
 	// reset all ammo values to 0
-	for (int i = 0; i < MAX_AMMO_SLOTS; i++)
+	for (int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 	{
 		m_rgAmmo[i] = 0;
 		m_rgAmmoLast[i] = 0; // client ammo values also have to be reset  (the death hud clear messages does on the client side)
@@ -3810,7 +3810,7 @@ void CBasePlayer ::ForceClientDllUpdate(void)
 	m_fInitHUD = TRUE; // Force HUD gmsgResetHUD message
 
 	// client ammo values also have to be reset
-	for (int i = 0; i < MAX_AMMO_SLOTS; i++)
+	for (int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 	{
 		m_rgAmmoLast[i] = 0;
 	}
@@ -4171,7 +4171,7 @@ int CBasePlayer::RemovePlayerItem(CBasePlayerItem *pItem)
 
 	if (pPrev == pItem)
 	{
-		pev->weapons &= ~(1 << pItem->m_iId); // take item off hud
+		pev->weapons &= ~(1 << pItem->GetWeaponID()); // take item off hud
 		m_rgpPlayerItems[slotId] = pItem->m_pNext;
 		return TRUE;
 	}
@@ -4183,7 +4183,7 @@ int CBasePlayer::RemovePlayerItem(CBasePlayerItem *pItem)
 		}
 		if (pPrev)
 		{
-			pev->weapons &= ~(1 << pItem->m_iId); // take item off hud
+			pev->weapons &= ~(1 << pItem->GetWeaponID()); // take item off hud
 			pPrev->m_pNext = pItem->m_pNext;
 			return TRUE;
 		}
@@ -4212,7 +4212,7 @@ int CBasePlayer ::GiveAmmo(int iCount, char *szName, int iMax)
 
 	i = GetAmmoIndex(szName);
 
-	if (i < 0 || i >= MAX_AMMO_SLOTS)
+	if (i < 0 || i >= ZPAmmoTypes::AMMO_MAX)
 		return -1;
 
 	int iAdd = min(iCount, iMax - m_rgAmmo[i]);
@@ -4318,23 +4318,9 @@ int CBasePlayer::AmmoInventory(int iAmmoIndex)
 	return m_rgAmmo[iAmmoIndex];
 }
 
-int CBasePlayer::GetAmmoIndex(const char *psz)
+int CBasePlayer::GetAmmoIndex( const char *psz )
 {
-	int i;
-
-	if (!psz)
-		return -1;
-
-	for (i = 1; i < MAX_AMMO_SLOTS; i++)
-	{
-		if (!CBasePlayerItem::AmmoInfoArray[i].pszName)
-			continue;
-
-		if (_stricmp(psz, CBasePlayerItem::AmmoInfoArray[i].pszName) == 0)
-			return i;
-	}
-
-	return -1;
+	return GetAmmoByName( psz ).AmmoType;
 }
 
 // Called from UpdateClientData
@@ -4342,7 +4328,7 @@ int CBasePlayer::GetAmmoIndex(const char *psz)
 // If this player is spectating someone target will be in pPlayer
 void CBasePlayer::SendAmmoUpdate(CBasePlayer *pPlayer)
 {
-	for (int i = 0; i < MAX_AMMO_SLOTS; i++)
+	for (int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++)
 	{
 		if (this->m_rgAmmoLast[i] != pPlayer->m_rgAmmo[i])
 		{
@@ -4643,9 +4629,7 @@ void CBasePlayer ::UpdateClientData(void)
 			MESSAGE_BEGIN(MSG_ONE, gmsgWeaponList, NULL, pev);
 			WRITE_STRING(pszName); // string	weapon name
 			WRITE_BYTE(GetAmmoIndex(II.pszAmmo1)); // byte		Ammo Type
-			WRITE_BYTE(II.iMaxAmmo1); // byte     Max Ammo 1
 			WRITE_BYTE(GetAmmoIndex(II.pszAmmo2)); // byte		Ammo2 Type
-			WRITE_BYTE(II.iMaxAmmo2); // byte     Max Ammo 2
 			WRITE_BYTE(II.iSlot); // byte		bucket
 			WRITE_BYTE(II.iPosition); // byte		bucket pos
 			WRITE_BYTE(II.iId); // byte		id (bit index into pev->weapons)
@@ -4703,7 +4687,7 @@ void CBasePlayer ::UpdateClientData(void)
 
 				MESSAGE_BEGIN(MSG_ONE, gmsgCurWeapon, NULL, pev);
 				WRITE_BYTE(state);
-				WRITE_BYTE(gun->m_iId);
+				WRITE_BYTE(gun->GetWeaponID());
 				WRITE_BYTE(gun->m_iClip);
 				MESSAGE_END();
 			}
@@ -5159,10 +5143,10 @@ int CBasePlayer::AmmoIndexToDrop( int ammoindex )
 		idx = m_iAmmoTypeToDrop;
 	switch ( idx )
 	{
-		case 0: return GetAmmoIndex("buckshot");
-		case 1: return GetAmmoIndex("9mm");
-		case 2: return GetAmmoIndex("556ar");
-		case 3: return GetAmmoIndex("357");
+		case 0: return ZPAmmoTypes::AMMO_PISTOL;
+		case 1: return ZPAmmoTypes::AMMO_MAGNUM;
+		case 2: return ZPAmmoTypes::AMMO_SHOTGUN;
+		case 3: return ZPAmmoTypes::AMMO_RIFLE;
 	}
 	return 0;
 }
@@ -5171,46 +5155,46 @@ int CBasePlayer::AmmoIndexToDropArray( int ammoindex )
 {
 	switch ( ammoindex )
 	{
-		// Buckshot
-		case 1: return 0;
 		// 9mm
-	    case 2: return 1;
-		// 556ar
-	    case 3: return 2;
+	    case ZPAmmoTypes::AMMO_PISTOL: return 0;
 		// 357
-	    case 4: return 3;
+	    case ZPAmmoTypes::AMMO_MAGNUM: return 1;
+		// 556ar
+	    case ZPAmmoTypes::AMMO_SHOTGUN: return 2;
+		// Buckshot
+		case ZPAmmoTypes::AMMO_RIFLE: return 3;
 	}
 	return 0;
 }
 
 int CBasePlayer::DefaultAmmoToDrop(int ammoindex)
 {
-	switch ( ammoindex )
+	AmmoData ammo = GetAmmoByAmmoID( ammoindex );
+	switch ( ammo.AmmoType )
 	{
-		// Buckshot
-		case 1: return AMMO_BUCKSHOTBOX_GIVE;
-		// 9mm
-	    case 2: return AMMO_GLOCKCLIP_GIVE;
-		// 556ar
-	    case 3: return AMMO_AR556CLIP_GIVE;
-		// 357
-	    case 4: return AMMO_357BOX_GIVE;
+		case AMMO_PISTOL: return 17;
+		case AMMO_MAGNUM: return 6;
+		case AMMO_SHOTGUN: return 8;
+		case AMMO_RIFLE: return 30;
+		case AMMO_GRENADE:
+		case AMMO_SATCHEL: return 1;
+		case AMMO_NONE:
+		default: return 0;
 	}
-	return 0;
 }
 
 const char *CBasePlayer::szAmmoToDropClassnames(int ammoindex)
 {
 	switch ( ammoindex )
 	{
-		// Buckshot
-		case 1: return "ammo_buckshot";
 		// 9mm
-	    case 2: return "ammo_9mmclip";
-		// 556ar
-	    case 3: return "ammo_556AR";
+	    case ZPAmmoTypes::AMMO_PISTOL: return "ammo_9mmclip";
 		// 357
-	    case 4: return "ammo_357";
+	    case ZPAmmoTypes::AMMO_MAGNUM: return "ammo_357";
+		// Buckshot
+		case ZPAmmoTypes::AMMO_SHOTGUN: return "ammo_buckshot";
+		// 556ar
+	    case ZPAmmoTypes::AMMO_RIFLE: return "ammo_556AR";
 	}
 	return "ammo_9mmclip";
 }
@@ -5378,7 +5362,7 @@ BOOL CBasePlayer::HasPlayerItemFromID(int nID)
 
 		while (pItem)
 		{
-			if (pItem->m_iId == nID)
+			if (pItem->GetWeaponID() == nID)
 			{
 				return TRUE;
 			}

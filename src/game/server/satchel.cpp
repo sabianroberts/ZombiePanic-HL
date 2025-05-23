@@ -236,7 +236,7 @@ int CSatchel::AddToPlayer(CBasePlayer *pPlayer)
 {
 	int bResult = CBasePlayerItem::AddToPlayer(pPlayer);
 
-	pPlayer->pev->weapons |= (1 << m_iId);
+	pPlayer->pev->weapons |= (1 << GetWeaponID());
 	m_chargeReady = SATCHEL_IDLE; // this satchel charge weapon now forgets that any satchels are deployed by it.
 
 	if (bResult)
@@ -249,10 +249,10 @@ int CSatchel::AddToPlayer(CBasePlayer *pPlayer)
 void CSatchel::Spawn()
 {
 	Precache();
-	m_iId = WEAPON_SATCHEL;
 	SET_MODEL(ENT(pev), "models/w_satchel.mdl");
-
-	m_iDefaultAmmo = SATCHEL_DEFAULT_GIVE;
+	
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
 }
@@ -266,23 +266,6 @@ void CSatchel::Precache(void)
 	PRECACHE_MODEL("models/p_satchel_radio.mdl");
 
 	UTIL_PrecacheOther("monster_satchel");
-}
-
-int CSatchel::GetItemInfo(ItemInfo *p)
-{
-	p->pszName = STRING(pev->classname);
-	p->pszAmmo1 = "Satchel Charge";
-	p->iMaxAmmo1 = SATCHEL_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
-	p->iMaxClip = WEAPON_NOCLIP;
-	p->iSlot = 4;
-	p->iPosition = 1;
-	p->iFlags = ITEM_FLAG_SELECTONEMPTY | ITEM_FLAG_LIMITINWORLD | ITEM_FLAG_EXHAUSTIBLE;
-	p->iId = m_iId = WEAPON_SATCHEL;
-	p->iWeight = SATCHEL_WEIGHT;
-
-	return 1;
 }
 
 //=========================================================

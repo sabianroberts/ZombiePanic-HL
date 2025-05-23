@@ -141,7 +141,6 @@ CBasePlayerWeapon:: DefaultReload
 */
 BOOL CBasePlayerWeapon::DefaultReload(int iClipSize, int iAnim, float fDelay, int body)
 {
-
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
 
@@ -168,31 +167,6 @@ CBasePlayerWeapon:: CanDeploy
 */
 BOOL CBasePlayerWeapon::CanDeploy(void)
 {
-	BOOL bHasAmmo = 0;
-
-	if (!pszAmmo1())
-	{
-		// this weapon doesn't use ammo, can always deploy.
-		return TRUE;
-	}
-
-	if (pszAmmo1())
-	{
-		bHasAmmo |= (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] != 0);
-	}
-	if (pszAmmo2())
-	{
-		bHasAmmo |= (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] != 0);
-	}
-	if (m_iClip > 0)
-	{
-		bHasAmmo |= 1;
-	}
-	if (!bHasAmmo)
-	{
-		return FALSE;
-	}
-
 	return TRUE;
 }
 
@@ -204,9 +178,6 @@ CBasePlayerWeapon:: DefaultDeploy
 */
 BOOL CBasePlayerWeapon::DefaultDeploy(char *szViewModel, char *szWeaponModel, int iAnim, char *szAnimExt, int skiplocal, int body)
 {
-	if (!CanDeploy())
-		return FALSE;
-
 	gEngfuncs.CL_LoadModel(szViewModel, &m_pPlayer->pev->viewmodel);
 
 	SendWeaponAnim(iAnim, skiplocal, body);
@@ -275,8 +246,9 @@ void CBasePlayerWeapon::SendWeaponAnim(int iAnim, int skiplocal, int body)
 
 void CBasePlayerWeapon::SendWeaponPickup(CBasePlayer *pPlayer)
 {
+	int iWepID = GetWeaponID();
 	MESSAGE_BEGIN(MSG_ONE, gmsgWeapPickup, NULL, pPlayer->pev);
-	WRITE_BYTE(m_iId);
+	WRITE_BYTE(iWepID);
 	MESSAGE_END();
 }
 
@@ -768,10 +740,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		pCurrent->m_iSecondaryAmmoType = (int)from->client.vuser3[2];
 		pCurrent->m_iPrimaryAmmoType = (int)from->client.vuser4[0];
 
-		if (pCurrent->m_iPrimaryAmmoType > 0 && pCurrent->m_iPrimaryAmmoType < MAX_AMMO_SLOTS)
+		if (pCurrent->m_iPrimaryAmmoType > 0 && pCurrent->m_iPrimaryAmmoType < ZPAmmoTypes::AMMO_MAX)
 			player.m_rgAmmo[pCurrent->m_iPrimaryAmmoType] = (int)from->client.vuser4[1];
 
-		if (pCurrent->m_iSecondaryAmmoType > 0 && pCurrent->m_iSecondaryAmmoType < MAX_AMMO_SLOTS)
+		if (pCurrent->m_iSecondaryAmmoType > 0 && pCurrent->m_iSecondaryAmmoType < ZPAmmoTypes::AMMO_MAX)
 			player.m_rgAmmo[pCurrent->m_iSecondaryAmmoType] = (int)from->client.vuser4[2];
 	}
 
@@ -915,10 +887,6 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 			body = 0;
 #endif
 
-		//Show laser sight/scope combo
-		if (pWeapon == &g_Python && bIsMultiplayer())
-			body = 1;
-
 		// Force a fixed anim down to viewmodel
 		HUD_SendWeaponAnim(to->client.weaponanim, body, 1);
 	}
@@ -960,10 +928,10 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		to->client.vuser3[2] = pCurrent->m_iSecondaryAmmoType;
 		to->client.vuser4[0] = pCurrent->m_iPrimaryAmmoType;
 
-		if (pCurrent->m_iPrimaryAmmoType > 0 && pCurrent->m_iPrimaryAmmoType < MAX_AMMO_SLOTS)
+		if (pCurrent->m_iPrimaryAmmoType > 0 && pCurrent->m_iPrimaryAmmoType < ZPAmmoTypes::AMMO_MAX)
 			to->client.vuser4[1] = player.m_rgAmmo[pCurrent->m_iPrimaryAmmoType];
 
-		if (pCurrent->m_iSecondaryAmmoType > 0 && pCurrent->m_iSecondaryAmmoType < MAX_AMMO_SLOTS)
+		if (pCurrent->m_iSecondaryAmmoType > 0 && pCurrent->m_iSecondaryAmmoType < ZPAmmoTypes::AMMO_MAX)
 			to->client.vuser4[2] = player.m_rgAmmo[pCurrent->m_iSecondaryAmmoType];
 
 		/*		if ( pto->m_flPumpTime != -9999 )

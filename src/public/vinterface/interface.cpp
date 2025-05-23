@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include "interface.h"
 
+// We don't use this, if we use tier1.lib
+#if !defined(SOURCE_SDK_MIN_STEAM_API)
+
 #if !defined(_WIN32)
 // Linux doesn't have this function so this emulates its functionality
 //
@@ -261,3 +264,5 @@ CreateInterfaceFn Sys_GetFactory(const char *pModuleName)
 	return (CreateInterfaceFn)(Sys_GetProcAddress(pModuleName, CREATEINTERFACE_PROCNAME));
 #endif
 }
+
+#endif

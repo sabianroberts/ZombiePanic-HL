@@ -18,6 +18,7 @@
 #ifndef HUD_AMMOHISTORY_H
 #define HUD_AMMOHISTORY_H
 #include "ammo.h"
+#include "zp/zp_shared.h"
 
 class WeaponsResource
 {
@@ -27,7 +28,7 @@ private:
 
 	// counts of weapons * ammo
 	WEAPON *rgSlots[MAX_WEAPON_SLOTS][MAX_WEAPON_POSITIONS]; // The slots currently in use by weapons. The value is a pointer to the weapon; if it's NULL, no weapon is there
-	int riAmmo[MAX_AMMO_TYPES]; // count of each ammo type
+	int riAmmo[ZPAmmoTypes::AMMO_MAX]; // count of each ammo type
 
 public:
 	void Init(void)

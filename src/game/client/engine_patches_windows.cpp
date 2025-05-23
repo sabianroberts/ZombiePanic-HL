@@ -870,7 +870,7 @@ public:
 			DWORD exceptionCode = pExceptionInfo->ExceptionRecord->ExceptionCode;
 			DWORD exceptionAddress = (DWORD)pExceptionInfo->ExceptionRecord->ExceptionAddress;
 
-			fprintf(file, "BugfixedHL Crash Log\n");
+			fprintf(file, "Zombie Panic! Crash Log\n");
 			fprintf(file, "  Exception %s (0x%08X) at address 0x%08X (%s).\n",
 			    ExceptionCodeString(exceptionCode),
 			    exceptionCode,

@@ -8,5 +8,6 @@
 *	@return Whether initialization succeeded.
 */
 bool KV_InitKeyValuesSystem( CreateInterfaceFn* pFactories, int iNumFactories );
+bool KV_InitKeyValuesSystemOnServer();
 
 #endif //GAME_CLIENT_KEYVALUESCOMPAT_H

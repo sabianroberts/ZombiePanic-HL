@@ -398,10 +398,11 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		}
 		else if (FStrEq(pcmd, "test_ammoid"))
 		{
-			for ( int i = 1; i < MAX_AMMO_SLOTS; i++ )
+			for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
 			{
-				if (!CBasePlayerItem::AmmoInfoArray[i].pszName) continue;
-				UTIL_SayText(UTIL_VarArgs( "%s ID: [%i]", CBasePlayerItem::AmmoInfoArray[i].pszName, i ), pPlayer);
+				AmmoData ammo = GetAmmoByAmmoID( i );
+				if ( !ammo.AmmoName ) continue;
+				UTIL_SayText(UTIL_VarArgs( "%s ID: [%i]", ammo.AmmoName, ammo.AmmoType ), pPlayer);
 			}
 			return TRUE;
 		}

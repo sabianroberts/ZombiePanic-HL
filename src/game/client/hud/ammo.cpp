@@ -74,12 +74,9 @@ int WeaponsResource::HasAmmo(WEAPON *p)
 	if (!p)
 		return FALSE;
 
-	// weapons with no max ammo can always be selected
-	if (p->iMax1 == -1)
-		return TRUE;
-
-	return (p->iAmmoType == -1) || p->iClip > 0 || CountAmmo(p->iAmmoType)
-	    || CountAmmo(p->iAmmo2Type) || (p->iFlags & WEAPON_FLAGS_SELECTONEMPTY);
+	// We always return true if the weapon is valid.
+	// Because we want to drop the weapon if we have no ammo etc.
+	return TRUE;
 }
 
 void WeaponsResource::LoadWeaponSprites(WEAPON *pWeapon)
@@ -109,6 +106,7 @@ void WeaponsResource::LoadWeaponSprites(WEAPON *pWeapon)
 	pWeapon->hZoomedCrosshair = 0;
 	pWeapon->hZoomedAutoaim = 0;
 
+	// Johan - Maybe move this to the new weapon scripts instead ????
 	snprintf(sz, sizeof(sz), "sprites/%s.txt", pWeapon->szName);
 	client_sprite_t *pList = SPR_GetList(sz, &i);
 
@@ -654,15 +652,10 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf)
 
 	V_strcpy_safe(Weapon.szName, READ_STRING());
 	Weapon.iAmmoType = (int)READ_CHAR();
-
-	Weapon.iMax1 = READ_BYTE();
-	if (Weapon.iMax1 == 255)
-		Weapon.iMax1 = -1;
+	Weapon.iMax1 = GetAmmoByAmmoID( Weapon.iAmmoType ).MaxCarry;
 
 	Weapon.iAmmo2Type = READ_CHAR();
-	Weapon.iMax2 = READ_BYTE();
-	if (Weapon.iMax2 == 255)
-		Weapon.iMax2 = -1;
+	Weapon.iMax2 = GetAmmoByAmmoID( Weapon.iAmmo2Type ).MaxCarry;
 
 	Weapon.iSlot = READ_CHAR();
 	Weapon.iSlotPos = READ_CHAR();
@@ -680,10 +673,10 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf)
 	if (Weapon.iSlotPos < 0 || Weapon.iSlotPos >= MAX_WEAPON_POSITIONS + 1)
 		return 0;
 
-	if (Weapon.iAmmoType < -1 || Weapon.iAmmoType >= MAX_AMMO_TYPES)
+	if (Weapon.iAmmoType < -1 || Weapon.iAmmoType >= ZPAmmoTypes::AMMO_MAX)
 		return 0;
 
-	if (Weapon.iAmmo2Type < -1 || Weapon.iAmmo2Type >= MAX_AMMO_TYPES)
+	if (Weapon.iAmmo2Type < -1 || Weapon.iAmmo2Type >= ZPAmmoTypes::AMMO_MAX)
 		return 0;
 
 	if (Weapon.iAmmoType >= 0 && Weapon.iMax1 == 0)
@@ -1182,6 +1175,7 @@ int CHudAmmo::DrawWList(float flTime)
 				}
 				else
 				{
+#if 0
 					// Draw Weapon if Red if no ammo
 
 					if (gWR.HasAmmo(p))
@@ -1195,6 +1189,12 @@ int CHudAmmo::DrawWList(float flTime)
 						UnpackRGB(r, g, b, RGB_REDISH);
 						ScaleColors(r, g, b, a);
 					}
+#else
+					// Zombie Panic! does not care if you have an empty
+					// weapon or not.
+					a = 192 * gHUD.GetHudTransparency();
+					ScaleColors(r, g, b, a);
+#endif
 
 					if (p->hInactive)
 					{
@@ -1208,9 +1208,12 @@ int CHudAmmo::DrawWList(float flTime)
 					}
 				}
 
+				// We use the ammobank for showing amount of ammo.
+				// And also our weight.
+#if 0
 				// Draw Ammo Bar
-
 				DrawAmmoBar(p, x + giABWidth / 2, y, giABWidth, giABHeight);
+#endif
 
 				y += rcSprSelection.bottom - rcSprSelection.top + 5;
 			}

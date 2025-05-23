@@ -48,9 +48,9 @@ void CMP5::Spawn()
 {
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_mp5.mdl");
-	m_iId = WEAPON_MP5;
 
-	m_iDefaultAmmo = gpGlobals->maxClients > 1 ? MP5_MAX_CLIP : MP5_DEFAULT_GIVE;
+	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+	m_iDefaultAmmo = slot.DefaultAmmo;
 
 	FallInit(); // get ready to fall down.
 }
@@ -78,23 +78,6 @@ void CMP5::Precache(void)
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 
 	m_usMP5 = PRECACHE_EVENT(1, "events/mp5.sc");
-}
-
-int CMP5::GetItemInfo(ItemInfo *p)
-{
-	p->pszName = STRING(pev->classname);
-	p->pszAmmo1 = "9mm";
-	p->iMaxAmmo1 = _9MM_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
-	p->iMaxClip = MP5_MAX_CLIP;
-	p->iSlot = 2;
-	p->iPosition = 0;
-	p->iFlags = 0;
-	p->iId = m_iId = WEAPON_MP5;
-	p->iWeight = MP5_WEIGHT;
-
-	return 1;
 }
 
 int CMP5::AddToPlayer(CBasePlayer *pPlayer)

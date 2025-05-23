@@ -17,6 +17,7 @@
 
 #include "pm_materials.h"
 #include "pm_shared.h"
+#include "zp/zp_shared.h"
 
 #define PLAYER_FATAL_FALL_SPEED      1024 // approx 60 feet
 #define PLAYER_MAX_SAFE_FALL_SPEED   580 // approx 20 feet
@@ -175,8 +176,8 @@ public:
 	CBasePlayerItem *m_pClientActiveItem; // client version of the active item
 	CBasePlayerItem *m_pLastItem;
 	// shared ammo slots
-	int m_rgAmmo[MAX_AMMO_SLOTS];
-	int m_rgAmmoLast[MAX_AMMO_SLOTS];
+	int m_rgAmmo[ZPAmmoTypes::AMMO_MAX];
+	int m_rgAmmoLast[ZPAmmoTypes::AMMO_MAX];
 
 	Vector m_vecAutoAim;
 	BOOL m_fOnTarget;

@@ -154,3 +154,12 @@ set( SOURCE_SDK_LIBS
 	vstdlib
 	PARENT_SCOPE
 )
+
+set( SOURCE_SDK_SERVER_LIBS
+	${STEAM_API_LIBRARIES}
+	tier2
+	tier1
+	tier0
+	vstdlib
+	PARENT_SCOPE
+)
