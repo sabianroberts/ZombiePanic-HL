@@ -10,8 +10,6 @@
 #include "zp_gamemodebase.h"
 #include "zp_objective.h"
 
-extern cvar_t timeleft;
-
 ZPGameMode_Objective::ZPGameMode_Objective()
 {
 	SetRoundState( ZP::RoundState_WaitingForPlayers );
@@ -23,6 +21,7 @@ ZPGameMode_Objective::ZPGameMode_Objective()
 
 void ZPGameMode_Objective::OnHUDInit(CBasePlayer *pPlayer)
 {
+	BaseClass::OnHUDInit( pPlayer );
 	MESSAGE_BEGIN(MSG_ONE, gmsgRoundState, NULL, pPlayer->edict());
 	WRITE_SHORT(GetRoundState());
 	MESSAGE_END();
