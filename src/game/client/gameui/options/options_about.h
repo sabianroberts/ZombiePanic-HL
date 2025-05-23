@@ -34,7 +34,6 @@ private:
 
 	CCvarCheckButton *m_pAutoCheck = nullptr;
 	vgui2::URLLabel *m_pGitHubLink = nullptr;
-	vgui2::URLLabel *m_pAghlLink = nullptr;
 	COptionsURLButton *m_pOSSCredits = nullptr;
 
 	Color m_GreenColor = Color(0, 255, 0, 255);
