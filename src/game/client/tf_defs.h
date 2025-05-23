@@ -1289,7 +1289,7 @@ extern cvar_t tfc_spam_penalty2; // incremental gag penalty (seconds) for each t
 extern cvar_t tfc_spam_limit; // at this many points, gag the spammer
 extern cvar_t tfc_clanbattle, tfc_clanbattle_prematch, tfc_prematch, tfc_clanbattle_ceasefire, tfc_balance_teams, tfc_balance_scores;
 extern cvar_t tfc_clanbattle_locked, tfc_birthday, tfc_autokick_kills, tfc_fragscoring, tfc_autokick_time, tfc_adminpwd;
-extern cvar_t weaponstay, footsteps, flashlight, aimcrosshair, falldamage, teamplay;
+extern cvar_t weaponstay, footsteps, aimcrosshair, falldamage, teamplay;
 extern cvar_t allow_spectators;
 
 /*==========================================================================*/

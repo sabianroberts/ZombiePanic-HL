@@ -1182,7 +1182,7 @@ BOOL CHalfLifeMultiplay ::PlayFootstepSounds(CBasePlayer *pl, float fvol)
 
 BOOL CHalfLifeMultiplay ::FAllowFlashlight(void)
 {
-	return flashlight.value != 0;
+	return TRUE;
 }
 
 //=========================================================
