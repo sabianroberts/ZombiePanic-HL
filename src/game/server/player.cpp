@@ -1392,6 +1392,7 @@ void CBasePlayer::PlayerDeathThink(void)
 
 	pev->effects |= EF_NOINTERP;
 	pev->effects &= ~EF_DIMLIGHT;
+	pev->effects &= ~EF_NIGHTVISION;
 
 	BOOL fAnyButtonDown = (m_afButtonPressed & ~IN_SCORE);
 	m_afButtonLast = pev->button;
@@ -3753,20 +3754,17 @@ CBaseEntity *FindEntityForward(CBaseEntity *pMe)
 
 BOOL CBasePlayer ::FlashlightIsOn(void)
 {
-	return FBitSet(pev->effects, EF_DIMLIGHT);
+	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
+	return FBitSet(pev->effects, bIsZombie ? EF_NIGHTVISION : EF_DIMLIGHT);
 }
 
 void CBasePlayer ::FlashlightTurnOn(void)
 {
-	if (!g_pGameRules->FAllowFlashlight())
-	{
-		return;
-	}
-
 	if ((pev->weapons & (1 << WEAPON_SUIT)))
 	{
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
-		SetBits(pev->effects, EF_DIMLIGHT);
+		bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
+		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		SetBits(pev->effects, bIsZombie ? EF_NIGHTVISION : EF_DIMLIGHT);
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 		WRITE_BYTE(1);
 		WRITE_BYTE(m_iFlashBattery);
@@ -3778,8 +3776,9 @@ void CBasePlayer ::FlashlightTurnOn(void)
 
 void CBasePlayer ::FlashlightTurnOff(void)
 {
-	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
-	ClearBits(pev->effects, EF_DIMLIGHT);
+	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
+	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+	ClearBits(pev->effects, bIsZombie ? EF_NIGHTVISION : EF_DIMLIGHT);
 	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 	WRITE_BYTE(0);
 	WRITE_BYTE(m_iFlashBattery);
@@ -4559,7 +4558,8 @@ void CBasePlayer ::UpdateClientData(void)
 			if (m_iFlashBattery)
 			{
 				m_flFlashLightTime = FLASH_DRAIN_TIME + gpGlobals->time;
-				m_iFlashBattery--;
+				if ( pev->team != ZP::TEAM_ZOMBIE )
+					m_iFlashBattery--;
 
 				if (!m_iFlashBattery)
 					FlashlightTurnOff();

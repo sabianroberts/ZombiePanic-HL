@@ -100,6 +100,11 @@ void CHudFlashlight::Draw(float flTime)
 	if (!(gHUD.m_iWeaponBits & (1 << (WEAPON_SUIT))))
 		return;
 
+	// Don't draw if zombie team.
+	// We use zombie vision, not a flashlight
+	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
+	if ( localplayer->GetTeamNumber() == ZP::TEAM_ZOMBIE ) return;
+
 	if (m_fOn)
 		a = 225;
 	else
