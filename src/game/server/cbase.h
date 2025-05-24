@@ -754,6 +754,7 @@ public:
 	BYTE m_bUnlockedSound;
 	BYTE m_bUnlockedSentence;
 	int m_sounds;
+	int m_teamfilter;
 };
 
 //

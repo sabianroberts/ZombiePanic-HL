@@ -217,12 +217,12 @@ public:
 	virtual int Restore(CRestore &restore);
 	static TYPEDESCRIPTION m_SaveData[];
 
-	inline BOOL MessageToAll(void) { return (pev->spawnflags & SF_ENVTEXT_ALLPLAYERS); }
 	inline void MessageSet(const char *pMessage) { pev->message = ALLOC_STRING(pMessage); }
 	inline const char *MessageGet(void) { return STRING(pev->message); }
 
 private:
 	hudtextparms_t m_textParms;
+	int m_teamfilter;
 };
 
 LINK_ENTITY_TO_CLASS(game_text, CGameText);
@@ -297,6 +297,11 @@ void CGameText::KeyValue(KeyValueData *pkvd)
 		m_textParms.fxTime = atof(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
+	else if (FStrEq(pkvd->szKeyName, "broadcast"))
+	{
+		m_teamfilter = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
 	else
 		CRulePointEntity::KeyValue(pkvd);
 }
@@ -306,16 +311,45 @@ void CGameText::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useT
 	if (!CanFireForActivator(pActivator))
 		return;
 
-	if (MessageToAll())
+	switch ( m_teamfilter )
 	{
-		UTIL_HudMessageAll(m_textParms, MessageGet());
-	}
-	else
-	{
-		if (pActivator->IsNetClient())
+		// Activator only
+		case 1:
 		{
-			UTIL_HudMessage(pActivator, m_textParms, MessageGet());
+		    if ( pActivator->IsNetClient() )
+			    UTIL_HudMessage(pActivator, m_textParms, MessageGet());
 		}
+		break;
+		// All players
+		case 2:
+		{
+		    UTIL_HudMessageAll( m_textParms, MessageGet() );
+		}
+		break;
+		// Human only
+		case 3:
+		{
+			const char *splitMsg = UTIL_SplitHudMessage( MessageGet() );
+			for (int i = 1; i <= gpGlobals->maxClients; i++)
+			{
+				CBaseEntity *pPlayer = UTIL_PlayerByIndex(i);
+				if ( pPlayer && pPlayer->pev->team == ZP::TEAM_SURVIVIOR )
+				    UTIL_HudMessageRaw( pPlayer, m_textParms, splitMsg );
+			}
+		}
+		break;
+		// Zombie only
+		case 4:
+		{
+			const char *splitMsg = UTIL_SplitHudMessage( MessageGet() );
+			for (int i = 1; i <= gpGlobals->maxClients; i++)
+			{
+				CBaseEntity *pPlayer = UTIL_PlayerByIndex(i);
+				if ( pPlayer && pPlayer->pev->team == ZP::TEAM_ZOMBIE )
+				    UTIL_HudMessageRaw( pPlayer, m_textParms, splitMsg );
+			}
+		}
+		break;
 	}
 }
 
