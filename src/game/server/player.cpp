@@ -2984,8 +2984,8 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 
 	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, HalfPlayerHeight * 4)) != NULL)
 	{
-		// if ent is a client, don't spawn on 'em
-		if (ent->IsPlayer() && ent != pPlayer)
+		// if ent is a client, don't spawn on 'em (if not on the same team)
+		if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
 			return SpawnPointValidity::HasPlayers;
 	}
 
