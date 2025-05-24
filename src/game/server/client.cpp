@@ -52,7 +52,7 @@ extern DLL_GLOBAL ULONG g_ulFrameCount;
 extern int giPrecacheGrunt;
 extern int gmsgSayText;
 
-extern int g_teamplay;
+unsigned short m_usResetDecals;
 
 void LinkUserMessages(void);
 
@@ -459,27 +459,14 @@ void Host_Say(edict_t *pEntity, int teamonly)
 	else
 		temp = "say";
 
-	// team match?
-	if (g_teamplay)
-	{
-		UTIL_LogPrintf("\"%s<%i><%s><%s>\" %s \"%s\"\n",
-		    STRING(pEntity->v.netname),
-		    GETPLAYERUSERID(pEntity),
-		    GETPLAYERAUTHID(pEntity),
-		    g_engfuncs.pfnInfoKeyValue(g_engfuncs.pfnGetInfoKeyBuffer(pEntity), "model"),
-		    temp,
-		    p);
-	}
-	else
-	{
-		UTIL_LogPrintf("\"%s<%i><%s><%i>\" %s \"%s\"\n",
-		    STRING(pEntity->v.netname),
-		    GETPLAYERUSERID(pEntity),
-		    GETPLAYERAUTHID(pEntity),
-		    GETPLAYERUSERID(pEntity),
-		    temp,
-		    p);
-	}
+	UTIL_LogPrintf("\"%s<%i><%s><%i>\" %s \"%s\"\n",
+		STRING(pEntity->v.netname),
+		GETPLAYERUSERID(pEntity),
+		GETPLAYERAUTHID(pEntity),
+		GETPLAYERUSERID(pEntity),
+		temp,
+		p
+	);
 }
 
 /*
@@ -599,23 +586,12 @@ void ClientCommand(edict_t *pEntity)
 					UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("* %s has left spectator mode\n", (pPlayer->pev->netname && STRING(pPlayer->pev->netname)[0] != 0) ? STRING(pPlayer->pev->netname) : "unconnected"));
 				}
 
-				// team match?
-				if (g_teamplay)
-				{
-					UTIL_LogPrintf("\"%s<%i><%s><%s>\" has left spectator mode\n",
-					    STRING(pPlayer->pev->netname),
-					    GETPLAYERUSERID(pPlayer->edict()),
-					    GETPLAYERAUTHID(pPlayer->edict()),
-					    g_engfuncs.pfnInfoKeyValue(g_engfuncs.pfnGetInfoKeyBuffer(pPlayer->edict()), "model"));
-				}
-				else
-				{
-					UTIL_LogPrintf("\"%s<%i><%s><%i>\" has left spectator mode\n",
-					    STRING(pPlayer->pev->netname),
-					    GETPLAYERUSERID(pPlayer->edict()),
-					    GETPLAYERAUTHID(pPlayer->edict()),
-					    GETPLAYERUSERID(pPlayer->edict()));
-				}
+				UTIL_LogPrintf("\"%s<%i><%s><%i>\" has left spectator mode\n",
+					STRING(pPlayer->pev->netname),
+					GETPLAYERUSERID(pPlayer->edict()),
+					GETPLAYERAUTHID(pPlayer->edict()),
+					GETPLAYERUSERID(pPlayer->edict())
+				);
 			}
 		}
 	}
@@ -711,25 +687,13 @@ void ClientUserInfoChanged(edict_t *pEntity, char *infobuffer)
 		_snprintf(text, sizeof(text), "* %s changed name to %s\n", STRING(pEntity->v.netname), g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
 		UTIL_SayTextAll(text, pPlayer);
 
-		// team match?
-		if (g_teamplay)
-		{
-			UTIL_LogPrintf("\"%s<%i><%s><%s>\" changed name to \"%s\"\n",
-			    STRING(pEntity->v.netname),
-			    GETPLAYERUSERID(pEntity),
-			    GETPLAYERAUTHID(pEntity),
-			    g_engfuncs.pfnInfoKeyValue(infobuffer, "model"),
-			    g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
-		}
-		else
-		{
-			UTIL_LogPrintf("\"%s<%i><%s><%i>\" changed name to \"%s\"\n",
-			    STRING(pEntity->v.netname),
-			    GETPLAYERUSERID(pEntity),
-			    GETPLAYERAUTHID(pEntity),
-			    GETPLAYERUSERID(pEntity),
-			    g_engfuncs.pfnInfoKeyValue(infobuffer, "name"));
-		}
+		UTIL_LogPrintf("\"%s<%i><%s><%i>\" changed name to \"%s\"\n",
+			STRING(pEntity->v.netname),
+			GETPLAYERUSERID(pEntity),
+			GETPLAYERAUTHID(pEntity),
+			GETPLAYERUSERID(pEntity),
+			g_engfuncs.pfnInfoKeyValue(infobuffer, "name")
+		);
 	}
 
 	pPlayer->SetPrefsFromUserinfo(infobuffer);
@@ -1021,6 +985,8 @@ void ClientPrecache(void)
 
 	if (giPrecacheGrunt)
 		UTIL_PrecacheOther("monster_human_grunt");
+
+	m_usResetDecals = PRECACHE_EVENT(1, "events/decal_reset.sc");
 }
 
 /*

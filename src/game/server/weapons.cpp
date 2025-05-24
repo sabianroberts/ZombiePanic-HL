@@ -505,6 +505,20 @@ void CBasePlayerItem::AttemptToMaterialize(void)
 	pev->nextthink = gpGlobals->time + time;
 }
 
+void CBasePlayerItem::Spawn()
+{
+	CBaseAnimating::Spawn();
+	// When we create this weapon/item, remember where we spawned
+	// so we can use it for round restart.
+	m_SpawnLoc = pev->origin;
+	m_SpawnAngle = pev->angles;
+}
+
+void CBasePlayerItem::Restart()
+{
+	DestroyItem();
+}
+
 //=========================================================
 // CheckRespawn - a player is taking this weapon, should
 // it respawn?
@@ -1069,8 +1083,13 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 	if (AddAmmo(pOther))
 	{
 		SetTouch(NULL);
-		SetThink(&CBasePlayerAmmo::SUB_Remove);
-		pev->nextthink = gpGlobals->time + .1;
+		if ( SpawnedTroughRandomEntity() )
+		{
+			SetThink(&CBasePlayerAmmo::SUB_Remove);
+			pev->nextthink = gpGlobals->time + .1;
+		}
+		else
+			SoftRemove();
 	}
 	else if (gEvilImpulse101)
 	{

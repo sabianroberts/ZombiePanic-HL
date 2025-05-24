@@ -29,6 +29,7 @@ class CLight : public CPointEntity
 public:
 	virtual void KeyValue(KeyValueData *pkvd);
 	virtual void Spawn(void);
+	virtual void Restart();
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 	virtual int Save(CSave &save);
@@ -39,6 +40,7 @@ public:
 private:
 	int m_iStyle;
 	int m_iszPattern;
+	int m_iStartedOff;
 };
 LINK_ENTITY_TO_CLASS(light, CLight);
 
@@ -90,6 +92,8 @@ void CLight ::Spawn(void)
 		return;
 	}
 
+	m_iStartedOff = (pev->spawnflags & SF_LIGHT_START_OFF) != 0;
+
 	if (m_iStyle >= 32)
 	{
 		//		CHANGE_METHOD(ENT(pev), em_use, light_use);
@@ -99,6 +103,27 @@ void CLight ::Spawn(void)
 			LIGHT_STYLE(m_iStyle, (char *)STRING(m_iszPattern));
 		else
 			LIGHT_STYLE(m_iStyle, "m");
+	}
+}
+
+void CLight::Restart()
+{
+	if (m_iStyle >= 32)
+	{
+		if (m_iStartedOff)
+		{
+			pev->spawnflags |= SF_LIGHT_START_OFF;
+			LIGHT_STYLE(m_iStyle, "a");
+		}
+		else
+		{
+			pev->spawnflags &= ~SF_LIGHT_START_OFF;
+
+			if (m_iszPattern)
+				LIGHT_STYLE(m_iStyle, (char *)STRING(m_iszPattern));
+			else
+				LIGHT_STYLE(m_iStyle, "m");
+		}
 	}
 }
 

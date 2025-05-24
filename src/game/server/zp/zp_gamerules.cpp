@@ -13,26 +13,53 @@ extern DLL_GLOBAL BOOL g_fGameOver;
 
 // Our max rounds! (before we change to another level)
 extern cvar_t roundlimit;
-int g_iMapRounds = 0;
-string_t g_szCurrentMap = NULL;
+
+extern unsigned short m_usResetDecals;
+
+static const char *s_EntitiesRestarts[] = {
+	"cycler_sprite",
+	"light",
+	"func_breakable",
+	"func_door",
+	"func_button",
+	"func_rot_button",
+	"env_render",
+	"env_spark",
+	"trigger_push",
+	"func_water",
+	"func_door_rotating",
+	"func_tracktrain",
+	"func_vehicle",
+	"func_train",
+	"armoury_entity",
+	"ambient_generic",
+	"env_sprite",
+	"trigger_once",
+	"func_wall_toggle",
+	"func_healthcharger",
+	"func_recharge",
+	"trigger_hurt",
+	"multisource",
+	"env_beam",
+	"env_laser",
+	"trigger_auto",
+	"trigger_multiple",
+	"info_objective",
+	"game_counter",
+	"game_counter_set",
+	"", // END Marker
+};
 
 CZombiePanicGameRules::CZombiePanicGameRules()
 {
 	m_DisableDeathMessages = FALSE;
 	m_DisableDeathPenalty = FALSE;
 	m_bHasPickedVolunteer = false;
-	m_bRequireNewMap = false;
+	m_flRoundRestartDelay = -1;
 	m_Volunteers.clear();
 	m_Rejoiners.clear();
 
-	// Check the map names, if they differ
-	if ( g_szCurrentMap != gpGlobals->mapname )
-	{
-		// They differ, reset the rounds and set this
-		// as the new map to validate with.
-		g_szCurrentMap = gpGlobals->mapname;
-		g_iMapRounds = 0;
-	}
+	m_iRounds = 1;
 
 	m_GameModeType = ZP::IsValidGameModeMap( STRING( gpGlobals->mapname ) );
 	switch ( m_GameModeType )
@@ -42,7 +69,6 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 		default: m_pGameMode = new ZPGameMode_Dev; break;
 	}
 	ZP::SetCurrentGameMode( m_pGameMode );
-	g_iMapRounds++;
 }
 
 CZombiePanicGameRules::~CZombiePanicGameRules()
@@ -71,13 +97,14 @@ void CZombiePanicGameRules ::Think(void)
 		int iRoundLimit = (int)roundlimit.value;
 		if ( iRoundLimit > 0 )
 		{
-			if ( g_iMapRounds >= iRoundLimit )
+			// We need to change the map
+			if ( m_iRounds > iRoundLimit )
 			{
-				// Tell us that we need to change to a NEW map
-				m_bRequireNewMap = true;
+				GoToIntermission();
+				return;
 			}
 		}
-		GoToIntermission();
+		ResetRound();
 		return;
 	}
 
@@ -98,6 +125,7 @@ extern int gmsgTeamInfo;
 extern int gmsgTeamNames;
 extern int gmsgScoreInfo;
 extern int gmsgRounds;
+extern int gmsgVGUIMenu;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
@@ -105,7 +133,7 @@ void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 	WRITE_BYTE(m_GameModeType);
 	MESSAGE_END();
 	MESSAGE_BEGIN(MSG_ONE, gmsgRounds, NULL, pPlayer->edict());
-	WRITE_BYTE(g_iMapRounds);
+	WRITE_BYTE(m_iRounds);
 	MESSAGE_END();
 }
 
@@ -200,6 +228,74 @@ float CZombiePanicGameRules::FlPlayerFallDamage(CBasePlayer *pPlayer)
 		// fixed
 		default: return 10;
 	}
+}
+
+void CZombiePanicGameRules::ResetRound()
+{
+	if ( m_flRoundRestartDelay == -1 )
+	{
+		// TODO: Play a win sound + some UI element ???
+		m_flRoundRestartDelay = gpGlobals->time + 5.0f;
+		return;
+	}
+	if ( m_flRoundRestartDelay - gpGlobals->time > 0 ) return;
+	m_flRoundRestartDelay = -1;
+
+	// Reset all map objects
+	CleanUpMap();
+
+	// Respawn all players
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr && plr->IsAlive() )
+		{
+			ChangePlayerTeam(plr, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
+			plr->StartWelcomeCam();
+		}
+	}
+
+	m_pGameMode->RestartRound();
+
+	// Show the team menu for all players
+	MESSAGE_BEGIN(MSG_ALL, gmsgVGUIMenu);
+	WRITE_BYTE(2);
+	MESSAGE_END();
+
+	// Increase the round value
+	m_iRounds++;
+
+	// Make sure we tell everyone that our rounds have increased
+	MESSAGE_BEGIN(MSG_ALL, gmsgRounds, NULL);
+	WRITE_BYTE(m_iRounds);
+	MESSAGE_END();
+}
+
+void CZombiePanicGameRules::CleanUpMap()
+{
+	// Cleanup player inventories first
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr )
+			plr->RemoveAllItems( TRUE );
+	}
+
+	// Release or reset everything entities in depending of flags ObjectCaps
+	// (FCAP_MUST_RESET / FCAP_MUST_RELEASE)
+	UTIL_ResetEntities();
+
+	// Recreate all the map entities from the map data (preserving their indices),
+	// then remove everything else except the players.
+	for ( int i = 0; i < ARRAYSIZE( s_EntitiesRestarts ); i++ )
+		UTIL_RestartOther( s_EntitiesRestarts[i] );
+
+	// Make sure these are removed.
+	UTIL_RemoveAll( "grenade" );
+	UTIL_RemoveAll( "weaponbox" );
+
+	// Make sure we reset our decals.
+	PLAYBACK_EVENT((FEV_GLOBAL | FEV_RELIABLE), 0, m_usResetDecals);
 }
 
 void CZombiePanicGameRules::ResetVolunteers()

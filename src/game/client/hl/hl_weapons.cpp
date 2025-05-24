@@ -134,6 +134,13 @@ void CBaseEntity::Killed(entvars_t *pevAttacker, int iGib)
 	pev->effects |= EF_NODRAW;
 }
 
+void CBaseEntity::SoftRemove()
+{
+	pev->takedamage = DAMAGE_NO;
+	pev->deadflag = DEAD_DEAD;
+	pev->effects = EF_NODRAW;
+}
+
 /*
 =====================
 CBasePlayerWeapon:: DefaultReload

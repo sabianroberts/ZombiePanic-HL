@@ -77,6 +77,13 @@ ZPGameMode_Survival::WinState_e ZPGameMode_Survival::GetWinState()
 	return m_bAllSurvivorsDead ? State_ZombieWin : State_None;
 }
 
+void ZPGameMode_Survival::RestartRound()
+{
+	m_bTimeRanOut = false;
+	m_iZombieLives = 5;
+	BaseClass::RestartRound();
+}
+
 void ZPGameMode_Survival::UpdateZombieLifesForClient()
 {
 	MESSAGE_BEGIN(MSG_ALL, gmsgZombieLives);

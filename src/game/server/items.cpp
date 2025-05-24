@@ -129,12 +129,9 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 
 		// player grabbed the item.
 		g_pGameRules->PlayerGotItem(pPlayer, this);
-		UTIL_Remove(this);
 	}
-	else if (gEvilImpulse101)
-	{
-		UTIL_Remove(this);
-	}
+
+	SoftRemove();
 }
 
 CBaseEntity *CItem::Respawn(void)
@@ -211,6 +208,9 @@ class CItemSuit : public CItem
 			EMIT_SOUND_SUIT(pPlayer->edict(), "!HEV_AAx"); // long version of suit logon
 
 		pPlayer->pev->weapons |= (1 << WEAPON_SUIT);
+
+		// item_suit gets removed, we don't want to keep it for round restarts
+		SUB_Remove();
 		return TRUE;
 	}
 };

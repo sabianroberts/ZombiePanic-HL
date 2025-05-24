@@ -23,6 +23,7 @@ protected:
 		}
 	}
 	virtual void GiveWeaponsOnRoundStart() override;
+	virtual void RestartRound();
 
 private:
 	bool m_bHasPlayersReachedEnd;

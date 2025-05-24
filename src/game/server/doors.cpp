@@ -32,6 +32,7 @@ class CBaseDoor : public CBaseToggle
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void Precache(void);
 	virtual void KeyValue(KeyValueData *pkvd);
 	virtual void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
@@ -314,6 +315,18 @@ void CBaseDoor::Spawn()
 		SetTouch(NULL);
 	}
 	else // touchable button
+		SetTouch(&CBaseDoor::DoorTouch);
+}
+
+void CBaseDoor::Restart()
+{
+	SetMovedir(pev);
+	m_toggle_state = TS_AT_BOTTOM;
+	DoorGoDown();
+
+	if (pev->spawnflags & SF_DOOR_USE_ONLY)
+		SetTouch(nullptr);
+	else
 		SetTouch(&CBaseDoor::DoorTouch);
 }
 
@@ -844,6 +857,7 @@ class CRotDoor : public CBaseDoor
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	virtual void SetToggleState(int state);
 };
 
@@ -896,6 +910,45 @@ void CRotDoor::Spawn(void)
 	}
 	else // touchable button
 		SetTouch(&CRotDoor::DoorTouch);
+}
+
+void CRotDoor::Restart()
+{
+	CBaseToggle::AxisDir(pev);
+
+	if (pev->spawnflags & SF_DOOR_ROTATE_BACKWARDS)
+	{
+		pev->movedir = pev->movedir * -1;
+	}
+
+	if (pev->speed == 0)
+		pev->speed = 100;
+
+	// DOOR_START_OPEN is to allow an entity to be lighted in the closed position
+	// but spawn in the open position
+	if (pev->spawnflags & SF_DOOR_START_OPEN)
+	{
+#ifdef REGAMEDLL_FIXES
+		pev->angles = m_vecAngle1;
+#else
+		pev->angles = m_vecAngle2;
+
+		Vector vecSav = m_vecAngle1;
+		m_vecAngle2 = m_vecAngle1;
+		m_vecAngle1 = vecSav;
+#endif
+
+		pev->movedir = pev->movedir * -1;
+	}
+#ifdef REGAMEDLL_FIXES
+	else if (pev->netname.IsNull())
+	{
+		pev->angles = m_vecAngle1;
+	}
+#endif
+
+	m_toggle_state = TS_AT_BOTTOM;
+	DoorGoDown();
 }
 
 void CRotDoor ::SetToggleState(int state)

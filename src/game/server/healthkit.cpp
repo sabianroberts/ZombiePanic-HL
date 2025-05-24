@@ -79,14 +79,7 @@ BOOL CHealthKit::MyTouch(CBasePlayer *pPlayer)
 
 		EMIT_SOUND(ENT(pPlayer->pev), CHAN_ITEM, "items/smallmedkit1.wav", 1, ATTN_NORM);
 
-		if (g_pGameRules->ItemShouldRespawn(this))
-		{
-			Respawn();
-		}
-		else
-		{
-			UTIL_Remove(this);
-		}
+		SoftRemove();
 
 		return TRUE;
 	}
@@ -101,6 +94,7 @@ class CWallHealth : public CBaseToggle
 {
 public:
 	void Spawn();
+	void Restart();
 	void Precache(void);
 	void EXPORT Off(void);
 	void EXPORT Recharge(void);
@@ -158,6 +152,21 @@ void CWallHealth::Spawn()
 	SET_MODEL(ENT(pev), STRING(pev->model));
 	m_iJuice = gSkillData.healthchargerCapacity;
 	pev->frame = 0;
+}
+
+void CWallHealth::Restart()
+{
+	pev->solid = SOLID_BSP;
+	pev->movetype = MOVETYPE_PUSH;
+
+	// set size and link into world
+	UTIL_SetOrigin(pev, pev->origin);
+	UTIL_SetSize(pev, pev->mins, pev->maxs);
+
+	SET_MODEL(ENT(pev), STRING(pev->model));
+
+	pev->nextthink = pev->ltime + 0.1f;
+	SetThink(&CWallHealth::Recharge);
 }
 
 void CWallHealth::Precache()

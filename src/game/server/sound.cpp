@@ -115,6 +115,7 @@ class CAmbientGeneric : public CBaseEntity
 public:
 	void KeyValue(KeyValueData *pkvd);
 	void Spawn(void);
+	void Restart(void);
 	void Precache(void);
 	void EXPORT ToggleUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void EXPORT RampThink(void);
@@ -212,6 +213,72 @@ void CAmbientGeneric ::Spawn(void)
 	else
 		m_fLooping = TRUE;
 	Precache();
+}
+
+void CAmbientGeneric::Restart()
+{
+	if (pev->spawnflags & AMBIENT_SOUND_EVERYWHERE)
+	{
+		m_flAttenuation = ATTN_NONE;
+	}
+	else if (pev->spawnflags & AMBIENT_SOUND_SMALLRADIUS)
+	{
+		m_flAttenuation = ATTN_IDLE;
+	}
+	else if (pev->spawnflags & AMBIENT_SOUND_MEDIUMRADIUS)
+	{
+		m_flAttenuation = ATTN_STATIC;
+	}
+	else if (pev->spawnflags & AMBIENT_SOUND_LARGERADIUS)
+	{
+		m_flAttenuation = ATTN_NORM;
+	}
+	else
+	{
+		// if the designer didn't set a sound attenuation, default to one.
+		m_flAttenuation = ATTN_STATIC;
+	}
+
+	char *szSoundFile = (char *)STRING(pev->message);
+
+	if (FStringNull(pev->message) || strlen(szSoundFile) < 1)
+	{
+		ALERT(at_error, "EMPTY AMBIENT AT: %f, %f, %f\n", pev->origin.x, pev->origin.y, pev->origin.z);
+		pev->nextthink = gpGlobals->time + 0.1f;
+		SetThink(&CBaseEntity::SUB_Remove);
+		return;
+	}
+
+	pev->solid = SOLID_NOT;
+	pev->movetype = MOVETYPE_NONE;
+
+	// Set up think function for dynamic modification
+	// of ambient sound's pitch or volume. Don't
+	// start thinking yet.
+	SetThink(&CAmbientGeneric::RampThink);
+	pev->nextthink = 0;
+
+	// allow on/off switching via 'use' function.
+	SetUse(&CAmbientGeneric::ToggleUse);
+
+	m_fActive = FALSE;
+
+	UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, 0, 0, SND_STOP, 0);
+	InitModulationParms();
+	pev->nextthink = gpGlobals->time + 0.1f;
+
+	if (!(pev->spawnflags & AMBIENT_SOUND_NOT_LOOPING))
+	{
+		m_fLooping = TRUE;
+		m_fActive = TRUE;
+	}
+	else
+		m_fLooping = FALSE;
+
+	if (m_fActive)
+	{
+		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, (m_dpv.vol * 0.01f), m_flAttenuation, 0, m_dpv.pitch);
+	}
 }
 
 void CAmbientGeneric ::Precache(void)

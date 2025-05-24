@@ -310,6 +310,8 @@ void DecalGunshot(TraceResult *pTrace, int iBulletType) { }
 void EjectBrass(const Vector &vecOrigin, const Vector &vecVelocity, float rotation, int model, int soundtype) { }
 void AddAmmoNameToAmmoRegistry(const char *szAmmoname) { }
 int CBasePlayerItem::Restore(class CRestore &) { return 1; }
+void CBasePlayerItem::Spawn() { }
+void CBasePlayerItem::Restart() {}
 int CBasePlayerItem::Save(class CSave &) { return 1; }
 int CBasePlayerWeapon::Restore(class CRestore &) { return 1; }
 int CBasePlayerWeapon::Save(class CSave &) { return 1; }

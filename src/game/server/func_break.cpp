@@ -35,28 +35,20 @@ extern DLL_GLOBAL Vector g_vecAttackDir;
 // This is done instead of just a classname in the FGD so we can control which entities can
 // be spawned, and still remain fairly flexible
 const char *CBreakable::pSpawnObjects[] = {
-	NULL, // 0
-	"item_battery", // 1
-	"item_healthkit", // 2
-	"weapon_9mmhandgun", // 3
-	"ammo_9mmclip", // 4
-	"weapon_9mmAR", // 5
-	"ammo_9mmAR", // 6
-	"ammo_ARgrenades", // 7
-	"weapon_shotgun", // 8
-	"ammo_buckshot", // 9
-	"weapon_crossbow", // 10
-	"ammo_crossbow", // 11
-	"weapon_357", // 12
-	"ammo_357", // 13
-	"weapon_rpg", // 14
-	"ammo_rpgclip", // 15
-	"ammo_gaussclip", // 16
-	"weapon_handgrenade", // 17
-	"weapon_tripmine", // 18
-	"weapon_satchel", // 19
-	"weapon_snark", // 20
-	"weapon_hornetgun", // 21
+	NULL,
+	"item_battery",
+	"item_healthkit",
+	"weapon_9mmhandgun",
+	"ammo_9mmclip",
+	"weapon_554ar",
+	"ammo_554ar",
+	"weapon_shotgun",
+	"ammo_buckshot",
+	"weapon_357",
+	"ammo_357",
+	"weapon_handgrenade",
+	"weapon_satchel",
+	"weapon_mp5",
 };
 
 void CBreakable::KeyValue(KeyValueData *pkvd)
@@ -147,6 +139,7 @@ void CBreakable::Spawn(void)
 	else
 		pev->takedamage = DAMAGE_YES;
 
+	m_flHealth = pev->health;
 	pev->solid = SOLID_BSP;
 	pev->movetype = MOVETYPE_PUSH;
 	m_angle = pev->angles.y;
@@ -550,7 +543,7 @@ int CBreakable ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, flo
 	pev->health -= flDamage;
 	if (pev->health <= 0)
 	{
-		Killed(pevAttacker, GIB_NORMAL);
+		SoftRemove();
 		Die(pevAttacker ? CBaseEntity::Instance(pevAttacker) : NULL);
 		return 0;
 	}
@@ -740,7 +733,7 @@ void CBreakable::Die(CBaseEntity *pActivator)
 	// Fire targets on break
 	SUB_UseTargets(pActivator, USE_TOGGLE, 0);
 
-	SetThink(&CBreakable::SUB_Remove);
+	SetThink(NULL);
 	pev->nextthink = pev->ltime + 0.1;
 	if (m_iszSpawnObject)
 		CBaseEntity::Create((char *)STRING(m_iszSpawnObject), VecBModelOrigin(pev), pev->angles, edict());
@@ -767,6 +760,50 @@ int CBreakable ::DamageDecal(int bitsDamageType)
 	return CBaseEntity::DamageDecal(bitsDamageType);
 }
 
+void CBreakable::Restart()
+{
+	pev->solid = SOLID_BSP;
+	pev->movetype = MOVETYPE_PUSH;
+	pev->deadflag = DEAD_NO;
+
+	if (pev->spawnflags & SF_BREAK_TRIGGER_ONLY)
+		pev->takedamage = DAMAGE_NO;
+	else
+		pev->takedamage = DAMAGE_YES;
+
+	pev->health = m_flHealth;
+	pev->effects &= ~EF_NODRAW;
+	m_angle = pev->angles.y;
+	pev->angles.y = 0;
+
+	SET_MODEL(ENT(pev), STRING(pev->model));
+	SetTouch(&CBreakable::BreakTouch);
+
+	if (pev->spawnflags & SF_BREAK_TRIGGER_ONLY)
+	{
+		SetTouch(nullptr);
+	}
+
+	if (!IsBreakable() && pev->rendermode != kRenderNormal)
+	{
+		pev->flags |= FL_WORLDBRUSH;
+	}
+
+	if (m_iszSpawnObject)
+	{
+		CBaseEntity *pEntity = nullptr;
+
+		while ((pEntity = UTIL_FindEntityByClassname(pEntity, STRING(m_iszSpawnObject))))
+		{
+			if (!FNullEnt(pEntity->pev->owner) && FClassnameIs(pEntity->pev->owner, "func_breakable"))
+			{
+				pEntity->SetThink(&CBaseEntity::SUB_Remove);
+				pEntity->pev->nextthink = gpGlobals->time + 0.1f;
+			}
+		}
+	}
+}
+
 class CPushable : public CBreakable
 {
 public:
@@ -779,7 +816,7 @@ public:
 	void EXPORT StopSound(void);
 	//	virtual void	SetActivator( CBaseEntity *pActivator ) { m_pPusher = pActivator; }
 
-	virtual int ObjectCaps(void) { return (CBaseEntity ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_CONTINUOUS_USE; }
+	virtual int ObjectCaps(void) { return (CBaseEntity ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION) | FCAP_CONTINUOUS_USE | FCAP_MUST_RESET; }
 	virtual int Save(CSave &save);
 	virtual int Restore(CRestore &restore);
 

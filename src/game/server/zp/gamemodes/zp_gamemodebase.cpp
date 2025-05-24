@@ -36,6 +36,7 @@ ZP::RoundState ZP::GetCurrentRoundState()
 extern cvar_t timeleft;
 extern cvar_t testmode;
 extern cvar_t startdelay;
+extern int gmsgTeamInfo;
 
 bool CBaseGameMode::IsTestModeActive() const
 {
@@ -110,7 +111,8 @@ void CBaseGameMode::OnGameModeThink()
 	    break;
 
 		case ZP::RoundState_RoundHasBegunPost:
-		{
+	    {
+		    m_flLastZombieCheck = gpGlobals->time = 4.5f;
 			SetRoundState( ZP::RoundState_RoundHasBegun );
 		    MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
 		    WRITE_SHORT(GetRoundState());
@@ -141,6 +143,8 @@ void CBaseGameMode::OnGameModeThink()
 	// Sorry pal, we don't care if everyone is dead.
 	if ( IsTestModeActive() ) return;
 
+	CheckZombieAmount();
+
 	// If we did not find anyone, then they may be all be dead (or disconnected)
 	if ( !bHasSomeoneAlive )
 		m_bAllSurvivorsDead = true;
@@ -163,6 +167,65 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 			if ( iTeam == ZP::TEAM_ZOMBIE )
 				plr->m_iHideHUD |= HIDEHUD_WEAPONS;
 		}
+	}
+}
+
+void CBaseGameMode::RestartRound()
+{
+	SetRoundState( ZP::RoundState::RoundState_WaitingForPlayers );
+	SetWinState( WinState_e::State_None );
+	m_bAllSurvivorsDead = false;
+	SetRoundState(ZP::RoundState_RoundIsStarting);
+	MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
+	WRITE_SHORT(GetRoundState());
+	MESSAGE_END();
+}
+
+void CBaseGameMode::CheckZombieAmount()
+{
+	if ( m_flLastZombieCheck - gpGlobals->time > 0 ) return;
+	m_flLastZombieCheck = gpGlobals->time + 3.0f;
+	int iZombies = 0;
+	std::vector<int> m_Volunteers;
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr )
+		{
+			int iTeam = plr->pev->team;
+			if ( iTeam == ZP::TEAM_ZOMBIE )
+				iZombies++;
+			else if ( iTeam == ZP::TEAM_SURVIVIOR )
+				m_Volunteers.push_back( plr->entindex() );
+		}
+	}
+	// Check if we have any zombies
+	if ( iZombies > 0 ) return;
+	// We got no zombies? Pick a random survivor to become a zombie on the spot.
+	int iVolunteerIndex = 0;
+	int iVolunteers = m_Volunteers.size() - 1;
+	if ( iVolunteers > 0 )
+		iVolunteerIndex = RANDOM_LONG( 0, iVolunteers );
+	int iPlayerIndex = m_Volunteers[iVolunteerIndex];
+
+	if ( iPlayerIndex == 0 ) return;
+	m_Volunteers.erase( m_Volunteers.begin() + iVolunteerIndex );
+	CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( iPlayerIndex );
+	if ( plr )
+	{
+		int damageFlags = DMG_GENERIC | DMG_ALWAYSGIB;
+		entvars_t *pevWorld = VARS(INDEXENT(0));
+		plr->TakeDamage(pevWorld, pevWorld, 10000, damageFlags);
+		plr->pev->team = ZP::TEAM_ZOMBIE;
+
+		// notify everyone's HUD of the team change
+		MESSAGE_BEGIN( MSG_ALL, gmsgTeamInfo );
+		WRITE_BYTE( iPlayerIndex );
+		WRITE_STRING( plr->pev->iuser1 ? "" : plr->TeamID() );
+		MESSAGE_END();
+
+		plr->SendScoreInfo();
+		plr->Spawn();
 	}
 }
 

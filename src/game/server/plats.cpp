@@ -614,6 +614,7 @@ class CFuncTrain : public CBasePlatTrain
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void Precache(void);
 	void Activate(void);
 	void OverrideReset(void);
@@ -629,6 +630,8 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 	entvars_t *m_pevCurrentTarget;
+	entvars_t *m_pevFirstTarget;
+	Vector m_vStartPosition;
 	int m_sounds;
 	BOOL m_activated;
 };
@@ -795,6 +798,8 @@ void CFuncTrain ::Activate(void)
 		pev->target = pevTarg->target;
 		m_pevCurrentTarget = pevTarg; // keep track of this since path corners change our target for us.
 
+		m_pevFirstTarget = m_pevCurrentTarget;
+
 		UTIL_SetOrigin(pev, pevTarg->origin - (pev->mins + pev->maxs) * 0.5);
 
 		if (FStringNull(pev->targetname))
@@ -827,6 +832,9 @@ void CFuncTrain ::Spawn(void)
 	if (FStringNull(pev->target))
 		ALERT(at_console, "FuncTrain with no target");
 
+	m_pevFirstTarget = VARS(FIND_ENTITY_BY_TARGETNAME(nullptr, STRING(pev->target)));
+	m_vStartPosition = pev->origin;
+
 	if (pev->dmg == 0)
 		pev->dmg = 2;
 
@@ -845,6 +853,45 @@ void CFuncTrain ::Spawn(void)
 
 	if (m_volume == 0)
 		m_volume = 0.85;
+}
+
+void CFuncTrain::Restart()
+{
+	if (pev->speed == 0)
+		pev->speed = 100;
+
+	if (pev->dmg == 0)
+		pev->dmg = 2;
+
+	pev->movetype = MOVETYPE_PUSH;
+	m_pevCurrentTarget = m_pevFirstTarget;
+
+	UTIL_SetOrigin(pev, m_vStartPosition);
+
+	m_activated = FALSE;
+
+	if (m_volume == 0.0f)
+		m_volume = 0.85f;
+
+	SetThink(nullptr);
+	pev->velocity = g_vecZero;
+
+	// restore of first target
+	if (m_pevFirstTarget)
+	{
+		pev->target = m_pevFirstTarget->targetname;
+	}
+
+	if (pev->noiseMovement)
+	{
+		STOP_SOUND(edict(), CHAN_STATIC, (char *)STRING(pev->noiseMovement));
+	}
+	if (pev->noiseStopMoving)
+	{
+		EMIT_SOUND(ENT(pev), CHAN_VOICE, (char *)STRING(pev->noiseStopMoving), m_volume, ATTN_NORM);
+	}
+
+	Activate();
 }
 
 void CFuncTrain::Precache(void)

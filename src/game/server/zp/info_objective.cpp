@@ -22,6 +22,11 @@ void CObjectiveMessage::Spawn( void )
 	BaseClass::Spawn();
 }
 
+void CObjectiveMessage::Restart()
+{
+	m_State = ObjectiveState::State_Normal;
+}
+
 void CObjectiveMessage::KeyValue( KeyValueData *pkvd )
 {
 	if ( FStrEq( pkvd->szKeyName, "message" ) )

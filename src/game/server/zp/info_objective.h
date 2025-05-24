@@ -15,11 +15,13 @@ class CObjectiveMessage : public CPointEntity
 
 public:
 	void Spawn( void );
+	void Restart();
 	void KeyValue( KeyValueData *pkvd );
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
 	void UpdateMessageState();
 	void CallNewObjective();
 	bool IsFirstObjective();
+	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
 
 private:
 	ObjectiveState m_State;

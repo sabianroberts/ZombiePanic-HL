@@ -1635,6 +1635,9 @@ void UTIL_Remove(CBaseEntity *pEntity)
 	if (!pEntity)
 		return;
 
+	if (pEntity->pev == VARS(eoNullEntity) || pEntity->IsPlayer() || (pEntity->pev->flags & FL_KILLME) == FL_KILLME)
+		return;
+
 	pEntity->UpdateOnRemove();
 	pEntity->pev->flags |= FL_KILLME;
 	pEntity->pev->targetname = 0;
@@ -1662,6 +1665,52 @@ void UTIL_PrecacheOther(const char *szClassname)
 	if (pEntity)
 		pEntity->Precache();
 	REMOVE_ENTITY(pent);
+}
+
+void UTIL_RestartOther(const char *szClassname)
+{
+	CBaseEntity *pEntity = nullptr;
+	while ((pEntity = UTIL_FindEntityByClassname(pEntity, szClassname)))
+	{
+		pEntity->Restart();
+
+		FireTargets( "game_entity_restart", pEntity, nullptr, USE_TOGGLE, 0.0 );
+	}
+}
+
+void UTIL_ResetEntities()
+{
+	for (int i = 1; i < gpGlobals->maxEntities; i++)
+	{
+		edict_t *pEdict = INDEXENT(i);
+		if (!pEdict || pEdict->free)
+			continue;
+
+		CBaseEntity *pEntity = CBaseEntity::Instance(pEdict);
+		if (!pEntity)
+			continue;
+
+		// only non-player entities
+		if (pEntity->IsPlayer())
+			continue;
+
+		int caps = pEntity->ObjectCaps();
+		if ((caps & FCAP_MUST_RELEASE) == FCAP_MUST_RELEASE)
+			UTIL_Remove(pEntity);
+
+		else if ((caps & FCAP_MUST_RESET) == FCAP_MUST_RESET)
+			pEntity->Restart();
+	}
+}
+
+void UTIL_RemoveAll(const char *szClassname)
+{
+	int num = 0;
+	CBaseEntity *pEntity = nullptr;
+	while ((pEntity = UTIL_FindEntityByClassname(pEntity, szClassname)))
+	{
+		UTIL_Remove(pEntity);
+	}
 }
 
 //=========================================================

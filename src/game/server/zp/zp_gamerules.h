@@ -40,6 +40,9 @@ public:
 	virtual void ChangePlayerTeam(CBasePlayer *pPlayer, const char *pTeamName, BOOL bKill, BOOL bGib);
 	virtual float FlPlayerFallDamage(CBasePlayer *pPlayer);
 
+	virtual void ResetRound();
+	virtual void CleanUpMap();
+
 	virtual void ResetVolunteers();
 	virtual void PickRandomVolunteer();
 
@@ -59,7 +62,8 @@ private:
 	IGameModeBase *m_pGameMode;
 	std::vector<int> m_Volunteers;
 	std::vector<int> m_Rejoiners;
-	bool m_bRequireNewMap;
+	float m_flRoundRestartDelay;
+	int m_iRounds;
 };
 
 #endif

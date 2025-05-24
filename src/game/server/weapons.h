@@ -172,6 +172,10 @@ public:
 	virtual int Save(CSave &save);
 	virtual int Restore(CRestore &restore);
 
+	void Spawn();
+	void Restart();
+	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
+
 	static TYPEDESCRIPTION m_SaveData[];
 
 	virtual int AddToPlayer(CBasePlayer *pPlayer); // return TRUE if the item you want the item added to the player inventory
@@ -232,6 +236,8 @@ public:
 	int iFlags(void) { return ItemInfoArray[GetWeaponID()].iFlags; }
 
 	float		m_flDisallowPickup = -1;
+	Vector		m_SpawnLoc;
+	Vector		m_SpawnAngle;
 };
 
 // inventory items that
@@ -334,6 +340,7 @@ public:
 	void EXPORT DefaultTouch(CBaseEntity *pOther); // default weapon touch
 	virtual BOOL AddAmmo(CBaseEntity *pOther) { return TRUE; };
 	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
+	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
 	int AmmoToGive() const
 	{
 		if ( m_iDroppedOverride > 0 )

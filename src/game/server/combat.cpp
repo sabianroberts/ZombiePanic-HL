@@ -1557,6 +1557,13 @@ Vector CBaseEntity::FireBulletsPlayer(ULONG cShots, Vector vecSrc, Vector vecDir
 	return Vector(x * vecSpread.x, y * vecSpread.y, 0.0);
 }
 
+void CBaseEntity::SoftRemove()
+{
+	pev->takedamage = DAMAGE_NO;
+	pev->deadflag = DEAD_DEAD;
+	pev->effects = EF_NODRAW;
+}
+
 void CBaseEntity ::TraceBleed(float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType)
 {
 	if (BloodColor() == DONT_BLEED)

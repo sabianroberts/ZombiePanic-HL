@@ -57,7 +57,7 @@ public:
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 	// Bmodels don't go across transitions
-	virtual int ObjectCaps(void) { return CBaseEntity ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+	virtual int ObjectCaps(void) { return CBaseEntity ::ObjectCaps() & ~FCAP_ACROSS_TRANSITION | FCAP_MUST_RESET; }
 };
 
 LINK_ENTITY_TO_CLASS(func_wall, CFuncWall);
@@ -85,6 +85,7 @@ class CFuncWallToggle : public CFuncWall
 {
 public:
 	void Spawn(void);
+	void Restart();
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void TurnOff(void);
 	void TurnOn(void);
@@ -98,6 +99,19 @@ void CFuncWallToggle ::Spawn(void)
 	CFuncWall::Spawn();
 	if (pev->spawnflags & SF_WALL_START_OFF)
 		TurnOff();
+}
+
+void CFuncWallToggle::Restart()
+{
+	CFuncWall::Spawn();
+
+	if (pev->spawnflags & SF_WALL_START_OFF)
+	{
+		TurnOff();
+		return;
+	}
+
+	TurnOn();
 }
 
 void CFuncWallToggle ::TurnOff(void)
@@ -262,6 +276,7 @@ class CFuncRotating : public CBaseEntity
 public:
 	// basic functions
 	void Spawn(void);
+	void Restart();
 	void Precache(void);
 	void EXPORT SpinUp(void);
 	void EXPORT SpinDown(void);
@@ -282,6 +297,7 @@ public:
 	float m_flVolume;
 	float m_pitch;
 	int m_sounds;
+	Vector m_angles;
 };
 
 TYPEDESCRIPTION CFuncRotating::m_SaveData[] = {
@@ -295,6 +311,55 @@ TYPEDESCRIPTION CFuncRotating::m_SaveData[] = {
 IMPLEMENT_SAVERESTORE(CFuncRotating, CBaseEntity);
 
 LINK_ENTITY_TO_CLASS(func_rotating, CFuncRotating);
+
+void CFuncRotating::Restart()
+{
+	// stop sound, we're done
+	EMIT_SOUND_DYN(ENT(pev), CHAN_STATIC, (char *)STRING(pev->noiseRunning), 0, ATTN_NONE, SND_STOP, m_pitch);
+
+	// restore angles
+	pev->angles = m_angles;
+	pev->avelocity = g_vecZero;
+
+	// some rotating objects like fake volumetric lights will not be solid.
+	if (pev->spawnflags & SF_PENDULUM_PASSABLE)
+	{
+		pev->solid = SOLID_NOT;
+		pev->skin = CONTENTS_EMPTY;
+		pev->movetype = MOVETYPE_PUSH;
+	}
+	else
+	{
+		pev->solid = SOLID_BSP;
+		pev->movetype = MOVETYPE_PUSH;
+	}
+
+	UTIL_SetOrigin(pev, pev->origin);
+	SET_MODEL(ENT(pev), STRING(pev->model));
+
+	SetUse(&CFuncRotating::RotatingUse);
+
+	// did level designer forget to assign speed?
+	if (pev->speed <= 0)
+	{
+		pev->speed = 0;
+	}
+
+	// instant-use brush?
+	if (pev->spawnflags & SF_BRUSH_ROTATE_INSTANT)
+	{
+		SetThink(&CFuncRotating::SUB_CallUseToggle);
+
+		// leave a magic delay for client to start up
+		pev->nextthink = pev->ltime + 0.1f;
+	}
+
+	// can this brush inflict pain?
+	if (pev->spawnflags & SF_BRUSH_HURT)
+	{
+		SetTouch(&CFuncRotating::HurtTouch);
+	}
+}
 
 void CFuncRotating ::KeyValue(KeyValueData *pkvd)
 {
@@ -344,6 +409,8 @@ REVERSE will cause the it to rotate in the opposite direction.
 
 void CFuncRotating ::Spawn()
 {
+	m_angles = pev->angles;
+
 	// set final pitch.  Must not be PITCH_NORM, since we
 	// plan on pitch shifting later.
 

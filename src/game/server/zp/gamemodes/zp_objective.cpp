@@ -51,3 +51,10 @@ void ZPGameMode_Objective::GiveWeaponsOnRoundStart()
 	}
 }
 
+void ZPGameMode_Objective::RestartRound()
+{
+	m_bTimeRanOut = false;
+	m_bHasPlayersReachedEnd = false;
+	BaseClass::RestartRound();
+}
+

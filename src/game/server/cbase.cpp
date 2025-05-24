@@ -209,6 +209,8 @@ void DispatchKeyValue(edict_t *pentKeyvalue, KeyValueData *pkvd)
 		return;
 
 	pEntity->KeyValue(pkvd);
+
+
 }
 
 // HACKHACK -- this is a hack to keep the node graph entity from "touching" things (like triggers)

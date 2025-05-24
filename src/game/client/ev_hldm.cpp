@@ -74,6 +74,7 @@ extern "C"
 	void EV_HornetGunFire(struct event_args_s *args);
 	void EV_TripmineFire(struct event_args_s *args);
 	void EV_SnarkFire(struct event_args_s *args);
+	void EV_DecalReset(struct event_args_s *args);
 
 	void EV_TrainPitchAdjust(struct event_args_s *args);
 	void EV_VehiclePitchAdjust(struct event_args_s *args);
@@ -1815,6 +1816,19 @@ void EV_SnarkFire(event_args_t *args)
 }
 //======================
 //	   SQUEAK END
+//======================
+
+//======================
+//	DECALRESET START
+//======================
+void EV_DecalReset(event_args_t *args)
+{
+	// Purge all decals
+	for ( int x = 0; x < (int)CVAR_GET_FLOAT( "r_decals" ); x++ )
+        gEngfuncs.pEfxAPI->R_DecalRemoveAll( x );
+}
+//======================
+//	DECALRESET END
 //======================
 
 void EV_TrainPitchAdjust(event_args_t *args)

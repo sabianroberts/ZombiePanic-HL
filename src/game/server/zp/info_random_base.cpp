@@ -8,8 +8,11 @@ void CRandomItemBase::SpawnItem(void)
 {
 	const char *szItemToSpawn = GetRandomClassname();
 	if ( szItemToSpawn && szItemToSpawn[0] )
-		CBaseEntity::Create( (char *)szItemToSpawn, pev->origin, pev->angles, nullptr );
-	UTIL_Remove( this );
+	{
+		CBaseEntity *pSpawned = CBaseEntity::Create( (char *)szItemToSpawn, pev->origin, pev->angles, nullptr );
+		if ( pSpawned )
+			pSpawned->SetSpawnedTroughRandomEntity( true );
+	}
 }
 
 void ZP::SpawnWeaponsFromRandomEntities()

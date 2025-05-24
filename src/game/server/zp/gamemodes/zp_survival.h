@@ -18,6 +18,7 @@ protected:
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor );
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
 	virtual WinState_e GetWinState();
+	virtual void RestartRound();
 
 	virtual void UpdateZombieLifesForClient();
 	virtual void GiveWeaponsOnRoundStart();

@@ -41,6 +41,8 @@ CBaseEntity
 #define FCAP_ONOFF_USE         0x00000020 // can be used by the player
 #define FCAP_DIRECTIONAL_USE   0x00000040 // Player sends +/- 1 when using (currently only tracktrains)
 #define FCAP_MASTER            0x00000080 // Can be used to "master" other entities (like multisource)
+#define FCAP_MUST_RESET        0x00000100 // Should reset on the new round
+#define FCAP_MUST_RELEASE      0x00000200 // Should release on the new round
 
 // UNDONE: This will ignore transition volumes (trigger_transition), but not the PVS!!!
 #define FCAP_FORCE_TRANSITION 0x00000080 // ALWAYS goes across transitions
@@ -158,6 +160,7 @@ public:
 	virtual int Restore(CRestore &restore);
 	virtual int ObjectCaps(void) { return FCAP_ACROSS_TRANSITION; }
 	virtual void Activate(void) { }
+	virtual void Restart(void) { }
 
 	// Setup the object->object collision box (pev->mins / pev->maxs is the object->world collision box)
 	virtual void SetObjectCollisionBox(void);
@@ -173,6 +176,9 @@ public:
 	virtual int TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int bitsDamageType);
 	virtual int TakeHealth(float flHealth, int bitsDamageType);
 	virtual void Killed(entvars_t *pevAttacker, int iGib);
+	// Used to not remove the entity, but to keep it for this round.
+	// We simply hide it away, and pretend its gone, until round restarts.
+	virtual void SoftRemove();
 	virtual int BloodColor(void) { return DONT_BLEED; }
 	virtual void TraceBleed(float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType);
 	virtual BOOL IsTriggered(CBaseEntity *pActivator) { return TRUE; }
@@ -375,6 +381,13 @@ public:
 		FIRE_CHARGE
 	};
 	int m_fireState;
+
+	// Used by info_random entity base
+	virtual bool SpawnedTroughRandomEntity() { return m_bSpawnedTroughRandomEnt; }
+	virtual void SetSpawnedTroughRandomEntity(bool state) { m_bSpawnedTroughRandomEnt = state; }
+
+protected:
+	bool m_bSpawnedTroughRandomEnt = false;
 };
 
 // Ugly technique to override base member functions
@@ -435,6 +448,7 @@ class CMultiSource : public CPointEntity
 {
 public:
 	void Spawn();
+	void Restart();
 	void KeyValue(KeyValueData *pkvd);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	int ObjectCaps(void) { return (CPointEntity::ObjectCaps() | FCAP_MASTER); }
@@ -694,6 +708,7 @@ class CBaseButton : public CBaseToggle
 {
 public:
 	void Spawn(void);
+	void Restart();
 	virtual void Precache(void);
 	void RotSpawn(void);
 	virtual void KeyValue(KeyValueData *pkvd);

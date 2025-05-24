@@ -169,6 +169,12 @@ void CMultiSource::Spawn()
 	SetThink(&CMultiSource::Register);
 }
 
+void CMultiSource::Restart()
+{
+	memset(m_rgTriggered, 0, sizeof(m_rgTriggered));
+	Spawn();
+}
+
 void CMultiSource::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
 	int i = 0;
@@ -530,6 +536,23 @@ void CBaseButton::Spawn()
 	}
 }
 
+void CBaseButton::Restart()
+{
+	m_hActivator = nullptr;
+	SetMovedir(pev);
+	ButtonReturn();
+
+	if (pev->spawnflags & SF_BUTTON_TOUCH_ONLY)
+	{
+		SetTouch(&CBaseButton::ButtonTouch);
+	}
+	else
+	{
+		SetTouch(nullptr);
+		SetUse(&CBaseButton::ButtonUse);
+	}
+}
+
 // Button sound table.
 // Also used by CBaseDoor to get 'touched' door lock/unlock sounds
 
@@ -871,6 +894,10 @@ class CRotButton : public CBaseButton
 {
 public:
 	void Spawn(void);
+	void Restart(void);
+
+protected:
+	Vector m_vecSpawn;
 };
 
 LINK_ENTITY_TO_CLASS(func_rot_button, CRotButton);
@@ -913,6 +940,8 @@ void CRotButton::Spawn(void)
 		pev->takedamage = DAMAGE_YES;
 	}
 
+	m_vecSpawn = pev->angles;
+
 	m_toggle_state = TS_AT_BOTTOM;
 	m_vecAngle1 = pev->angles;
 	m_vecAngle2 = pev->angles + pev->movedir * m_flMoveDistance;
@@ -931,6 +960,12 @@ void CRotButton::Spawn(void)
 		SetTouch(&CRotButton::ButtonTouch);
 
 	//SetTouch( ButtonTouch );
+}
+
+void CRotButton::Restart()
+{
+	pev->angles = m_vecSpawn;
+	Spawn();
 }
 
 // Make this button behave like a door (HACKHACK)
@@ -1188,6 +1223,7 @@ class CEnvSpark : public CBaseEntity
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void Precache(void);
 	void EXPORT SparkThink(void);
 	void EXPORT SparkStart(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
@@ -1235,6 +1271,41 @@ void CEnvSpark::Spawn(void)
 		m_flDelay = 1.5;
 
 	Precache();
+}
+
+void CEnvSpark::Restart()
+{
+	SetThink(nullptr);
+	SetUse(nullptr);
+
+	// Use for on/off
+	if (pev->spawnflags & 32)
+	{
+		// Start on
+		if (pev->spawnflags & 64)
+		{
+			// start sparking
+			SetThink(&CEnvSpark::SparkThink);
+
+			// set up +USE to stop sparking
+			SetUse(&CEnvSpark::SparkStop);
+		}
+		else
+		{
+			SetUse(&CEnvSpark::SparkStart);
+		}
+	}
+	else
+	{
+		SetThink(&CEnvSpark::SparkThink);
+	}
+
+	pev->nextthink = gpGlobals->time + (0.1f + RANDOM_FLOAT(0.0f, 1.5f));
+
+	if (m_flDelay <= 0.0f)
+	{
+		m_flDelay = 1.5f;
+	}
 }
 
 void CEnvSpark::Precache(void)

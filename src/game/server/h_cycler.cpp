@@ -208,6 +208,7 @@ class CCyclerSprite : public CBaseEntity
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void Think(void);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	virtual int ObjectCaps(void) { return (CBaseEntity ::ObjectCaps() | FCAP_DONT_SAVE | FCAP_IMPULSE_USE); }
@@ -222,6 +223,11 @@ public:
 	int m_animate;
 	float m_lastTime;
 	float m_maxFrame;
+
+	int m_renderfx;
+	int m_rendermode;
+	float m_renderamt;
+	Vector m_rendercolor;
 };
 
 LINK_ENTITY_TO_CLASS(cycler_sprite, CCyclerSprite);
@@ -250,6 +256,29 @@ void CCyclerSprite::Spawn(void)
 	SET_MODEL(ENT(pev), STRING(pev->model));
 
 	m_maxFrame = (float)MODEL_FRAMES(pev->modelindex) - 1;
+
+	m_renderfx = pev->renderfx;
+	m_rendermode = pev->rendermode;
+	m_renderamt = pev->renderamt;
+	m_rendercolor = pev->rendercolor;
+}
+
+void CCyclerSprite::Restart()
+{
+	pev->solid = SOLID_SLIDEBOX;
+	pev->movetype = MOVETYPE_NONE;
+	pev->takedamage = DAMAGE_YES;
+	pev->effects = 0;
+
+	pev->frame = 0;
+	pev->nextthink = gpGlobals->time + 0.1f;
+	m_animate = 1;
+	m_lastTime = gpGlobals->time;
+
+	pev->renderfx = m_renderfx;
+	pev->rendermode = m_rendermode;
+	pev->renderamt = m_renderamt;
+	pev->rendercolor = m_rendercolor;
 }
 
 void CCyclerSprite::Think(void)

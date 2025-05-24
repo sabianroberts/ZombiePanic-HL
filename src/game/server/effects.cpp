@@ -352,6 +352,7 @@ class CLightning : public CBeam
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void Precache(void);
 	void KeyValue(KeyValueData *pkvd);
 	void Activate(void);
@@ -476,6 +477,60 @@ void CLightning::Spawn(void)
 		{
 			SetThink(&CLightning::StrikeThink);
 			pev->nextthink = gpGlobals->time + 1.0;
+		}
+	}
+}
+
+void CLightning::Restart()
+{
+	if (FStringNull(m_iszSpriteName))
+	{
+		SetThink(&CLightning::SUB_Remove);
+		return;
+	}
+
+	// Remove model & collisions
+	pev->solid = SOLID_NOT;
+	pev->dmgtime = gpGlobals->time;
+
+	if (ServerSide())
+	{
+		SetThink(nullptr);
+		if (pev->dmg > 0)
+		{
+			SetThink(&CLightning::DamageThink);
+			pev->nextthink = gpGlobals->time + 0.1f;
+		}
+
+		if (pev->targetname)
+		{
+			if (!(pev->spawnflags & SF_BEAM_STARTON))
+			{
+				m_active = FALSE;
+				pev->effects |= EF_NODRAW;
+				pev->nextthink = 0;
+			}
+			else
+			{
+				m_active = TRUE;
+			}
+
+			SetUse(&CLightning::ToggleUse);
+		}
+	}
+	else
+	{
+		m_active = FALSE;
+
+		if (!FStringNull(pev->targetname))
+		{
+			SetUse(&CLightning::StrikeUse);
+		}
+
+		if (FStringNull(pev->targetname) || (pev->spawnflags & SF_BEAM_STARTON))
+		{
+			SetThink(&CLightning::StrikeThink);
+			pev->nextthink = gpGlobals->time + 1.0f;
 		}
 	}
 }
