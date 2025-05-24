@@ -25,6 +25,7 @@
 #include "cbase.h"
 #include "saverestore.h"
 #include "doors.h"
+#include "zp/zp_shared.h"
 
 #if !defined(_WIN32)
 #include <string.h> // memset())))
@@ -418,6 +419,11 @@ void CBaseButton::KeyValue(KeyValueData *pkvd)
 		m_sounds = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
+	else if (FStrEq(pkvd->szKeyName, "users"))
+	{
+		m_teamfilter = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
 	else
 		CBaseToggle::KeyValue(pkvd);
 }
@@ -680,6 +686,33 @@ void CBaseButton::ButtonSpark(void)
 //
 void CBaseButton::ButtonUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	bool bFilterOK = true;
+	if ( pActivator )
+	{
+		int iTeam = pActivator->pev->team;
+		switch ( m_teamfilter )
+		{
+			// Human only
+			case 1:
+			{
+				if ( iTeam != ZP::TEAM_SURVIVIOR )
+				    bFilterOK = false;
+			}
+			break;
+			// Zombie only
+			case 2:
+			{
+				if ( iTeam != ZP::TEAM_ZOMBIE )
+				    bFilterOK = false;
+			}
+			break;
+		}
+	}
+
+	// If we did not return true, then refuse the player
+	// to interact with this
+	if ( !bFilterOK ) return;
+
 	// Ignore touches if button is moving, or pushed-in and waiting to auto-come-out.
 	// UNDONE: Should this use ButtonResponseToTouch() too?
 	if (m_toggle_state == TS_GOING_UP || m_toggle_state == TS_GOING_DOWN)
