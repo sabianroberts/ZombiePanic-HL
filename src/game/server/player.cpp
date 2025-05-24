@@ -3122,8 +3122,8 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 	static const char *TeamSpawnLocations[ZP::MAX_TEAM] = {
 		"info_player_observer",
 		"info_player_observer",
-		"info_player_team1",
-		"info_player_team2"
+		"info_player_team2",
+		"info_player_team1"
 	};
 	const char *szSpawnLocation = TeamSpawnLocations[iTeamNum];
 	ALERT(at_warning, "Spawnlocation: [%s][%i]\n", szSpawnLocation, iTeamNum);
