@@ -346,6 +346,8 @@ public:
 	//-----------------------------------------------------
 	// Zombie Panic! related stuff for weapon & ammo drop crap
 	//-----------------------------------------------------
+	float m_flCanSuicide;
+	float m_flSuicideTimer;
 	float m_flLastWeaponDrop;
 	float m_flLastAmmoDrop;
 	float m_flLastPanic;
@@ -358,6 +360,7 @@ public:
 
 	bool IsInPanic();
 	bool CanPanicSinceLastTime();
+	void WantsToSuicide();
 
 	//-----------------------------------------------------
 	// BEGIN BUGFIXED HL FIELDS

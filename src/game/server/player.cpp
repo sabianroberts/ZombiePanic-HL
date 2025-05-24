@@ -1980,6 +1980,28 @@ bool CBasePlayer::CanPanicSinceLastTime()
 	return ( m_flLastPanic - gpGlobals->time <= 0 ) ? true : false;
 }
 
+void CBasePlayer::WantsToSuicide()
+{
+	// If the value is -1, stop.
+	if ( m_flSuicideTimer == -1 ) return;
+
+	// Already dead? stop.
+	if ( !IsAlive() )
+	{
+		m_flSuicideTimer = -1;
+		return;
+	}
+
+	// If we reach 0 (or less), stop and kill.
+	if ( m_flSuicideTimer - gpGlobals->time <= 0 )
+	{
+		m_flSuicideTimer = -1;
+		// have the player kill themself
+		pev->health = 0;
+		Killed( pev, GIB_NEVER );
+	}
+}
+
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
 #define MAX_CLIMB_SPEED       200 // fastest vertical climbing speed possible
 #define CLIMB_SPEED_DEC       15 // climbing deceleration rate
@@ -2878,6 +2900,9 @@ pt_end:
 	else
 		pev->angles = m_vecLastViewAngles;
 
+	// Do the player want to die?
+	WantsToSuicide();
+
 #if defined(CLIENT_WEAPONS)
 	// Decay timers on weapons
 	// go through all of the weapons and make a list of the ones to pack
@@ -3341,6 +3366,11 @@ void CBasePlayer::Spawn(void)
 	m_flLastZombieMoan = gpGlobals->time + RANDOM_FLOAT( 6, 10 );
 	m_bFallingToMyDeath = false;
 	m_iAmmoTypeToDrop = 0;
+
+	// Always set it to 20 seconds per spawn.
+	// This will be reset back to 20 when the round begins
+	m_flCanSuicide = gpGlobals->time + 20.0f;
+	m_flSuicideTimer = -1;
 
 	g_pGameRules->PlayerSpawn(this);
 }

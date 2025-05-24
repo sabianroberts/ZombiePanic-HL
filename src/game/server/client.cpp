@@ -41,6 +41,8 @@
 #include "path.h"
 #include <ctype.h>
 #include "CBugfixedServer.h"
+#include "zp/zp_shared.h"
+#include "zp/gamemodes/zp_gamemodebase.h"
 
 extern DLL_GLOBAL ULONG g_ulModelIndexPlayer;
 extern DLL_GLOBAL BOOL g_fGameOver;
@@ -223,9 +225,21 @@ void ClientKill(edict_t *pEntity)
 		return;
 	}
 
-	// have the player kill themself
-	pev->health = 0;
-	pPlayer->Killed(pev, GIB_NEVER);
+	// prevent death before the rounds starts
+	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+	if ( pGameMode && pGameMode->GetRoundState() <= ZP::RoundState::RoundState_RoundHasBegunPost )
+	{
+		ClientPrint(pev, HUD_PRINTCONSOLE, UTIL_VarArgs("Can't suicide when the round haven't yet begun!\n"));
+		return;
+	}
+
+	if ( pPlayer->m_flCanSuicide - gpGlobals->time > 0 )
+	{
+		ClientPrint(pev, HUD_PRINTCONSOLE, UTIL_VarArgs("Can't suicide yet!\n"));
+		return;
+	}
+
+	pPlayer->m_flSuicideTimer = gpGlobals->time + 5.0f;
 }
 
 /*

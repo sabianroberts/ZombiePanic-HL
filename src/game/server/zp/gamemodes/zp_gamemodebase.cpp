@@ -157,6 +157,8 @@ void CBaseGameMode::GiveWeaponsOnRoundStart()
 			if ( iTeam == ZP::TEAM_SURVIVIOR )
 				GiveWeapons( plr );
 			plr->m_iHideHUD = 0;
+			plr->m_flCanSuicide = gpGlobals->time + 20.0f;
+			plr->m_flSuicideTimer = -1; // Just in case if the player manages to frame perfect a "kill" command.
 			// Zombies can't choose weapons, they only got their arms.
 			if ( iTeam == ZP::TEAM_ZOMBIE )
 				plr->m_iHideHUD |= HIDEHUD_WEAPONS;
