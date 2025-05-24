@@ -1473,7 +1473,7 @@ void CBasePlayer::StartDeathCam(void)
 
 	CopyToBodyQue(pev);
 
-	pSpot = FIND_ENTITY_BY_CLASSNAME(NULL, "info_intermission");
+	pSpot = FIND_ENTITY_BY_CLASSNAME(NULL, "info_player_observer");
 	if (!FNullEnt(pSpot))
 	{
 		// at least one intermission spot in the world.
@@ -1481,7 +1481,7 @@ void CBasePlayer::StartDeathCam(void)
 
 		while (iRand > 0)
 		{
-			pNewSpot = FIND_ENTITY_BY_CLASSNAME(pSpot, "info_intermission");
+			pNewSpot = FIND_ENTITY_BY_CLASSNAME(pSpot, "info_player_observer");
 
 			if (pNewSpot)
 			{
@@ -1535,7 +1535,7 @@ void CBasePlayer::StartWelcomeCam(void)
 	m_bInWelcomeCam = TRUE;
 
 	edict_t *pSpot, *pNewSpot;
-	pSpot = FIND_ENTITY_BY_CLASSNAME(NULL, "info_intermission");
+	pSpot = FIND_ENTITY_BY_CLASSNAME(NULL, "info_player_observer");
 	if (!FNullEnt(pSpot))
 	{
 		// at least one intermission spot in the world.
@@ -1543,7 +1543,7 @@ void CBasePlayer::StartWelcomeCam(void)
 
 		while (iRand > 0)
 		{
-			pNewSpot = FIND_ENTITY_BY_CLASSNAME(pSpot, "info_intermission");
+			pNewSpot = FIND_ENTITY_BY_CLASSNAME(pSpot, "info_player_observer");
 
 			if (pNewSpot)
 			{
