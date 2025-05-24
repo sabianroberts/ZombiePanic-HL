@@ -199,21 +199,14 @@ class C556ARAmmoClip : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_556ARclip.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmmoToGive = AMMO_AR556CLIP_GIVE;
+		m_iAmountLeft = m_iAmmoToGive = AMMO_AR556CLIP_GIVE;
+		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
+		strncpy(m_szSound, "items/556clip1.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_556ARclip.mdl");
 		PRECACHE_SOUND("items/556clip1.wav");
-	}
-	BOOL AddAmmo(CBaseEntity *pOther)
-	{
-		int bResult = (pOther->GiveAmmo(AmmoToGive(), "556ar", _556AR_MAX_CARRY) != -1);
-		if (bResult)
-		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/556clip1.wav", 1, ATTN_NORM);
-		}
-		return bResult;
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_556AR, C556ARAmmoClip);
@@ -225,7 +218,9 @@ class C556ARChainammo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_556box.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmmoToGive = AMMO_AR556BOX_GIVE;
+		m_iAmountLeft = m_iAmmoToGive = AMMO_AR556BOX_GIVE;
+		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
+		strncpy(m_szSound, "items/556clip1.wav", 32);
 	}
 	void Precache(void)
 	{
@@ -243,30 +238,3 @@ class C556ARChainammo : public CBasePlayerAmmo
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_556box, C556ARChainammo);
-
-class C556ARAmmoGrenade : public CBasePlayerAmmo
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_ARgrenade.mdl");
-		CBasePlayerAmmo::Spawn();
-		m_iAmmoToGive = AMMO_M203BOX_GIVE;
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_ARgrenade.mdl");
-		PRECACHE_SOUND("items/556clip1.wav");
-	}
-	BOOL AddAmmo(CBaseEntity *pOther)
-	{
-		int bResult = (pOther->GiveAmmo(AmmoToGive(), "ARgrenades", M203_GRENADE_MAX_CARRY) != -1);
-
-		if (bResult)
-		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/556clip1.wav", 1, ATTN_NORM);
-		}
-		return bResult;
-	}
-};
-LINK_ENTITY_TO_CLASS(ammo_ARgrenades, C556ARAmmoGrenade);

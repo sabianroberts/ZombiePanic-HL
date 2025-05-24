@@ -208,21 +208,14 @@ class CMP5AmmoClip : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_9mmARclip.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmmoToGive = AMMO_MP5CLIP_GIVE;
+		m_iAmountLeft = m_iAmmoToGive = AMMO_MP5CLIP_GIVE;
+		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
+		strncpy(m_szSound, "items/9mmclip1.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_9mmARclip.mdl");
 		PRECACHE_SOUND("items/9mmclip1.wav");
-	}
-	BOOL AddAmmo(CBaseEntity *pOther)
-	{
-		int bResult = (pOther->GiveAmmo(AmmoToGive(), "9mm", _9MM_MAX_CARRY) != -1);
-		if (bResult)
-		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
-		}
-		return bResult;
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_mp5clip, CMP5AmmoClip);
@@ -235,21 +228,14 @@ class CMP5Chainammo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_chainammo.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmmoToGive = AMMO_CHAINBOX_GIVE;
+		m_iAmountLeft = m_iAmmoToGive = AMMO_CHAINBOX_GIVE;
+		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
+		strncpy(m_szSound, "items/9mmclip1.wav", 32);
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_chainammo.mdl");
 		PRECACHE_SOUND("items/9mmclip1.wav");
-	}
-	BOOL AddAmmo(CBaseEntity *pOther)
-	{
-		int bResult = (pOther->GiveAmmo(AmmoToGive(), "9mm", _9MM_MAX_CARRY) != -1);
-		if (bResult)
-		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
-		}
-		return bResult;
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_9mmbox, CMP5Chainammo);

@@ -4114,6 +4114,15 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 #endif // HLDEMO_BUILD
 }
 
+bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
+{
+	int iWepID = pWeapon->GetWeaponID();
+	int iFlag = (1 << iWepID);
+	if (pev->weapons & iFlag)
+		return true;
+	return false;
+}
+
 //
 // Add a weapon to the player (Item == Weapon == Selectable Object)
 //
@@ -4127,6 +4136,8 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 	{
 		if (FClassnameIs(pInsert->pev, STRING(pItem->pev->classname)))
 		{
+			// Already own it? don't pick it up!
+			if (AlreadyOwnWeapon( pItem )) return FALSE;
 			if (pItem->AddDuplicate(pInsert))
 			{
 				g_pGameRules->PlayerGotWeapon(this, pItem);

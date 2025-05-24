@@ -355,21 +355,14 @@ class CShotgunAmmo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_shotbox.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmmoToGive = AMMO_BUCKSHOTBOX_GIVE;
+		m_iAmountLeft = m_iAmmoToGive = AMMO_BUCKSHOTBOX_GIVE;
+		m_AmmoType = ZPAmmoTypes::AMMO_SHOTGUN;
+		strncpy( m_szSound, "items/9mmclip1.wav", 32 );
 	}
 	void Precache(void)
 	{
 		PRECACHE_MODEL("models/w_shotbox.mdl");
 		PRECACHE_SOUND("items/9mmclip1.wav");
-	}
-	BOOL AddAmmo(CBaseEntity *pOther)
-	{
-		if (pOther->GiveAmmo(AmmoToGive(), "buckshot", BUCKSHOT_MAX_CARRY) != -1)
-		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/9mmclip1.wav", 1, ATTN_NORM);
-			return TRUE;
-		}
-		return FALSE;
 	}
 };
 LINK_ENTITY_TO_CLASS(ammo_buckshot, CShotgunAmmo);

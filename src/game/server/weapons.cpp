@@ -457,15 +457,6 @@ void CBasePlayerItem::FallThink(void)
 	{
 		SetThink(NULL);
 	}
-
-	//This weapon is an egon, it has no owner and we're in busting mode, so just remove it when it hits the ground
-	if (IsBustingGame() && FNullEnt(pev->owner))
-	{
-		if (!strcmp("weapon_egon", STRING(pev->classname)))
-		{
-			UTIL_Remove(this);
-		}
-	}
 }
 
 //=========================================================
@@ -753,9 +744,8 @@ int CBasePlayerWeapon::AddDuplicate(CBasePlayerItem *pOriginal)
 
 int CBasePlayerWeapon::AddToPlayer(CBasePlayer *pPlayer)
 {
-	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time > 0 ) return FALSE;
-
-	int bResult = CBasePlayerItem::AddToPlayer(pPlayer);
+	int bResult = CBasePlayerItem::AddToPlayer( pPlayer );
+	if ( bResult == FALSE ) return FALSE;
 	int iWepID = GetWeaponID();
 
 	pPlayer->pev->weapons |= (1 << iWepID);
@@ -1080,7 +1070,7 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 	if ( pOther->pev->team == ZP::TEAM_ZOMBIE )
 		return;
 
-	if (AddAmmo(pOther))
+	if ( GiveAmmoToPlayer( pOther ) )
 	{
 		SetTouch(NULL);
 		if ( SpawnedTroughRandomEntity() )
@@ -1098,6 +1088,23 @@ void CBasePlayerAmmo ::DefaultTouch(CBaseEntity *pOther)
 		SetThink(&CBasePlayerAmmo::SUB_Remove);
 		pev->nextthink = gpGlobals->time + .1;
 	}
+}
+
+bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther)
+{
+	CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+	AmmoData data = GetAmmoByAmmoID( m_AmmoType );
+	int iGiveAmmo = min( AmmoToGive(), data.MaxCarry - pPlayer->m_rgAmmo[m_AmmoType] );
+	// If we can't give ammo, ignore.
+	if ( iGiveAmmo == 0 ) return false;
+	// Let's give our ammo
+	if ( pOther->GiveAmmo( AmmoToGive(), (char *)data.AmmoName, data.MaxCarry ) > -1 )
+	{
+		m_iAmountLeft -= iGiveAmmo;
+		EMIT_SOUND( ENT(pev), CHAN_ITEM, m_szSound, 1, ATTN_NORM );
+	}
+	// If we have no ammo left, we remove this entity
+	return m_iAmountLeft <= 0 ? true : false;
 }
 
 //=========================================================

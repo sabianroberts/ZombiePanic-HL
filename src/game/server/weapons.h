@@ -338,7 +338,7 @@ class CBasePlayerAmmo : public CBaseEntity
 public:
 	virtual void EXPORT Spawn(void);
 	void EXPORT DefaultTouch(CBaseEntity *pOther); // default weapon touch
-	virtual BOOL AddAmmo(CBaseEntity *pOther) { return TRUE; };
+	bool GiveAmmoToPlayer(CBaseEntity *pOther);
 	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
 	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
 	int AmmoToGive() const
@@ -352,8 +352,11 @@ public:
 	void EXPORT Materialize(void);
 
 	float m_flDisallowPickup = -1;
+	int m_iAmountLeft = 0;
 	int m_iAmmoToGive = 0;
 	int m_iDroppedOverride = 0;
+	char m_szSound[32];
+	ZPAmmoTypes m_AmmoType = ZPAmmoTypes::AMMO_NONE;
 };
 
 extern DLL_GLOBAL short g_sModelIndexLaser; // holds the index for the laser beam
