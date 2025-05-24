@@ -25,6 +25,8 @@ CObjectiveText::CObjectiveText()
 {
 	SetParent(g_pViewport);
 
+	SetProportional( true );
+
 	m_pText = new vgui2::Label( this, "Text", "" );
 
 	m_State = ObjectiveState::State_Normal;
