@@ -1,5 +1,7 @@
 add_sources(
 	CMakeLists.txt
+	hud/zp_objective.cpp
+	hud/zp_objective.h
 	hud/zp_zombielives.cpp
 	hud/zp_zombielives.h
 	hud/zp_roundstate.cpp

@@ -218,6 +218,8 @@ int gmsgVGUIMenu = 0;
 int gmsgStatusIcon = 0;
 int gmsgFog = 0;
 
+int gmsgObjective = 0;
+
 const char *const gCustomMessages[] = {
 	"IconInfo",
 	"CheatCheck",
@@ -292,6 +294,8 @@ void LinkUserMessages(void)
 	}
 
 	gmsgFog = REG_USER_MSG("Fog", 7);
+
+	gmsgObjective = REG_USER_MSG("ObjMsg", -1);
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);

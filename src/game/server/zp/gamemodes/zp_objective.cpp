@@ -9,6 +9,7 @@
 
 #include "zp_gamemodebase.h"
 #include "zp_objective.h"
+#include "zp/info_objective.h"
 
 ZPGameMode_Objective::ZPGameMode_Objective()
 {
@@ -32,5 +33,21 @@ ZPGameMode_Objective::WinState_e ZPGameMode_Objective::GetWinState()
 	if ( m_bTimeRanOut ) return State_ZombieWin;
 	if ( m_bHasPlayersReachedEnd ) return State_SurvivorWin;
 	return m_bAllSurvivorsDead ? State_ZombieWin : State_None;
+}
+
+void ZPGameMode_Objective::GiveWeaponsOnRoundStart()
+{
+	BaseClass::GiveWeaponsOnRoundStart();
+	CObjectiveMessage *pFind = (CObjectiveMessage *)UTIL_FindEntityByClassname( nullptr, "info_objective" );
+	while ( pFind )
+	{
+		// If we find our first objective, make sure it's being fired!
+		if ( pFind->IsFirstObjective() )
+		{
+			pFind->Use( nullptr, nullptr, USE_ON, 0 );
+			break;
+		}
+		pFind = (CObjectiveMessage *)UTIL_FindEntityByClassname( pFind, "info_objective" );
+	}
 }
 

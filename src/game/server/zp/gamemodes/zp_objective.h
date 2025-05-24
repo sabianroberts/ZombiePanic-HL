@@ -22,6 +22,7 @@ protected:
 			case IGameModeBase::State_SurvivorWin: m_bHasPlayersReachedEnd = true; break;
 		}
 	}
+	virtual void GiveWeaponsOnRoundStart() override;
 
 private:
 	bool m_bHasPlayersReachedEnd;

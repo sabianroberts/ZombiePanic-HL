@@ -8,6 +8,17 @@
 #include <vector>
 
 /// <summary>
+/// Objective states, used by info_objective.cpp & zp_objective.cpp
+/// </summary>
+enum ObjectiveState
+{
+	State_Normal = 0,
+	State_InProgress,
+	State_Completed,
+	State_Failed
+};
+
+/// <summary>
 /// The WeaponID's used by Zombie Panic!
 /// </summary>
 enum ZPWeaponID

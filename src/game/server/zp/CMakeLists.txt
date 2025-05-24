@@ -1,5 +1,7 @@
 add_sources(
 	CMakeLists.txt
+	info_objective.h
+	info_objective.cpp
 	trigger_endround.cpp
 	info_random_base.cpp
 	info_random_base.h
