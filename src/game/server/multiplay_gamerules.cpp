@@ -228,8 +228,7 @@ void CHalfLifeMultiplay ::Think(void)
 		// check to see if we should change levels now
 		if (m_flIntermissionEndTime < gpGlobals->time)
 		{
-			if (m_iEndIntermissionButtonHit // check that someone has pressed a key, or the max intermission time is over
-			    || ((g_flIntermissionStartTime + MAX_INTERMISSION_TIME) < gpGlobals->time))
+			if ( ((g_flIntermissionStartTime + MAX_INTERMISSION_TIME) < gpGlobals->time) )
 				ChangeLevel(); // intermission is over
 		}
 
@@ -1204,18 +1203,10 @@ void CHalfLifeMultiplay ::GoToIntermission(void)
 	MESSAGE_BEGIN(MSG_ALL, SVC_INTERMISSION);
 	MESSAGE_END();
 
-	// bounds check
-	int time = (int)CVAR_GET_FLOAT("mp_chattime");
-	if (time < 1)
-		CVAR_SET_STRING("mp_chattime", "1");
-	else if (time > MAX_INTERMISSION_TIME)
-		CVAR_SET_STRING("mp_chattime", UTIL_dtos1(MAX_INTERMISSION_TIME));
-
-	m_flIntermissionEndTime = gpGlobals->time + ((int)mp_chattime.value);
+	m_flIntermissionEndTime = gpGlobals->time + 5.f;
 	g_flIntermissionStartTime = gpGlobals->time;
 
 	g_fGameOver = TRUE;
-	m_iEndIntermissionButtonHit = FALSE;
 }
 
 /*

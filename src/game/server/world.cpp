@@ -664,15 +664,6 @@ void CWorld ::Precache(void)
 		gDisplayTitle = TRUE; // display the game title if this key is set
 	else
 		gDisplayTitle = FALSE;
-
-	if (pev->spawnflags & SF_WORLD_FORCETEAM)
-	{
-		CVAR_SET_FLOAT("mp_defaultteam", 1);
-	}
-	else
-	{
-		CVAR_SET_FLOAT("mp_defaultteam", 0);
-	}
 }
 
 //
