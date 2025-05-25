@@ -202,7 +202,6 @@ static void AboutCommand(void)
 	ConPrintf("Engine: %s\n", gHUD.GetEngineVersion());
 	ConPrintf("\n");
 	ConPrintf("Github: " BHL_GITHUB_URL "\n");
-	ConPrintf("Discussion forum: " BHL_FORUM_URL "\n");
 }
 
 //! Gets the current HUD size (either user-selected or auto-detected).
