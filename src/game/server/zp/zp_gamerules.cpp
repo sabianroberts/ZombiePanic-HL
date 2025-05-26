@@ -8,6 +8,7 @@
 #include "gamerules.h"
 #include "zp_gamerules.h"
 #include "game.h"
+#include "shake.h"
 
 extern DLL_GLOBAL BOOL g_fGameOver;
 
@@ -94,11 +95,12 @@ void CZombiePanicGameRules ::Think(void)
 	IGameModeBase::WinState_e eWinState = m_pGameMode->GetWinState();
 	if ( eWinState >= IGameModeBase::WinState_e::State_Draw )
 	{
+		m_pGameMode->SetRoundState( ZP::RoundState::RoundState_RoundIsOver );
 		int iRoundLimit = (int)roundlimit.value;
 		if ( iRoundLimit > 0 )
 		{
 			// We need to change the map
-			if ( m_iRounds > iRoundLimit )
+			if ( m_iRounds >= iRoundLimit )
 			{
 				GoToIntermission();
 				return;
@@ -126,6 +128,7 @@ extern int gmsgTeamNames;
 extern int gmsgScoreInfo;
 extern int gmsgRounds;
 extern int gmsgVGUIMenu;
+extern int gmsgRoundState;
 
 void CZombiePanicGameRules::UpdateGameMode(CBasePlayer *pPlayer)
 {
@@ -234,7 +237,12 @@ void CZombiePanicGameRules::ResetRound()
 {
 	if ( m_flRoundRestartDelay == -1 )
 	{
-		// TODO: Play a win sound + some UI element ???
+		// Fade out to black!
+		UTIL_ScreenFadeAll( Vector( 0, 0, 0 ), 1.0f, 5.0f, 255, FFADE_OUT );
+		MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
+		WRITE_SHORT( m_pGameMode->GetRoundState() );
+		WRITE_SHORT( m_pGameMode->GetWinState() );
+		MESSAGE_END();
 		m_flRoundRestartDelay = gpGlobals->time + 5.0f;
 		return;
 	}

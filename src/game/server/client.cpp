@@ -983,6 +983,12 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/geiger2.wav");
 	PRECACHE_SOUND("player/geiger1.wav");
 
+	// Round End sounds
+	PRECACHE_SOUND("modes/win_draw.wav");
+	PRECACHE_SOUND("modes/win_zombie.wav");
+	PRECACHE_SOUND("modes/win_human.wav");
+	PRECACHE_SOUND("modes/round_ready.wav");
+
 	if (giPrecacheGrunt)
 		UTIL_PrecacheOther("monster_human_grunt");
 

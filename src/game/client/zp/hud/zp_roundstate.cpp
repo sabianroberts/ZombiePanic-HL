@@ -8,6 +8,8 @@
 #include "hud.h"
 #include "parsemsg.h"
 #include "cl_util.h"
+#include "cl_dll.h"
+#include "event_api.h"
 #include "cl_voice_status.h"
 #include "zp_roundstate.h"
 #include "vgui/client_viewport.h"
@@ -18,7 +20,9 @@ DEFINE_HUD_ELEM(CHudRoundState);
 CHudRoundState::CHudRoundState()
     : vgui2::Panel(NULL, "HudRoundState")
 {
-	SetParent(g_pViewport);
+	SetParent( g_pViewport );
+
+	SetScheme( "ClientScheme" );
 
 	m_pText = new vgui2::Label( this, "Text", "Apple!" );
 	m_pText->SetVisible( false );
@@ -68,6 +72,17 @@ void CHudRoundState::Paint()
 				m_pText->SetVisible( true );
 		}
 		break;
+
+		case ZP::RoundState::RoundState_RoundIsOver:
+		{
+		    int iAlpha = m_pText->GetFgColor().a();
+		    iAlpha += 2;
+			m_pText->SetFgColor( Color( 255, 255, 255, (int)clamp( iAlpha, 0, 255 ) ) );
+			m_pText->SetBounds( 0, m_iRoundIsOverYPos, w, m_iRoundIsOverTall );
+			if ( !m_pText->IsVisible() )
+				m_pText->SetVisible( true );
+		}
+		break;
 	}
 }
 
@@ -75,6 +90,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 {
 	BEGIN_READ( pbuf, iSize );
 	int state = READ_SHORT();
+	int winner = READ_SHORT();
 	gHUD.m_RoundState = (ZP::RoundState)state;
 
 	switch ( gHUD.m_RoundState )
@@ -88,16 +104,75 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 			    if ( font != vgui2::INVALID_FONT )
 					m_pText->SetFont( font );
 			}
+			m_pText->SetFgColor( Color( 255, 255, 255, 255 ) );
 			m_pText->SetText( "#ZP_WaitingForPlayers" );
 			m_pText->SetVisible( true );
 		}
 		break;
 		// Use these or???
-		//case ZP::RoundState_RoundIsStarting: break;
+		case ZP::RoundState_RoundIsStarting:
+		{
+			m_pText->SetVisible( false );
+			gEngfuncs.pEventAPI->EV_PlaySound(
+				gEngfuncs.GetLocalPlayer()->index,
+				gEngfuncs.GetLocalPlayer()->origin,
+		        CHAN_WEAPON, "modes/round_ready.wav",
+				1, ATTN_NORM,
+				0, PITCH_NORM
+			);
+		}
+	    break;
 		//case ZP::RoundState_PickVolunteers: break;
 		//case ZP::RoundState_RoundHasBegunPost: break;
 		//case ZP::RoundState_RoundHasBegun: break;
-		//case ZP::RoundState_RoundIsOver: break;
+		case ZP::RoundState_RoundIsOver:
+		{
+			// winner is only used here under RoundIsOver state.
+			vgui2::IScheme *pScheme = vgui2::scheme()->GetIScheme( GetScheme() );
+			if ( pScheme )
+			{
+				vgui2::HFont font = pScheme->GetFont( m_szRoundIsOverFont, IsProportional() );
+				if ( font != vgui2::INVALID_FONT )
+					m_pText->SetFont( font );
+		    }
+			// Show our win text & play the audio.
+			// ---------------------------------------
+		    // Zombie Panic! never had any "round win" audio,
+		    // so we will use a modified one from Zombie Panic! Source instead.
+		    const char *szSoundToPlay = nullptr;
+			switch ( winner )
+			{
+				case 1:
+				{
+					m_pText->SetText( "#ZP_Win_Draw" );
+			        szSoundToPlay = "modes/win_draw.wav";
+				}
+				break;
+				case 2:
+				{
+					m_pText->SetText( "#ZP_Win_Zombie" );
+			        szSoundToPlay = "modes/win_zombie.wav";
+				}
+				break;
+				case 3:
+				{
+					m_pText->SetText( "#ZP_Win_Survivor" );
+			        szSoundToPlay = "modes/win_human.wav";
+				}
+				break;
+			}
+			if ( szSoundToPlay && szSoundToPlay[0] )
+				gEngfuncs.pEventAPI->EV_PlaySound(
+					gEngfuncs.GetLocalPlayer()->index,
+					gEngfuncs.GetLocalPlayer()->origin,
+					CHAN_WEAPON, szSoundToPlay,
+					1, ATTN_NORM,
+					0, PITCH_NORM
+				);
+			m_pText->SetFgColor( Color( 255, 255, 255, 0 ) );
+			m_pText->SetVisible( true );
+		}
+	    break;
 	    default: m_pText->SetVisible( false ); break;
 	}
 

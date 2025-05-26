@@ -249,7 +249,7 @@ void LinkUserMessages(void)
 	gmsgZombieLives = REG_USER_MSG("ZombieLives", 2);
 	gmsgRounds = REG_USER_MSG("Rounds", -1);
 	gmsgAmmoBankUpdate = REG_USER_MSG("AmmoBank", -1);
-	gmsgRoundState = REG_USER_MSG("RoundState", 2);
+	gmsgRoundState = REG_USER_MSG("RoundState", -1);
 	gmsgTrain = REG_USER_MSG("Train", 1);
 	gmsgHudText = REG_USER_MSG("HudText", -1);
 	gmsgSayText = REG_USER_MSG("SayText", -1);

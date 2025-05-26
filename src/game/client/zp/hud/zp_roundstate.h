@@ -21,10 +21,15 @@ public:
 	int MsgFunc_RoundState(const char *pszName, int iSize, void *pbuf);
 
 private:
-	CPanelAnimationVarAliasType( int, m_iWaitingForPlayersYPos, "WaitingForPlayer_yPos", "100", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iWaitingForPlayersTall, "WaitingForPlayer_Tall", "30", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iTextWaitingForPlayersTall, "WaitingForPlayer_TextTall", "20", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iWaitingForPlayersYPos, "WaitingForPlayers_yPos", "100", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iWaitingForPlayersTall, "WaitingForPlayers_Tall", "30", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTextWaitingForPlayersTall, "WaitingForPlayers_TextTall", "20", "proportional_int" );
 	CPanelAnimationStringVar( 32, m_szWaitingForPlayersFont, "WaitingForPlayers_Font", "Default" );
+
+
+	CPanelAnimationVarAliasType( int, m_iRoundIsOverYPos, "RoundIsOver_yPos", "225", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iRoundIsOverTall, "RoundIsOver_Tall", "30", "proportional_int" );
+	CPanelAnimationStringVar( 32, m_szRoundIsOverFont, "RoundIsOver_Font", "ZPTitle" );
 
 	vgui2::Label *m_pText;
 };
