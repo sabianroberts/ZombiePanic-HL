@@ -112,7 +112,7 @@ void CBaseGameMode::OnGameModeThink()
 
 		case ZP::RoundState_RoundHasBegunPost:
 	    {
-		    m_flLastZombieCheck = gpGlobals->time = 4.5f;
+		    m_flLastZombieCheck = gpGlobals->time + 4.5f;
 			SetRoundState( ZP::RoundState_RoundHasBegun );
 		    MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
 		    WRITE_SHORT(GetRoundState());
