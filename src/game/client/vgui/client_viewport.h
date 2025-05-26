@@ -63,6 +63,7 @@ public:
 
 	void ShowVGUIMenu(vguiMenuID iMenu);
 	bool IsVGUIVisible(vguiMenuID iMenu);
+	IViewportPanel *GetViewPanel(vguiMenuID iMenu);
 	void InvalidateLayoutForVGUI(vguiMenuID iMenu);
 	void HideAllVGUIMenu();
 

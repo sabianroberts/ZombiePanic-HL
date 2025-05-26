@@ -139,9 +139,6 @@ void CTeamMenu::Update()
 				break;
 			}
 			m_bUpdatedGameModeInfo = true;
-			char buf[64];
-			sprintf( buf, "Rounds: %i", gHUD.m_MapRounds );
-			m_pLabelRounds->SetText( buf );
 		}
 	}
 }
@@ -161,6 +158,7 @@ void CTeamMenu::Reset()
 {
 	m_bUpdatedMapName = false;
 	m_bUpdatedGameModeInfo = false;
+	m_iCurrentRounds = -1;
 }
 
 void CTeamMenu::ShowPanel(bool state)
@@ -190,4 +188,12 @@ void CTeamMenu::ReloadLayout()
 {
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/TeamMenu.res");
 	SetBgColor( Color(0, 0, 0, 150) );
+}
+
+void CTeamMenu::SetCurrentRound()
+{
+	m_iCurrentRounds = gHUD.m_MapRounds;
+	char buf[64];
+	sprintf( buf, "Round: %i", gHUD.m_MapRounds );
+	m_pLabelRounds->SetText( buf );
 }

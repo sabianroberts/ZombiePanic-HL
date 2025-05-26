@@ -332,6 +332,27 @@ bool CClientViewport::IsVGUIVisible(vguiMenuID iMenu)
 	return false;
 }
 
+IViewportPanel *CClientViewport::GetViewPanel(vguiMenuID iMenu)
+{
+	switch (iMenu)
+	{
+		case MENU_TEAM: return m_pTeamMenu;
+		case MENU_HTML_MOTD:
+		case MENU_MOTD: return m_pMOTD;
+
+	case MENU_CLASSHELP:
+	case MENU_SPECHELP:
+	case MENU_CLASS:
+		ConPrintf(ConColor::Yellow, "Warning: attempted to read TFC VGUI menu in ZP: %d\n", iMenu);
+		break;
+	default:
+		ConPrintf(ConColor::Red, "Error: attempted to read unknown VGUI menu: %d\n", iMenu);
+		Assert(!("Invalid VGUI menu"));
+		break;
+	}
+	return nullptr;
+}
+
 void CClientViewport::HideAllVGUIMenu()
 {
 	for (IViewportPanel *pPanel : m_Panels)

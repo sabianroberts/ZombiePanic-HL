@@ -25,6 +25,8 @@
 #include "hud/ammo.h"
 #include "engine_builds.h"
 #include "zp/zp_shared.h"
+#include "vgui/team_menu.h"
+#include "vgui/client_viewport.h"
 
 #include "particleman.h"
 extern IParticleMan *g_pParticleMan;
@@ -147,6 +149,9 @@ int CHud::MsgFunc_Rounds(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 	m_MapRounds = READ_BYTE();
+	CTeamMenu *pMenu = (CTeamMenu *)g_pViewport->GetViewPanel( MENU_TEAM );
+	if ( pMenu )
+		pMenu->SetCurrentRound();
 	return 1;
 }
 

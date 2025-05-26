@@ -31,6 +31,7 @@ public:
 	virtual bool IsVisible() override;
 	virtual void SetParent(vgui2::VPANEL parent) override;
 	virtual void ReloadLayout() override;
+	virtual void SetCurrentRound();
 
 private:
 	vgui2::CheckButton *m_pVolunteerForZombie = nullptr;
@@ -43,6 +44,7 @@ private:
 	vgui2::Label *m_pLabelGameModeName = nullptr;
 	bool m_bUpdatedMapName = false;
 	bool m_bUpdatedGameModeInfo = false;
+	int m_iCurrentRounds = -1;
 
 	CPanelAnimationVarAliasType(int, m_iBtnX, "btn_x", "24", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iBtnY, "btn_y", "28", "proportional_int");
