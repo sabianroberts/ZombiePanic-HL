@@ -340,7 +340,7 @@ public:
 	void EXPORT DefaultTouch(CBaseEntity *pOther); // default weapon touch
 	bool GiveAmmoToPlayer(CBaseEntity *pOther);
 	virtual void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
-	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RESET; }
+	virtual int ObjectCaps(void) { return CBaseEntity::ObjectCaps() | FCAP_MUST_RELEASE; }
 	int AmmoToGive() const
 	{
 		if ( m_iDroppedOverride > 0 )
