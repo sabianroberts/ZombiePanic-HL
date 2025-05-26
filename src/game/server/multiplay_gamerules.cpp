@@ -227,10 +227,7 @@ void CHalfLifeMultiplay ::Think(void)
 
 		// check to see if we should change levels now
 		if (m_flIntermissionEndTime < gpGlobals->time)
-		{
-			if ( ((g_flIntermissionStartTime + MAX_INTERMISSION_TIME) < gpGlobals->time) )
-				ChangeLevel(); // intermission is over
-		}
+			ChangeLevel();
 
 		return;
 	}
