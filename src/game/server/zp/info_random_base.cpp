@@ -9,7 +9,7 @@ void CRandomItemBase::SpawnItem(void)
 	const char *szItemToSpawn = GetRandomClassname();
 	if ( szItemToSpawn && szItemToSpawn[0] )
 	{
-		CBaseEntity *pSpawned = CBaseEntity::Create( (char *)szItemToSpawn, pev->origin, pev->angles, nullptr );
+		CBaseEntity *pSpawned = CBaseEntity::Create( (char *)szItemToSpawn, pev->origin + Vector( 0, 0, 2 ), pev->angles, nullptr );
 		if ( pSpawned )
 			pSpawned->SetSpawnedTroughRandomEntity( true );
 	}
