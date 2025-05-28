@@ -132,7 +132,7 @@ int CObjectiveText::MsgFunc_ObjMsg(const char *pszName, int iSize, void *pbuf)
 	BEGIN_READ( pbuf, iSize );
 	int obj_state = READ_SHORT();
 	static char szText[32];
-	strcpy_s( szText, READ_STRING() );
+	strncpy( szText, READ_STRING(), 32 );
 
 	// Mark if we just completed or failed an objective
 	if ( obj_state == ObjectiveState::State_Completed || obj_state == ObjectiveState::State_Failed )

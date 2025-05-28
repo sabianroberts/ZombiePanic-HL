@@ -17,7 +17,7 @@ extern int gmsgObjective;
 void CObjectiveMessage::Spawn( void )
 {
 	m_State = ObjectiveState::State_Normal;
-	strcpy_s( m_Message, "My Objective" );
+	UTIL_strcpy( m_Message, "My Objective" );
 	m_NextObj[0] = 0;
 	BaseClass::Spawn();
 }
@@ -31,12 +31,12 @@ void CObjectiveMessage::KeyValue( KeyValueData *pkvd )
 {
 	if ( FStrEq( pkvd->szKeyName, "message" ) )
 	{
-		strcpy_s( m_Message, pkvd->szValue );
+		UTIL_strcpy( m_Message, pkvd->szValue );
 		pkvd->fHandled = TRUE;
 	}
 	else if ( FStrEq( pkvd->szKeyName, "next_obj" ) )
 	{
-		strcpy_s( m_NextObj, pkvd->szValue );
+		UTIL_strcpy( m_NextObj, pkvd->szValue );
 		pkvd->fHandled = TRUE;
 	}
 	else

@@ -266,8 +266,8 @@ public:
 	{
 		WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 		p->pszName = STRING(pev->classname);
-		strcpy_s( p->pszAmmo1, slot.Ammo1 );
-		strcpy_s( p->pszAmmo2, slot.Ammo2 );
+		strcpy( p->pszAmmo1, slot.Ammo1 );
+		strcpy( p->pszAmmo2, slot.Ammo2 );
 		p->iMaxClip = slot.MaxClip;
 		p->iSlot = slot.Slot;
 		p->iPosition = slot.Position;

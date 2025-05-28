@@ -79,7 +79,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	{
 		AmmoData ammo = GetAmmoByName( szAmmoType );
 		if ( ammo.MaxCarry != -1 )
-			strcpy_s( slot.Ammo1, szAmmoType );
+			UTIL_strcpy( slot.Ammo1, szAmmoType );
 	}
 
 	szAmmoType = pWeaponScript->GetString( "AmmoType2", NULL );
@@ -87,7 +87,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	{
 		AmmoData ammo = GetAmmoByName( szAmmoType );
 		if ( ammo.MaxCarry != -1 )
-			strcpy_s( slot.Ammo2, szAmmoType );
+			UTIL_strcpy(slot.Ammo2, szAmmoType);
 	}
 
 	slot.DefaultAmmo = pWeaponScript->GetInt( "DefaultGive", 0 );
