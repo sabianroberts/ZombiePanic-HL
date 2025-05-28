@@ -129,9 +129,8 @@ void CItem::ItemTouch(CBaseEntity *pOther)
 
 		// player grabbed the item.
 		g_pGameRules->PlayerGotItem(pPlayer, this);
+		SoftRemove();
 	}
-
-	SoftRemove();
 }
 
 CBaseEntity *CItem::Respawn(void)
