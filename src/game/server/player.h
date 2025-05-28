@@ -190,9 +190,11 @@ public:
 
 	int m_lastx, m_lasty; // These are the previous update's crosshair angles, DON"T SAVE/RESTORE
 
+	bool m_bSpawnInPlace = false;
 	int m_nCustomSprayFrames; // Custom clan logo frames for this player
 	float m_flNextDecalTime; // next time this player can spray a decal
 
+	void SpawnInPlace( bool state ) { m_bSpawnInPlace = state; }
 	virtual void Spawn(void);
 	void Pain(void);
 

@@ -212,9 +212,13 @@ void CBaseGameMode::CheckZombieAmount()
 	CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( iPlayerIndex );
 	if ( plr )
 	{
-		int damageFlags = DMG_GENERIC | DMG_ALWAYSGIB;
-		entvars_t *pevWorld = VARS(INDEXENT(0));
-		plr->TakeDamage(pevWorld, pevWorld, 10000, damageFlags);
+		// Drop everything in a backpack.
+		plr->m_flLastPanic = gpGlobals->time + 30;
+		plr->m_flPanicTime = gpGlobals->time + 3.5;
+		plr->PackDeadPlayerItems();
+		plr->RemoveAllItems( FALSE );
+
+		// Change team
 		plr->pev->team = ZP::TEAM_ZOMBIE;
 
 		// notify everyone's HUD of the team change
@@ -224,6 +228,7 @@ void CBaseGameMode::CheckZombieAmount()
 		MESSAGE_END();
 
 		plr->SendScoreInfo();
+		plr->SpawnInPlace( true );
 		plr->Spawn();
 	}
 }

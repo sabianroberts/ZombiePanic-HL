@@ -3300,7 +3300,9 @@ void CBasePlayer::Spawn(void)
 	m_flFallVelocity = 0;
 
 	g_pGameRules->SetDefaultPlayerTeam(this);
-	g_pGameRules->GetPlayerSpawnSpot(this);
+	if ( !m_bSpawnInPlace )
+		g_pGameRules->GetPlayerSpawnSpot(this);
+	m_bSpawnInPlace = false;
 
 	// Move all player spectators to new traget origin (bugfix for pmove/PAS issue)
 	CBasePlayer *plr;
