@@ -29,11 +29,6 @@ jobs:
           sudo apt-get install gcc-9 g++-9
           export PATH="$PATH:/usr/bin/g++-9"  # Add g++-9 to the PATH
 
-      - name: Compile using g++-9
-        run: |
-          g++-9 -c your_source_file.cpp # Compile with g++-9
-          g++-9 -o your_executable your_source_file.o # Link and create executable
-
       - uses: lukka/get-cmake@latest
       
       - name: Configure
