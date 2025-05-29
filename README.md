@@ -67,17 +67,8 @@ discussions.  While this is generally a relaxed environment, please remember the
 - Do not use ALL CAPS when creating an issue report.
 - Do not repeatedly update an open issue remarking that the issue persists.
 
-Thanks
-------
+## Special Thanks
 
-- Lev for creating [the original BugfixedHL](https://github.com/LevShisterov/BugfixedHL) that this project is based on.
-  - Valve for HLSDK release.
-  - Willday for his HLSDK patch.
-  - BubbleMod and Bigguy from hlpp.thewavelength.net for parts of spectator code.
-  - Uncle Mike from hlfx.ru for his Xash3D engine which was very helpful in hard moments.
-  - KORD_12.7 for constant helping and nice suggestions.
-  - Martin Webrant (BulliT) for releasing AG source code.
-  - JetBrains company for free access to great developer tools.
-- Solokiller for [Half-Life Enhanced](https://github.com/Solokiller/HLEnhanced) and GoldSrc engine research.
-- AGHL.RU community for bug reporting and suggestions.
-- YaLTeR and contributors for [OpenAG](https://github.com/YaLTeR/OpenAG) features
+* Valve Software
+* Lev for creating [the original BugfixedHL](https://github.com/LevShisterov/BugfixedHL)
+* tmp64 for creating [BugfixedHL-Rebased](https://github.com/tmp64/BugfixedHL-Rebased) that this project is based on
