@@ -21,4 +21,5 @@ const char *CRandomItemWeapon::GetRandomClassname() const
 		case 2: return "weapon_556ar";
 		case 3: return "weapon_shotgun";
 	}
+	return "weapon_9mmhandgun";
 }

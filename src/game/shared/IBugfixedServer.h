@@ -1,11 +1,7 @@
 #ifndef IBUGFIXEDAPI_H
 #define IBUGFIXEDAPI_H
-#if defined(SOURCE_SDK_MIN_STEAM_API)
 #include <tier1/interface.h>
 #include <tier1/tier1.h>
-#else
-#include <vinterface/interface.h>
-#endif
 #include <ClientSupportsFlags.h>
 #include <enum_utils.h>
 

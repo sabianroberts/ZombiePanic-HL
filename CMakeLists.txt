@@ -403,7 +403,6 @@ set_source_files_properties(
 #-----------------------------------------------------------------
 # Source SDK
 #-----------------------------------------------------------------
-set( SOURCE_SDK_MIN_STEAM_API TRUE )
 set( SOURCE_SDK_GFX_PATH "ui/gfx/vgui" )
 
 add_subdirectory( source_sdk )

@@ -21,4 +21,5 @@ const char *CRandomItemItem::GetRandomClassname() const
 		case 2: return "weapon_satchel";
 		case 3: return "weapon_handgrenade";
 	}
+	return "item_healthkit";
 }
