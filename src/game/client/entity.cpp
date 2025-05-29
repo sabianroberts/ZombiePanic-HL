@@ -99,7 +99,7 @@ void CL_DLLEXPORT HUD_TxferLocalOverrides(struct entity_state_s *state, const st
 			frame_9884_t *frame = (frame_9884_t *)((byte *)client - offsetof(frame_9884_t, clientdata));
 			for (int i = 0; i < frame->packet_entities.num_entities; i++)
 			{
-				frame->packet_entities.entities[i].effects &= ~(EF_BRIGHTLIGHT | EF_DIMLIGHT | EF_LIGHT);
+				frame->packet_entities.entities[i].effects &= ~(EF_DIMLIGHT | EF_LIGHT);
 			}
 		}
 		else
@@ -107,7 +107,7 @@ void CL_DLLEXPORT HUD_TxferLocalOverrides(struct entity_state_s *state, const st
 			frame_t *frame = (frame_t *)((byte *)client - offsetof(frame_t, clientdata));
 			for (int i = 0; i < frame->packet_entities.num_entities; i++)
 			{
-				frame->packet_entities.entities[i].effects &= ~(EF_BRIGHTLIGHT | EF_DIMLIGHT | EF_LIGHT);
+				frame->packet_entities.entities[i].effects &= ~(EF_DIMLIGHT | EF_LIGHT);
 			}
 		}
 	}
@@ -255,6 +255,7 @@ void CL_DLLEXPORT HUD_TxferPredictionData(struct entity_state_s *ps, const struc
 
 	pcd->fuser2 = ppcd->fuser2;
 	pcd->fuser3 = ppcd->fuser3;
+	pcd->fuser4 = ppcd->fuser4;
 
 	VectorCopy(ppcd->vuser1, pcd->vuser1);
 	VectorCopy(ppcd->vuser2, pcd->vuser2);
@@ -771,6 +772,19 @@ void CL_DLLEXPORT HUD_TempEntUpdate(
 						pTemp->flags &= ~FTENT_FADEOUT; // Don't fade out, just die
 					}
 				}
+			}
+
+			// Local player? Then check if we got zombo vision enabled.
+			if ( gEngfuncs.GetLocalPlayer()->index == pTemp->clientIndex
+				&& ((int)(pTemp->entity.curstate.effects) & (EF_ZOMBOVISION)) )
+			{
+				dlight_t *dl = gEngfuncs.pEfxAPI->CL_AllocDlight(0);
+				VectorCopy( pTemp->entity.origin, dl->origin );
+				dl->radius = 300;
+				dl->color.r = 255;
+				dl->color.g = 10;
+				dl->color.b = 10;
+				dl->die = client_time + 0.01;
 			}
 		}
 		pTemp = pnext;

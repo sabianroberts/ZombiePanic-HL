@@ -1326,6 +1326,16 @@ BOOL CBasePlayer::IsOnLadder(void)
 
 void CBasePlayer::PlayerDeathThink(void)
 {
+	// If round is not ongoing, never think.
+	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
+	if ( pGameMode && pGameMode->GetRoundState() != ZP::RoundState::RoundState_RoundHasBegun )
+	{
+		pev->team = ZP::TEAM_OBSERVER;
+		Spawn();
+		pev->nextthink = -1;
+		return;
+	}
+
 	float flForward;
 
 	if (FBitSet(pev->flags, FL_ONGROUND))
@@ -1396,7 +1406,7 @@ void CBasePlayer::PlayerDeathThink(void)
 
 	pev->effects |= EF_NOINTERP;
 	pev->effects &= ~EF_DIMLIGHT;
-	pev->effects &= ~EF_NIGHTVISION;
+	pev->effects &= ~EF_BRIGHTLIGHT;
 
 	BOOL fAnyButtonDown = (m_afButtonPressed & ~IN_SCORE);
 	m_afButtonLast = pev->button;
@@ -3791,7 +3801,7 @@ CBaseEntity *FindEntityForward(CBaseEntity *pMe)
 BOOL CBasePlayer ::FlashlightIsOn(void)
 {
 	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-	return FBitSet(pev->effects, bIsZombie ? EF_NIGHTVISION : EF_DIMLIGHT);
+	return FBitSet(pev->effects, bIsZombie ? EF_BRIGHTLIGHT : EF_DIMLIGHT);
 }
 
 void CBasePlayer ::FlashlightTurnOn(void)
@@ -3800,7 +3810,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 	{
 		bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
 		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
-		SetBits(pev->effects, bIsZombie ? EF_NIGHTVISION : EF_DIMLIGHT);
+		SetBits(pev->effects, bIsZombie ? EF_BRIGHTLIGHT : EF_DIMLIGHT);
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 		WRITE_BYTE(1);
 		WRITE_BYTE(m_iFlashBattery);
@@ -3814,7 +3824,7 @@ void CBasePlayer ::FlashlightTurnOff(void)
 {
 	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
 	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
-	ClearBits(pev->effects, bIsZombie ? EF_NIGHTVISION : EF_DIMLIGHT);
+	ClearBits(pev->effects, bIsZombie ? EF_BRIGHTLIGHT : EF_DIMLIGHT);
 	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 	WRITE_BYTE(0);
 	WRITE_BYTE(m_iFlashBattery);

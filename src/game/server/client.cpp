@@ -1806,6 +1806,7 @@ void UpdateClientData(const struct edict_s *ent, int sendweapons, struct clientd
 	// Observer
 	cd->iuser1 = ent->v.iuser1;
 	cd->iuser2 = ent->v.iuser2;
+	cd->fuser4 = ent->v.fuser4;
 
 #if defined(CLIENT_WEAPONS)
 	if (sendweapons)
