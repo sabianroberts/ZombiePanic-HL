@@ -509,7 +509,7 @@ bool IGameDLLInit::InitTier2Lib()
 {
 	CSysModule *pModule = nullptr;
 	void *pInterface = nullptr;
-	bool bRet = Sys_LoadInterface( "FileSystem_Stdio", FILESYSTEM_INTERFACE_VERSION, &pModule, &pInterface );
+	bool bRet = Sys_LoadInterface( "filesystem_stdio", FILESYSTEM_INTERFACE_VERSION, &pModule, &pInterface );
 	if ( !bRet ) return false;
 
 	// Load fileystem
