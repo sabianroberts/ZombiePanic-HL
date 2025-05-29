@@ -1,102 +1,23 @@
-Bugfixed and improved Half-Life
-===============================
+# About
 
-Bugfixed and Improved Half-Life Release (*BugfixedHL* for short) is a Half-Life modification that aims
-to improve DM experience for players and fix server bugs for server owners while being completely
-backwards-compatible with vanilla clients and servers.
+Zombie Panic! (Half-Life Modification) source code is not 1-to-1 code of the original prototype from 2003, as it has been re-written from the ground up using [BugfixedHL](https://github.com/tmp64/BugfixedHL-Rebased) as it's base due to VGUI2 support and it's many other features. However, some features have been stripped away, and/or deprecated to fit ZP gameplay and feel.
 
-*BugfixedHL-Rebased* is port of [Lev's BugfixedHL](https://github.com/LevShisterov/BugfixedHL) on
-new [Half-Life SDK](https://github.com/ValveSoftware/halflife).
-It features improved UI using VGUI2 library, Linux support and refactored source code for better maintainablity.
+# What isn't supported
 
-- [Screenshots](https://github.com/tmp64/BugfixedHL-Rebased/wiki/Screenshots)
-- [How to install](https://github.com/tmp64/BugfixedHL-Rebased/wiki/Installation)
-- [Commands](https://github.com/tmp64/BugfixedHL-Rebased/wiki/Client-command-reference)
+Backwards compatibility with WON and older versions of Steam Half-Life is not supported. Xash isn't supported, but may work. You cannot use Updated clients to play on vanilla servers, you also cannot use vanilla clients to play on Updated servers.
 
+Placing Updated game dlls in vanilla installations is not supported.
 
-Features
---------
+These repositories have a limited scope and will not have major changes applied.
 
-The mod features a number of improvements over stock client and server.
+# Building this SDK
 
-Client:
-- Bunnyhopping (for servers that have it enabled)
-- Colored HUD
-- Raw mouse input via DirectInput
-- Customizable crosshairs (like in CS:GO)
-- Improved user interface
-  - Scoreboard
-  - Unicode and HTML MOTD (requires server support)
-  - Chat with history, input editing and automatic splitting of long messages
-  - Spectator UI
-  - Team selection (used by some servers)
-  - Command menu
-  - Options dialog
-- Automatic demo recording
-- HUD support for WeaponMod
-- Slowhacking protection (for old engine versions)
-- Ability to disable custom player models completely
-
-
-Server:
-- Bugfixes and crash fixes
-- Selfgauss can be disabled
-- Welcome camera mode - after connecting, player is put into semi-spectator mode and can spawn with MOUSE1
-- HTML and Unicode MOTD for clients that support them
-- Fixed spectator mode
-- Invisible model fix
-- UTF-8 support
-
-
-SDK changes
------------
-
-BugfixedHL has been integrated into Valve's latest HLSDK and has been refactored:
-
-- CMake as build system (instead of Makefiles and VS projects).
-- Source code formatted to one style with clang-format.
-- Organized source code files:
-  - HLSDK sources moved to */src/*.
-  - */cl_dll*, */dlls* and */game_shared* moved to */src/game/*.
-  - */game_shared* cleaned up from unused code.
-  - Removed */utils* completely (used to contain utilities like map and sprite compilers).
-- Client sources refactoring:
-  - VGUI1 replaced by VGUI2 (like in CS1.6).
-  - Moved all VGUI code to *client/vgui*.
-  - Moved all HUD elements to *client/hud*, each of them now has its own *.h* file.
-  - Replaced HUD messages and commands macros with templates.
-  - HUD elements are no longer referenced in *hud.h* (improves compilation times when changing *hud/\*.h*.
-  - Added `ConVar` class for easier convar creating with description support (like in Source SDK).
-  - Removed unused code.
-- Fixed include guards in common header files.
-- Documented engine APIs (thanks to [Solokiller](https://github.com/Solokiller)).
-
-
-Supported game versions
------------------------
-
-Type `version` in the console. You will see something like this.
-
-```
-] version 
-Protocol version 48
-Exe version 1.1.2.2/Stdio (valve)
-Exe build: 15:17:55 Jul 24 2019 (8308)
-```
-
-*8308* in the last line is your engine version.
-
-| Engine version | Status          |
-| :------------: | --------------  |
-| 3xxx           | Not supported   |
-| 4554           | Supported       |
-| 8xxx+          | Supported       |
-
+See [BUILDING.md](BUILDING.md)
 
 Reporting Issues
 ----------------
 
-If you encounter an issue while using BugfixedHL, first search the [issue list](https://github.com/tmp64/BugfixedHL-Rebased/issues)
+If you encounter an issue while using Zombie Panic!, first search the [issue list](https://github.com/Monochrome-Inc/ZombiePanic-HL//issues)
 to see if it has already been reported. Include closed issues in your search.
 
 If it has not been reported, create a new issue with at least the following information:
@@ -115,6 +36,26 @@ menu (`Help -> System Information`). Once your information appears: right-click 
 right-click again, and then choose `Copy`. Paste this information into your report, preferably in a code block.
 
 
+# Half Life 1 SDK LICENSE
+
+Half Life 1 SDK Copyright © Valve Corp.
+
+THIS DOCUMENT DESCRIBES A CONTRACT BETWEEN YOU AND VALVE CORPORATION (“Valve”).  PLEASE READ IT BEFORE DOWNLOADING OR USING THE HALF LIFE 1 SDK (“SDK”). BY DOWNLOADING AND/OR USING THE SOURCE ENGINE SDK YOU ACCEPT THIS LICENSE. IF YOU DO NOT AGREE TO THE TERMS OF THIS LICENSE PLEASE DON’T DOWNLOAD OR USE THE SDK.
+
+You may, free of charge, download and use the SDK to develop a modified Valve game running on the Half-Life engine.  You may distribute your modified Valve game in source and object code form, but only for free. Terms of use for Valve games are found in the Steam Subscriber Agreement located here: http://store.steampowered.com/subscriber_agreement/ 
+
+You may copy, modify, and distribute the SDK and any modifications you make to the SDK in source and object code form, but only for free.  Any distribution of this SDK must include this license.txt and third_party_licenses.txt.  
+ 
+Any distribution of the SDK or a substantial portion of the SDK must include the above copyright notice and the following: 
+
+DISCLAIMER OF WARRANTIES.  THE SOURCE SDK AND ANY OTHER MATERIAL DOWNLOADED BY LICENSEE IS PROVIDED “AS IS”.  VALVE AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES WITH RESPECT TO THE SDK, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, NON-INFRINGEMENT, TITLE AND FITNESS FOR A PARTICULAR PURPOSE.  
+
+LIMITATION OF LIABILITY.  IN NO EVENT SHALL VALVE OR ITS SUPPLIERS BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR INABILITY TO USE THE ENGINE AND/OR THE SDK, EVEN IF VALVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  
+ 
+ 
+If you would like to use the SDK for a commercial purpose, please contact Valve at sourceengine@valvesoftware.com.
+
+
 Conduct
 -------
 
@@ -126,17 +67,8 @@ discussions.  While this is generally a relaxed environment, please remember the
 - Do not use ALL CAPS when creating an issue report.
 - Do not repeatedly update an open issue remarking that the issue persists.
 
-Thanks
-------
+## Special Thanks
 
-- Lev for creating [the original BugfixedHL](https://github.com/LevShisterov/BugfixedHL) that this project is based on.
-  - Valve for HLSDK release.
-  - Willday for his HLSDK patch.
-  - BubbleMod and Bigguy from hlpp.thewavelength.net for parts of spectator code.
-  - Uncle Mike from hlfx.ru for his Xash3D engine which was very helpful in hard moments.
-  - KORD_12.7 for constant helping and nice suggestions.
-  - Martin Webrant (BulliT) for releasing AG source code.
-  - JetBrains company for free access to great developer tools.
-- Solokiller for [Half-Life Enhanced](https://github.com/Solokiller/HLEnhanced) and GoldSrc engine research.
-- AGHL.RU community for bug reporting and suggestions.
-- YaLTeR and contributors for [OpenAG](https://github.com/YaLTeR/OpenAG) features
+* Valve Software
+* Lev for creating [the original BugfixedHL](https://github.com/LevShisterov/BugfixedHL)
+* tmp64 for creating [BugfixedHL-Rebased](https://github.com/tmp64/BugfixedHL-Rebased) that this project is based on
