@@ -116,7 +116,6 @@ void CZombiePanicGameRules ::Think(void)
 
 	switch ( m_pGameMode->GetRoundState() )
 	{
-		case ZP::RoundState::RoundState_WaitingForPlayers: ResetVolunteers(); break;
 		case ZP::RoundState::RoundState_PickVolunteers: PickRandomVolunteer(); break;
 	}
 }
@@ -249,6 +248,9 @@ void CZombiePanicGameRules::ResetRound()
 	if ( m_flRoundRestartDelay - gpGlobals->time > 0 ) return;
 	m_flRoundRestartDelay = -1;
 
+	// Reset volunteers
+	ResetVolunteers();
+
 	// Reset all map objects
 	CleanUpMap();
 
@@ -308,7 +310,6 @@ void CZombiePanicGameRules::CleanUpMap()
 
 void CZombiePanicGameRules::ResetVolunteers()
 {
-	if ( !m_bHasPickedVolunteer ) return;
 	m_bHasPickedVolunteer = false;
 	m_Volunteers.clear();
 	m_Rejoiners.clear();
@@ -394,7 +395,7 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 
 	// Player rejoined, force zombie.
 	if ( !HasAlreadyJoined( pPlayer ) )
-		m_Rejoiners.push_back(pPlayer->entindex() );
+		m_Rejoiners.push_back( pPlayer->entindex() );
 
 	int aws = pPlayer->m_iAutoWepSwitch;
 	pPlayer->m_iAutoWepSwitch = 1;
@@ -516,6 +517,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 
 bool CZombiePanicGameRules::HasAlreadyJoined(CBasePlayer *pPlayer)
 {
+	for ( int i = 0; i < m_Rejoiners.size(); i++ )
+	{
+		int ent = m_Rejoiners[ i ];
+		if ( pPlayer->entindex() == ent )
+			return true;
+	}
 	return false;
 }
 
