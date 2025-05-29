@@ -774,6 +774,7 @@ void CL_DLLEXPORT HUD_TempEntUpdate(
 				}
 			}
 
+#if 0
 			// Local player? Then check if we got zombo vision enabled.
 			if ( gEngfuncs.GetLocalPlayer()->index == pTemp->clientIndex
 				&& ((int)(pTemp->entity.curstate.effects) & (EF_ZOMBOVISION)) )
@@ -786,6 +787,7 @@ void CL_DLLEXPORT HUD_TempEntUpdate(
 				dl->color.b = 10;
 				dl->die = client_time + 0.01;
 			}
+#endif
 		}
 		pTemp = pnext;
 	}
