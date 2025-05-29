@@ -126,6 +126,9 @@ void CBaseGameMode::OnGameModeThink()
 	// If the round has not yet begun, we do not care about the timer
 	if ( GetRoundState() != ZP::RoundState_RoundHasBegun ) return;
 
+	// Sorry pal, we don't care if everyone is dead, or the timeleft inf testmode.
+	if ( IsTestModeActive() ) return;
+
 	static int last_time;
 
 	int time_remaining = 0;
@@ -139,9 +142,6 @@ void CBaseGameMode::OnGameModeThink()
 	if (timeleft.value != last_time)
 		g_engfuncs.pfnCvar_DirectSet(&timeleft, UTIL_VarArgs("%i", time_remaining));
 	last_time = time_remaining;
-
-	// Sorry pal, we don't care if everyone is dead.
-	if ( IsTestModeActive() ) return;
 
 	CheckZombieAmount();
 
