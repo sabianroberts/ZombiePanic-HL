@@ -1,0 +1,44 @@
+name: CI/CD
+
+on: [push, pull_request]
+
+env:
+  BUILD_TYPE: Release
+  GAME_NAME: Zombie-Panic
+  MOD_NAME: zp
+
+jobs:
+  linux:
+    name: Linux-x86
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Install G++ Multilib & 32 bit OpenGL library
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+          sudo apt update
+          sudo apt install -y gcc-9 g++-9 g++-9-multilib libgcc-s1:i386 libstdc++6:i386 libatomic1:i386 libgl1-mesa-dev:i386
+         
+      - uses: lukka/get-cmake@latest
+      
+      - name: Configure
+        run: >
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{env.GAME_NAME}}/${{env.MOD_NAME}}
+          -DCMAKE_TOOLCHAIN_FILE=${{github.workspace}}/cmake/ToolchainLinuxGCC9.cmake
+        
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j3
+        
+      - name: Install
+        run: cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Linux-x86
+          path: ${{env.GAME_NAME}}
