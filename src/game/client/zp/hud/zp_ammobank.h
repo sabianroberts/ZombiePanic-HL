@@ -14,7 +14,10 @@ public:
 
 	CHudAmmoBank();
 
+	void VidInit() override;
+
 	virtual bool IsAllowedToDraw();
+	virtual void PaintBackground();
 	virtual void Paint();
 	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
 
@@ -47,6 +50,7 @@ private:
 	vgui2::ImagePanel		*m_pBackground;
 
 	int		m_iSelectedAmmoToDrop;
+	bool	m_bHasPanelRect;
 };
 
 #endif

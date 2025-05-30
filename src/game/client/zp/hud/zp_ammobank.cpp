@@ -32,7 +32,10 @@ CHudAmmoBank::CHudAmmoBank()
 
 	SetScheme( "ClientScheme" );
 
+	SetPaintBackgroundEnabled( true );
+
 	m_iSelectedAmmoToDrop = 0;
+	m_bHasPanelRect = false;
 
 	panelrect.x = GetWide() / 2;
 	panelrect.y = GetTall() / 2;
@@ -40,7 +43,7 @@ CHudAmmoBank::CHudAmmoBank()
 	panelrect.height = 0;
 
 	m_pBackground = new vgui2::ImagePanel( this, "background" );
-	m_pBackground->SetFillColor( Color( 15, 15, 15, 160 ) );
+	m_pBackground->SetFillColor( COLOR_INVISIBLE );
 
 	m_pWeightText = new vgui2::Label( m_pBackground, "weight_text", "#ZP_HUD_Ammo_DropAmount_Weight" );
 	m_pWeightText->SetContentAlignment( vgui2::Label::a_northwest );
@@ -63,6 +66,13 @@ CHudAmmoBank::CHudAmmoBank()
 	InvalidateLayout();
 
 	HookMessage<&CHudAmmoBank::MsgFunc_AmmoBankUpdate>("AmmoBank");
+}
+
+void CHudAmmoBank::VidInit()
+{
+	int cornerWide, cornerTall;
+	GetCornerTextureSize( cornerWide, cornerTall );
+	m_bHasPanelRect = false;
 }
 
 void CHudAmmoBank::ApplySchemeSettings(vgui2::IScheme *pScheme)
@@ -95,6 +105,18 @@ bool CHudAmmoBank::IsAllowedToDraw()
 	if ( !localplayer->IsConnected() ) return false;
 	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return false;
 	return true;
+}
+
+void CHudAmmoBank::PaintBackground()
+{
+	if ( !IsAllowedToDraw() ) return;
+	// hurrdidurr
+	DrawBox(
+		panelrect.x, panelrect.y,
+		panelrect.width, panelrect.height,
+		Color( 15, 15, 15, 160 ),
+		1.0f
+	);
 }
 
 void CHudAmmoBank::Paint()
@@ -203,7 +225,11 @@ void CHudAmmoBank::Paint()
 	panelrect.x = GetWide() - (panelrect.width + m_pAmmoBank_left);
 	panelrect.y = GetTall() - (panelrect.height + m_pAmmoBank_up);
 
-	UpdateVisibility( true );
+	UpdateVisibility( m_bHasPanelRect );
+
+	// On next frame, we will draw it.
+	if ( !m_bHasPanelRect )
+		m_bHasPanelRect = true;
 }
 
 int CHudAmmoBank::MsgFunc_AmmoBankUpdate(const char *pszName, int iSize, void *pbuf)
