@@ -335,6 +335,10 @@ add_one_more_zombie:
 		}
 	}
 
+	// Still zero? We must have disabled testmode here,
+	// and we found no player to grab. Just stop instead.
+	if ( m_Volunteers.size() == 0 ) return;
+
 	int iVolunteers = m_Volunteers.size() - 1;
 	int iPlayerIndex = 0;
 	int iVolunteerIndex = 0;
