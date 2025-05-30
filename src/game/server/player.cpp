@@ -3822,7 +3822,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 	if ((pev->weapons & (1 << WEAPON_SUIT)))
 	{
 		bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-		EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
 		if ( !bIsZombie )
 			SetBits(pev->effects, EF_DIMLIGHT);
 		else
@@ -3844,7 +3844,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 void CBasePlayer ::FlashlightTurnOff(void)
 {
 	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-	EMIT_SOUND_DYN(ENT(pev), CHAN_WEAPON, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+	EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
 	if ( !bIsZombie )
 		ClearBits(pev->effects, EF_DIMLIGHT);
 	else
