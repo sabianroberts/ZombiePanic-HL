@@ -81,6 +81,8 @@ struct WeaponData
 	int MaxClip;
 	int Flags;
 	float Weight;
+	float WeaponSpread[2]; // 0 - Primary, 1 - Secondary
+	float FireRate[2]; // 0 - Primary, 1 - Secondary
 };
 
 /// <summary>

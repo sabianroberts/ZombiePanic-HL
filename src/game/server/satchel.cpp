@@ -363,8 +363,8 @@ void CSatchel::SecondaryAttack()
 		}
 
 		m_chargeReady = SATCHEL_RELOAD;
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 0.5;
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
+		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
 		break;
 	}
@@ -405,8 +405,8 @@ void CSatchel::Throw(void)
 
 		m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]--;
 
-		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + 1.0;
-		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.5;
+		m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
+		m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + SecondaryFireRate();
 	}
 }
 

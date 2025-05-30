@@ -71,6 +71,12 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	slot.Ammo1[0] = 0;
 	slot.Ammo2[0] = 0;
 
+	// Default
+	slot.FireRate[0] = 0.1f;
+	slot.FireRate[1] = 0.1f;
+	slot.WeaponSpread[0] = 0.1f;
+	slot.WeaponSpread[1] = 0.1f;
+
 	slot.Slot = pWeaponScript->GetInt( "Slot", 0 );
 	slot.Position = pWeaponScript->GetInt( "Position", 0 );
 
@@ -107,6 +113,22 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	}
 
 	slot.Weight = pWeaponScript->GetFloat( "Weight", 0 );
+
+	// Primary Attack stuff
+	KeyValues *pPrimaryAttack = pWeaponScript->FindKey( "Primary" );
+	if ( pPrimaryAttack )
+	{
+		slot.FireRate[0] = pPrimaryAttack->GetFloat( "FireRate", 0.1f );
+		slot.WeaponSpread[0] = pPrimaryAttack->GetFloat( "Spread", 0.1f );
+	}
+
+	// Secondary Attack stuff
+	KeyValues *pSecondaryAttack = pWeaponScript->FindKey( "Secondary" );
+	if ( pSecondaryAttack )
+	{
+		slot.FireRate[1] = pSecondaryAttack->GetFloat( "FireRate", 0.1f );
+		slot.WeaponSpread[1] = pSecondaryAttack->GetFloat( "Spread", 0.1f );
+	}
 
 	pWeaponScript->deleteThis();
 

@@ -161,6 +161,8 @@ typedef struct
 	int iId;
 	int iFlags;
 	int iWeight;
+	float flWeaponSpread[2]; // 0 - Primary, 1 - Secondary
+	float flFireRate[2]; // 0 - Primary, 1 - Secondary
 } ItemInfo;
 
 // Items that the player has in their inventory that they can use
@@ -235,6 +237,13 @@ public:
 	int iWeight(void) { return ItemInfoArray[GetWeaponID()].iWeight; }
 	int iFlags(void) { return ItemInfoArray[GetWeaponID()].iFlags; }
 
+	float PrimaryFireRate() { return ItemInfoArray[GetWeaponID()].flFireRate[0]; }
+	float SecondaryFireRate() { return ItemInfoArray[GetWeaponID()].flFireRate[1]; }
+	float PrimaryWeaponSpread() { return ItemInfoArray[GetWeaponID()].flWeaponSpread[0]; }
+	float SecondaryWeaponSpread() { return ItemInfoArray[GetWeaponID()].flWeaponSpread[1]; }
+
+	const Vector GetSpreadVector( float flSpread ) { return Vector(flSpread, flSpread, flSpread); }
+
 	float		m_flDisallowPickup = -1;
 	Vector		m_SpawnLoc;
 	Vector		m_SpawnAngle;
@@ -274,6 +283,10 @@ public:
 		p->iFlags = slot.Flags;
 		p->iWeight = slot.Weight;
 		p->iId = slot.WeaponID;
+		p->flFireRate[0] = slot.FireRate[0];
+		p->flFireRate[1] = slot.FireRate[1];
+		p->flWeaponSpread[0] = slot.WeaponSpread[0];
+		p->flWeaponSpread[1] = slot.WeaponSpread[1];
 		return 1;
 	}
 
