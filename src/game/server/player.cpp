@@ -5168,7 +5168,7 @@ void CBasePlayer::DropActiveWeapon()
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( ( m_flLastWeaponDrop - gpGlobals->time > 0 ) ) return;
 	if ( !m_pActiveItem ) return;
-	m_flLastWeaponDrop = gpGlobals->time + 1.0f;
+	m_flLastWeaponDrop = gpGlobals->time + 0.5f;
 
 	// Check if this is the crowbar, if so, do not drop it!
 	if ( FStrEq( STRING( m_pActiveItem->pev->classname ), "weapon_crowbar" ) ) return;
@@ -5261,7 +5261,7 @@ void CBasePlayer::DropSelectedAmmo()
 {
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( ( m_flLastAmmoDrop - gpGlobals->time > 0 ) ) return;
-	m_flLastAmmoDrop = gpGlobals->time + 1.0f;
+	m_flLastAmmoDrop = gpGlobals->time + 0.25f;
 	int iAmmoType = AmmoIndexToDrop();
 	int amount = m_rgAmmo[ iAmmoType ];
 	int ammoDrop = DefaultAmmoToDrop( iAmmoType );
