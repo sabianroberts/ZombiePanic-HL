@@ -5278,7 +5278,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	if ( !pAmmoItem ) return false;
 
 	pAmmoItem->DisallowPickupFor( 2.5f );
-	pAmmoItem->m_iDroppedOverride = amount;
+	pAmmoItem->m_iDroppedOverride = pAmmoItem->m_iAmountLeft = amount;
 	pAmmoItem->pev->angles.x = 0;
 	pAmmoItem->pev->angles.z = 0;
 	if ( pukevel )
