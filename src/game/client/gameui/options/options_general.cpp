@@ -32,6 +32,9 @@ CGeneralSubOptions::CGeneralSubOptions(vgui2::Panel *parent)
 	m_InputMethodItems[1] = m_pInputMethodBox->AddItem(GetItemText("BHL_AdvOptions_General_InputDX", IsWindows()), new KeyValues("Item", "value", 1));
 	m_InputMethodItems[2] = m_pInputMethodBox->AddItem(GetItemText("BHL_AdvOptions_General_InputSDL", !IsWindows()), new KeyValues("Item", "value", 2));
 
+	m_pZPSSnd = new CCvarCheckButton(this, "ZPSSnd", "#ZP_AdvOptions_General_ZPSSnd", "cl_zpssound");
+	m_pZPSSndLabel = new vgui2::Label(this, "ZPSSndLabel", "#ZP_AdvOptions_General_ZPSSnd2");
+
 	m_pKillSnd = new CCvarCheckButton(this, "KillSnd", "#ZP_AdvOptions_General_KillSnd", "cl_killsound");
 	m_pKillSndLabel = new vgui2::Label(this, "KillSndLabel", "#ZP_AdvOptions_General_KillSnd2");
 
@@ -71,6 +74,7 @@ void CGeneralSubOptions::OnResetData()
 	m_pFovValue->ResetData();
 	m_pInputMethodBox->ActivateItem(m_InputMethodItems[clamp(m_input.GetInt(), 0, 2)]);
 	m_pKillSnd->ResetData();
+	m_pZPSSnd->ResetData();
 
 	if (m_pMOTD->IsEnabled())
 		m_pMOTD->ResetData();
@@ -85,6 +89,7 @@ void CGeneralSubOptions::OnApplyChanges()
 {
 	m_pFovValue->ApplyChanges();
 	m_pKillSnd->ApplyChanges();
+	m_pZPSSnd->ApplyChanges();
 
 	if (m_pMOTD->IsEnabled())
 		m_pMOTD->ApplyChanges();

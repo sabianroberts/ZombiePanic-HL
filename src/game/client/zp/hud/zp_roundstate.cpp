@@ -16,6 +16,7 @@
 
 DEFINE_HUD_ELEM(CHudRoundState);
 
+ConVar cl_zpssound("cl_zpssound", "0", FCVAR_BHL_ARCHIVE, "Play ZPS themed sounds");
 
 CHudRoundState::CHudRoundState()
     : vgui2::Panel(NULL, "HudRoundState")
@@ -113,13 +114,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 		case ZP::RoundState_RoundIsStarting:
 		{
 			m_pText->SetVisible( false );
-			gEngfuncs.pEventAPI->EV_PlaySound(
-				gEngfuncs.GetLocalPlayer()->index,
-				gEngfuncs.GetLocalPlayer()->origin,
-		        CHAN_WEAPON, "modes/round_ready.wav",
-				1, ATTN_NORM,
-				0, PITCH_NORM
-			);
+			PlayAudio( "modes/round_ready.wav" );
 		}
 	    break;
 		//case ZP::RoundState_PickVolunteers: break;
@@ -161,14 +156,7 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 				}
 				break;
 			}
-			if ( szSoundToPlay && szSoundToPlay[0] )
-				gEngfuncs.pEventAPI->EV_PlaySound(
-					gEngfuncs.GetLocalPlayer()->index,
-					gEngfuncs.GetLocalPlayer()->origin,
-					CHAN_WEAPON, szSoundToPlay,
-					1, ATTN_NORM,
-					0, PITCH_NORM
-				);
+			PlayAudio( szSoundToPlay );
 			m_pText->SetFgColor( Color( 255, 255, 255, 0 ) );
 			m_pText->SetVisible( true );
 		}
@@ -177,4 +165,17 @@ int CHudRoundState::MsgFunc_RoundState(const char *pszName, int iSize, void *pbu
 	}
 
 	return 1;
+}
+
+void CHudRoundState::PlayAudio( const char *szAudio )
+{
+	if ( !cl_zpssound.GetBool() ) return;
+	if ( szAudio && szAudio[0] )
+		gEngfuncs.pEventAPI->EV_PlaySound(
+			gEngfuncs.GetLocalPlayer()->index,
+			gEngfuncs.GetLocalPlayer()->origin,
+		    CHAN_BOT, szAudio,
+			1, ATTN_NORM,
+			0, PITCH_NORM
+		);
 }

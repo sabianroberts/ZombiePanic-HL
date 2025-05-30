@@ -19,6 +19,7 @@ public:
 	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
 
 	int MsgFunc_RoundState(const char *pszName, int iSize, void *pbuf);
+	void PlayAudio( const char *szAudio );
 
 private:
 	CPanelAnimationVarAliasType( int, m_iWaitingForPlayersYPos, "WaitingForPlayers_yPos", "100", "proportional_int" );

@@ -33,6 +33,9 @@ private:
 	vgui2::ComboBox *m_pInputMethodBox = nullptr;
 	vgui2::Label *m_pRawInputLabel = nullptr;
 
+	CCvarCheckButton *m_pZPSSnd = nullptr;
+	vgui2::Label *m_pZPSSndLabel = nullptr;
+
 	CCvarCheckButton *m_pKillSnd = nullptr;
 	vgui2::Label *m_pKillSndLabel = nullptr;
 	CCvarCheckButton *m_pMOTD = nullptr;
