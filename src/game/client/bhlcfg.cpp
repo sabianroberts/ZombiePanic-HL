@@ -8,7 +8,7 @@
 #include "hud.h"
 #include "cl_util.h"
 
-#define BHL_CONFIG_NAME       "bugfixedhl.cfg"
+#define BHL_CONFIG_NAME       "config_zp.cfg"
 #define BHL_CONFIG_USER_BEGIN "// [USER CONFIG BEGIN - DO NOT EDIT THIS LINE]"
 
 namespace bhlcfg
