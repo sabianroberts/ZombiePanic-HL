@@ -77,6 +77,7 @@ ConVar mp_rpg_fix("mp_rpg_fix", "0", 0, "Fix RPG rocket exploding when firing it
 ConVar mp_blastradius("mp_blastradius", "1.0", 0, "Explosion radius scale.");
 
 cvar_t mp_dmg_crowbar = { "mp_dmg_crowbar", "25", FCVAR_SERVER };
+cvar_t mp_dmg_swipe = { "mp_dmg_swipe", "35", FCVAR_SERVER };
 cvar_t mp_dmg_glock = { "mp_dmg_glock", "12", FCVAR_SERVER };
 cvar_t mp_dmg_357 = { "mp_dmg_357", "50", FCVAR_SERVER };
 cvar_t mp_dmg_mp5 = { "mp_dmg_mp5", "12", FCVAR_SERVER };
@@ -568,6 +569,7 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&motdfile_html);
 
 	CVAR_REGISTER(&mp_dmg_crowbar);
+	CVAR_REGISTER(&mp_dmg_swipe);
 	CVAR_REGISTER(&mp_dmg_glock);
 	CVAR_REGISTER(&mp_dmg_357);
 	CVAR_REGISTER(&mp_dmg_mp5);

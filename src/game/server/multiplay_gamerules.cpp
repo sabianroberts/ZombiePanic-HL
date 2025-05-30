@@ -158,6 +158,9 @@ void CHalfLifeMultiplay::RefreshSkillData(void)
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = mp_dmg_crowbar.value;
 
+	// Swipe whack
+	gSkillData.plrDmgSwipe = mp_dmg_swipe.value;
+
 	// Glock Round
 	gSkillData.plrDmg9MM = mp_dmg_glock.value;
 
