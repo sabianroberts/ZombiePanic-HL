@@ -8,6 +8,7 @@
 #include "viewport_panel_names.h"
 #include "hud.h"
 #include "cl_util.h"
+#include "event_api.h"
 #include "zp/zp_shared.h"
 
 CTeamMenu::CTeamMenu()
@@ -147,6 +148,23 @@ void CTeamMenu::Activate()
 {
 	Update();
 	ShowPanel(true);
+}
+
+void CTeamMenu::Paint()
+{
+	BaseClass::Paint();
+
+	if ( m_bHasVolunteered != m_pVolunteerForZombie->IsSelected() )
+	{
+		m_bHasVolunteered = m_pVolunteerForZombie->IsSelected();
+		gEngfuncs.pEventAPI->EV_PlaySound(
+			gEngfuncs.GetLocalPlayer()->index,
+			gEngfuncs.GetLocalPlayer()->origin,
+		    CHAN_BOT, "player/zombieclick.wav",
+			1, ATTN_NORM,
+			0, PITCH_NORM
+		);
+	}
 }
 
 const char *CTeamMenu::GetName()

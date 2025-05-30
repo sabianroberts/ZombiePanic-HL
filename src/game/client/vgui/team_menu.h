@@ -23,6 +23,8 @@ public:
 	void Update();
 	void Activate();
 
+	virtual void Paint();
+
 	//IViewportPanel overrides
 	virtual const char *GetName() override;
 	virtual void Reset() override;
@@ -45,6 +47,7 @@ private:
 	bool m_bUpdatedMapName = false;
 	bool m_bUpdatedGameModeInfo = false;
 	int m_iCurrentRounds = -1;
+	bool m_bHasVolunteered = false;
 
 	CPanelAnimationVarAliasType(int, m_iBtnX, "btn_x", "24", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iBtnY, "btn_y", "28", "proportional_int");
