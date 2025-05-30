@@ -5168,6 +5168,7 @@ void CBasePlayer::DropActiveWeapon()
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( ( m_flLastWeaponDrop - gpGlobals->time > 0 ) ) return;
 	if ( !m_pActiveItem ) return;
+	m_flLastWeaponDrop = gpGlobals->time + 1.0f;
 
 	// Check if this is the crowbar, if so, do not drop it!
 	if ( FStrEq( STRING( m_pActiveItem->pev->classname ), "weapon_crowbar" ) ) return;
@@ -5260,6 +5261,7 @@ void CBasePlayer::DropSelectedAmmo()
 {
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( ( m_flLastAmmoDrop - gpGlobals->time > 0 ) ) return;
+	m_flLastAmmoDrop = gpGlobals->time + 1.0f;
 	int iAmmoType = AmmoIndexToDrop();
 	int amount = m_rgAmmo[ iAmmoType ];
 	int ammoDrop = DefaultAmmoToDrop( iAmmoType );
@@ -5304,6 +5306,7 @@ void CBasePlayer::DropUnuseableAmmo()
 {
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( ( m_flLastUnusedDrop - gpGlobals->time > 0 ) ) return;
+	m_flLastUnusedDrop = gpGlobals->time + 1.0f;
 
 	// Goldsrc does not use a propper Ammotable array.
 	// The ammo gets registered dynamically, which means
