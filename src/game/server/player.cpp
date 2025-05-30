@@ -5323,8 +5323,8 @@ void CBasePlayer::DropUnuseableAmmo()
 		CBasePlayerItem *pWeapon = m_rgpPlayerItems[i];
 		while ( pWeapon )
 		{
-			int iAmmoIndex = GetAmmoIndex( pWeapon->pszAmmo1() );
-			if ( iAmmoIndex != -1 )
+			ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->pszAmmo1() ).AmmoType;
+			if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
 				iAmmoThatShouldBeDropped[ AmmoIndexToDropArray( iAmmoIndex ) ] = -1;
 			pWeapon = pWeapon->m_pNext;
 		}
