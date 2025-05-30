@@ -365,6 +365,8 @@ public:
 	bool CanPanicSinceLastTime();
 	void WantsToSuicide();
 
+	bool m_bInZombieVision;
+
 	//-----------------------------------------------------
 	// BEGIN BUGFIXED HL FIELDS
 	//-----------------------------------------------------

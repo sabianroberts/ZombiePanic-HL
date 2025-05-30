@@ -1354,9 +1354,12 @@ int AddToFullPack(struct entity_state_s *state, int e, edict_t *ent, edict_t *ho
 
 		if (ent->v.iuser1)
 			state->team = -1; // Set team if player is spectator. This will enable "Cancel" button in team menu.
+		else
+			state->team = ent->v.team;
 
 		state->usehull = (ent->v.flags & FL_DUCKING) ? 1 : 0;
 		state->health = ent->v.health;
+		state->fuser4 = ent->v.fuser4;
 	}
 
 	if (ent->v.renderfx == kRenderFxDeadPlayer)

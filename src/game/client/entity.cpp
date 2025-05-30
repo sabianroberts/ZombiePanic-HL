@@ -117,6 +117,9 @@ void CL_DLLEXPORT HUD_TxferLocalOverrides(struct entity_state_s *state, const st
 	// Wider range health
 	state->health = client->health;
 
+	// Zombie visioin
+	state->fuser4 = client->fuser4;
+
 	// Spectator
 	state->iuser1 = client->iuser1;
 	state->iuser2 = client->iuser2;
@@ -774,20 +777,6 @@ void CL_DLLEXPORT HUD_TempEntUpdate(
 				}
 			}
 
-#if 0
-			// Local player? Then check if we got zombo vision enabled.
-			if ( gEngfuncs.GetLocalPlayer()->index == pTemp->clientIndex
-				&& ((int)(pTemp->entity.curstate.effects) & (EF_ZOMBOVISION)) )
-			{
-				dlight_t *dl = gEngfuncs.pEfxAPI->CL_AllocDlight(0);
-				VectorCopy( pTemp->entity.origin, dl->origin );
-				dl->radius = 300;
-				dl->color.r = 255;
-				dl->color.g = 10;
-				dl->color.b = 10;
-				dl->die = client_time + 0.01;
-			}
-#endif
 		}
 		pTemp = pnext;
 	}
