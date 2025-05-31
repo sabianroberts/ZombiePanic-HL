@@ -94,9 +94,9 @@ BOOL CGameRules::CanHavePlayerItem(CBasePlayer *pPlayer, CBasePlayerItem *pWeapo
 	if (pPlayer->pev->deadflag != DEAD_NO)
 		return FALSE;
 
-	if (pWeapon->pszAmmo1())
+	if (pWeapon->HasValidAmmoType( true ))
 	{
-		if (!CanHaveAmmo(pPlayer, pWeapon->pszAmmo1(), pWeapon->iMaxAmmo1()))
+		if (!CanHaveAmmo(pPlayer, pWeapon->GetData().Ammo1, pWeapon->iMaxAmmo1()))
 		{
 			// we can't carry anymore ammo for this gun. We can only
 			// have the gun if we aren't already carrying one of this type

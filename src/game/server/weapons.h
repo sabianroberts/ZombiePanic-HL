@@ -227,20 +227,30 @@ public:
 
 	virtual int iItemSlot(void) { return 0; } // return 0 to MAX_ITEMS_SLOTS, used in hud
 
-	int iItemPosition(void) { return ItemInfoArray[GetWeaponID()].iPosition; }
-	const char *pszAmmo1(void) { return ItemInfoArray[GetWeaponID()].pszAmmo1; }
-	int iMaxAmmo1(void) { return GetAmmoByName( ItemInfoArray[GetWeaponID()].pszAmmo1 ).MaxCarry; }
-	const char *pszAmmo2(void) { return ItemInfoArray[GetWeaponID()].pszAmmo2; }
-	int iMaxAmmo2(void) { return GetAmmoByName( ItemInfoArray[GetWeaponID()].pszAmmo2 ).MaxCarry; }
-	const char *pszName(void) { return ItemInfoArray[GetWeaponID()].pszName; }
-	int iMaxClip(void) { return ItemInfoArray[GetWeaponID()].iMaxClip; }
-	int iWeight(void) { return ItemInfoArray[GetWeaponID()].iWeight; }
-	int iFlags(void) { return ItemInfoArray[GetWeaponID()].iFlags; }
+	// Client and server should read the same script file
+	const WeaponData GetData()
+	{
+		WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
+		return slot;
+	}
 
-	float PrimaryFireRate() { return ItemInfoArray[GetWeaponID()].flFireRate[0]; }
-	float SecondaryFireRate() { return ItemInfoArray[GetWeaponID()].flFireRate[1]; }
-	float PrimaryWeaponSpread() { return ItemInfoArray[GetWeaponID()].flWeaponSpread[0]; }
-	float SecondaryWeaponSpread() { return ItemInfoArray[GetWeaponID()].flWeaponSpread[1]; }
+	int iItemPosition(void) { return GetData().Position; }
+	bool HasValidAmmoType( bool bPrimary )
+	{
+		AmmoData data = GetAmmoByName( bPrimary ? GetData().Ammo1 : GetData().Ammo2 );
+		return ( data.AmmoType != ZPAmmoTypes::AMMO_NONE ) ? true : false;
+	}
+	int iMaxAmmo1(void) { return GetAmmoByName( GetData().Ammo1 ).MaxCarry; }
+	int iMaxAmmo2(void) { return GetAmmoByName( GetData().Ammo2 ).MaxCarry; }
+	const char *pszName(void) { return ItemInfoArray[GetWeaponID()].pszName; }
+	int iMaxClip(void) { return GetData().MaxClip; }
+	int iWeight(void) { return GetData().Weight; }
+	int iFlags(void) { return GetData().Flags; }
+
+	float PrimaryFireRate() { return GetData().FireRate[0]; }
+	float SecondaryFireRate() { return GetData().FireRate[1]; }
+	float PrimaryWeaponSpread() { return GetData().WeaponSpread[0]; }
+	float SecondaryWeaponSpread() { return GetData().WeaponSpread[1]; }
 
 	const Vector GetSpreadVector( float flSpread ) { return Vector(flSpread, flSpread, flSpread); }
 

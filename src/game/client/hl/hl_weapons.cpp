@@ -321,7 +321,7 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 
 	if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextSecondaryAttack <= 0.0))
 	{
-		if (pszAmmo2() && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+		if (HasValidAmmoType( false ) && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
 		{
 			m_fFireOnEmpty = TRUE;
 		}
@@ -331,7 +331,7 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 	}
 	else if ((m_pPlayer->pev->button & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0))
 	{
-		if ((m_iClip == 0 && pszAmmo1()) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+		if ((m_iClip == 0 && HasValidAmmoType(true)) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
 		{
 			m_fFireOnEmpty = TRUE;
 		}

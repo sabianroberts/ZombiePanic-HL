@@ -620,7 +620,7 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 
 	if ((pPlayer->pev->button & IN_ATTACK2) && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
 	{
-		if (pszAmmo2() && !pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+		if (HasValidAmmoType( false ) && !pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
 		{
 			m_fFireOnEmpty = TRUE;
 		}
@@ -631,7 +631,7 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 	}
 	else if ((pPlayer->pev->button & IN_ATTACK) && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
 	{
-		if ((m_iClip == 0 && pszAmmo1()) || (iMaxClip() == WEAPON_NOCLIP && !pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+		if ((m_iClip == 0 && HasValidAmmoType( true )) || (iMaxClip() == WEAPON_NOCLIP && !pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
 		{
 			m_fFireOnEmpty = TRUE;
 		}
@@ -752,8 +752,8 @@ int CBasePlayerWeapon::AddToPlayer(CBasePlayer *pPlayer)
 
 	if (!m_iPrimaryAmmoType)
 	{
-		m_iPrimaryAmmoType = pPlayer->GetAmmoIndex(pszAmmo1());
-		m_iSecondaryAmmoType = pPlayer->GetAmmoIndex(pszAmmo2());
+		m_iPrimaryAmmoType = GetAmmoByName( GetData().Ammo1 ).AmmoType;
+		m_iSecondaryAmmoType = GetAmmoByName( GetData().Ammo2 ).AmmoType;
 	}
 
 	if (bResult)
@@ -1119,17 +1119,17 @@ int CBasePlayerWeapon::ExtractAmmo(CBasePlayerWeapon *pWeapon)
 {
 	int iReturn = FALSE;
 
-	if (pszAmmo1() != NULL)
+	if (HasValidAmmoType( true ) != NULL)
 	{
 		// blindly call with m_iDefaultAmmo. It's either going to be a value or zero. If it is zero,
 		// we only get the ammo in the weapon's clip, which is what we want.
-		iReturn = pWeapon->AddPrimaryAmmo(m_iDefaultAmmo, (char *)pszAmmo1(), iMaxClip(), iMaxAmmo1());
+		iReturn = pWeapon->AddPrimaryAmmo(m_iDefaultAmmo, (char *)GetData().Ammo1, iMaxClip(), iMaxAmmo1());
 		m_iDefaultAmmo = 0;
 	}
 
-	if (pszAmmo2() != NULL)
+	if (HasValidAmmoType( false ) != NULL)
 	{
-		iReturn = pWeapon->AddSecondaryAmmo(0, (char *)pszAmmo2(), iMaxAmmo2());
+		iReturn = pWeapon->AddSecondaryAmmo(0, (char *)GetData().Ammo2, iMaxAmmo2());
 	}
 
 	return iReturn;
@@ -1151,7 +1151,7 @@ int CBasePlayerWeapon::ExtractClipAmmo(CBasePlayerWeapon *pWeapon)
 		iAmmo = m_iClip;
 	}
 
-	return pWeapon->m_pPlayer->GiveAmmo(iAmmo, (char *)pszAmmo1(), iMaxAmmo1()); // , &m_iPrimaryAmmoType
+	return pWeapon->m_pPlayer->GiveAmmo(iAmmo, (char *)GetData().Ammo1, iMaxAmmo1()); // , &m_iPrimaryAmmoType
 }
 
 //=========================================================

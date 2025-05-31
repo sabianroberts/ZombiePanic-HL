@@ -5172,7 +5172,7 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 	pWeaponBox->pev->nextthink = 0;
 
 	// drop half of the ammo for this weapon.
-	int iAmmoIndex = GetAmmoIndex(pWeapon->pszAmmo1()); // ???
+	int iAmmoIndex = GetAmmoByName(pWeapon->GetData().Ammo1).AmmoType;
 
 	if (iAmmoIndex != -1)
 	{
@@ -5180,14 +5180,14 @@ void CBasePlayer::DropPlayerItem(char *pszItemName)
 		if (pWeapon->iFlags() & ITEM_FLAG_EXHAUSTIBLE)
 		{
 			// pack up all the ammo, this weapon is its own ammo type
-			pWeaponBox->PackAmmo(MAKE_STRING(pWeapon->pszAmmo1()), m_rgAmmo[iAmmoIndex]);
+			pWeaponBox->PackAmmo(MAKE_STRING(pWeapon->GetData().Ammo1), m_rgAmmo[iAmmoIndex]);
 			m_rgAmmo[iAmmoIndex] = 0;
 		}
 		else
 		{
 			// pack half of the ammo
 			int ammoDrop = m_rgAmmo[iAmmoIndex] / 2;
-			pWeaponBox->PackAmmo(MAKE_STRING(pWeapon->pszAmmo1()), ammoDrop);
+			pWeaponBox->PackAmmo(MAKE_STRING(pWeapon->GetData().Ammo1), ammoDrop);
 			m_rgAmmo[iAmmoIndex] -= ammoDrop;
 		}
 	}
@@ -5353,7 +5353,7 @@ void CBasePlayer::DropUnuseableAmmo()
 		CBasePlayerItem *pWeapon = m_rgpPlayerItems[i];
 		while ( pWeapon )
 		{
-			ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->pszAmmo1() ).AmmoType;
+			ZPAmmoTypes iAmmoIndex = GetAmmoByName( pWeapon->GetData().Ammo1 ).AmmoType;
 			if ( iAmmoIndex > ZPAmmoTypes::AMMO_NONE )
 				iAmmoThatShouldBeDropped[ AmmoIndexToDropArray( iAmmoIndex ) ] = -1;
 			pWeapon = pWeapon->m_pNext;
