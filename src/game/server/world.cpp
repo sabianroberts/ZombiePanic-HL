@@ -483,6 +483,9 @@ void CWorld ::Spawn(void)
 	g_fGameOver = FALSE;
 	Precache();
 	g_flWeaponCheat = CVAR_GET_FLOAT("sv_cheats"); // Is the impulse 101 command allowed?
+
+	SetThink(&CWorld::OnWorldCreated);
+	pev->nextthink = gpGlobals->time + 5.0f;
 }
 
 void CWorld ::Precache(void)
@@ -664,6 +667,53 @@ void CWorld ::Precache(void)
 		gDisplayTitle = TRUE; // display the game title if this key is set
 	else
 		gDisplayTitle = FALSE;
+}
+
+void CWorld::OnWorldCreated()
+{
+	static const char *s_StaticSpawns[] = {
+		"weapon_9mmhandgun",
+		"weapon_357",
+		"weapon_556ar",
+		"weapon_shotgun",
+		"weapon_satchel",
+		"weapon_handgrenade",
+		"item_battery",
+		"item_armor",
+		"item_healthkit",
+		"item_security",
+		"ammo_9mmclip",
+		"ammo_9mmar",
+		"ammo_9mmbox",
+		"ammo_556ar",
+		"ammo_556box",
+		"ammo_buckshot",
+		"ammo_357",
+		"", // END Marker
+	};
+
+	// Erase previous data, if we have any.
+	ZP::ClearStaticSpawnList();
+
+	// Now, let's go trough our allowed static spawns, and add them if we find any.
+	for ( int i = 0; i < ARRAYSIZE( s_StaticSpawns ); i++ )
+	{
+		CBaseEntity *pFind = UTIL_FindEntityByClassname( nullptr, s_StaticSpawns[i] );
+		while ( pFind )
+		{
+			float flOrigin[3], flAngles[3];
+			flOrigin[0] = pFind->pev->origin.x;
+			flOrigin[1] = pFind->pev->origin.y;
+			flOrigin[2] = pFind->pev->origin.z;
+			flAngles[0] = pFind->pev->angles.x;
+			flAngles[1] = pFind->pev->angles.y;
+			flAngles[2] = pFind->pev->angles.z;
+			ZP::AddToStaticSpawnList( pFind->pev->classname, pFind->pev->spawnflags, flOrigin, flAngles );
+			pFind = UTIL_FindEntityByClassname( pFind, s_StaticSpawns[i] );
+		}
+	}
+
+	SetThink( NULL );
 }
 
 //

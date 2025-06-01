@@ -303,6 +303,10 @@ void CZombiePanicGameRules::CleanUpMap()
 	// Make sure these are removed.
 	UTIL_RemoveAll( "grenade" );
 	UTIL_RemoveAll( "weaponbox" );
+	UTIL_RemoveAll( "bodyque" ); // We don't want any bodies on next round
+
+	// Spawn our static stuff
+	ZP::SpawnStaticSpawns();
 
 	// Make sure we reset our decals.
 	PLAYBACK_EVENT((FEV_GLOBAL | FEV_RELIABLE), 0, m_usResetDecals);

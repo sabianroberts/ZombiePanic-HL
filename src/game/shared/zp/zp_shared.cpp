@@ -193,7 +193,43 @@ WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID )
 	return CreateWeaponSlotData( WeaponID );
 }
 
-ZP::GameModeType_e ZP::IsValidGameModeMap( const char *szLevel )
+#ifdef SERVER_DLL
+struct StaticSpawn
+{
+	char Classname[32];
+	int SpawnFlags;
+	Vector Origin;
+	Vector Angle;
+};
+static std::vector<StaticSpawn> sStaticSpawnList;
+void ZP::ClearStaticSpawnList() { sStaticSpawnList.clear(); }
+
+void ZP::AddToStaticSpawnList( string_t classname, int spawnflags, float flOrigin[3], float flAngle[3] )
+{
+	StaticSpawn item;
+	UTIL_strcpy( item.Classname, STRING( classname ) );
+	item.SpawnFlags = spawnflags;
+	item.Origin.x = flOrigin[0];
+	item.Origin.y = flOrigin[1];
+	item.Origin.z = flOrigin[2];
+	item.Angle.x = flAngle[0];
+	item.Angle.y = flAngle[1];
+	item.Angle.z = flAngle[2];
+
+	sStaticSpawnList.push_back( item );
+}
+
+void ZP::SpawnStaticSpawns()
+{
+	for ( int i = 0; i < sStaticSpawnList.size(); i++ )
+	{
+		StaticSpawn slot = sStaticSpawnList[i];
+		CBaseEntity::Create( (char *)slot.Classname, slot.Origin + Vector( 0, 0, 2 ), slot.Angle, nullptr );
+	}
+}
+#endif
+
+ZP::GameModeType_e ZP::IsValidGameModeMap(const char *szLevel)
 {
 	if ( !szLevel ) return GameModeType_e::GAMEMODE_INVALID;
 	char sz[4];

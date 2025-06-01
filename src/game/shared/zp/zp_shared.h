@@ -95,6 +95,12 @@ WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID );
 
 namespace ZP
 {
+#ifdef SERVER_DLL
+    void ClearStaticSpawnList();
+	void AddToStaticSpawnList( string_t classname, int spawnflags, float flOrigin[3], float flAngle[3] );
+	void SpawnStaticSpawns();
+#endif
+
 	enum RoundState
 	{
 		RoundState_Invalid = -1,
