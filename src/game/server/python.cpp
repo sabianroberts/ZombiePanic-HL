@@ -115,6 +115,9 @@ void CPython::SecondaryAttack(void)
 
 void CPython::PrimaryAttack()
 {
+	// This ain't no automatic weapon
+	m_pPlayer->pev->button &= ~IN_ATTACK;
+
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
