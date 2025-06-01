@@ -25,8 +25,8 @@
 
 ConVar hud_scoreboard_mousebtn("hud_scoreboard_mousebtn", "1", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showavatars("hud_scoreboard_showavatars", "1", FCVAR_ARCHIVE);
-ConVar hud_scoreboard_showloss("hud_scoreboard_showloss", "1", FCVAR_ARCHIVE);
-ConVar hud_scoreboard_showsteamid("hud_scoreboard_showsteamid", "1", FCVAR_ARCHIVE);
+ConVar hud_scoreboard_showloss("hud_scoreboard_showloss", "0", FCVAR_ARCHIVE);
+ConVar hud_scoreboard_showsteamid("hud_scoreboard_showsteamid", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_size("hud_scoreboard_size", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_spacing_normal("hud_scoreboard_spacing_normal", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_spacing_compact("hud_scoreboard_spacing_compact", "0", FCVAR_ARCHIVE);
@@ -413,6 +413,7 @@ void CScorePanel::RefreshItems()
 		iTeamCount++;
 	}
 
+#if 0
 	// Sort teams based on the score
 	std::sort(m_SortedTeamIDs.begin(), m_SortedTeamIDs.begin() + iTeamCount, [&](int ilhs, int irhs) {
 		const TeamData &lhs = m_TeamData[ilhs];
@@ -451,6 +452,11 @@ void CScorePanel::RefreshItems()
 	{
 		CreateSection(ZP::TEAM_OBSERVER);
 	}
+#else
+	CreateSection( ZP::TEAM_SURVIVIOR );
+	CreateSection( ZP::TEAM_ZOMBIE );
+	CreateSection( ZP::TEAM_OBSERVER );
+#endif
 
 	UpdateAllClients();
 }
@@ -576,7 +582,7 @@ void CScorePanel::UpdateClientInfo(int client)
 	}
 
 	// Create section for player's team if need to
-	CreateSection(pd.nTeamID);
+	//CreateSection(pd.nTeamID);
 
 	KeyValues *playerKv = new KeyValues("data");
 
