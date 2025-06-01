@@ -247,6 +247,8 @@ ZP::GameModeType_e ZP::IsValidGameModeMap(const char *szLevel)
 
 float CBasePlayer::GetAmmoWeight( const char *szAmmo )
 {
+	// We only do this for survivors!!!
+	if ( pev->team != ZP::TEAM_SURVIVIOR ) return 0.0f;
 	AmmoData ammo = GetAmmoByName( szAmmo );
 	int amount = m_rgAmmo[ ammo.AmmoType ];
 	return amount * ammo.WeightPerBullet;
@@ -254,9 +256,6 @@ float CBasePlayer::GetAmmoWeight( const char *szAmmo )
 
 void CBasePlayer::UpdatePlayerMaxSpeed()
 {
-	// We only do this for survivors!!!
-	if ( pev->team != ZP::TEAM_SURVIVIOR ) return;
-
 	int i;
 	int iHowFatAmI = 0;
 
@@ -279,7 +278,7 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 #endif
 
 	// Now check the weapons we got.
-	float flNewSpeed = ZP::MaxSpeeds[0] - iHowFatAmI;
+	float flNewSpeed = ZP::MaxSpeeds[0] - iHowFatAmI - pev->fuser4;
 	if ( flNewSpeed < 50 )
 		flNewSpeed = 50;
 

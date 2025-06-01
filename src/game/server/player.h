@@ -24,6 +24,7 @@
 #define DAMAGE_FOR_FALL_SPEED        (float)100 / (PLAYER_FATAL_FALL_SPEED - PLAYER_MAX_SAFE_FALL_SPEED) // damage per unit per second.
 #define PLAYER_MIN_BOUNCE_SPEED      200
 #define PLAYER_FALL_PUNCH_THRESHHOLD (float)350 // won't punch player's screen/make scrape noise unless player falling at least this fast.
+#define PLAYER_MAX_FATIGUE			200
 
 //
 // Player PHYSICS FLAGS bits
@@ -367,6 +368,25 @@ public:
 	void WantsToSuicide();
 
 	bool m_bInZombieVision;
+
+#ifdef SERVER_DLL
+private:
+	float m_flLastFatigue = -1;
+	bool m_bFatigueUpdated = false;
+
+public:
+	// Increases the fatigue.
+	void IncreaseFatigue( float flValue )
+	{
+		pev->fuser4 = clamp( pev->fuser4 + flValue, 0, PLAYER_MAX_FATIGUE );
+		m_bFatigueUpdated = true;
+	}
+
+	// Updates our fatigue for the player, this is a super
+	// simplified version of the ZPS version. Mostly used when
+	// jumping, since the jump delay was not really fun.
+	void UpdateFatigue();
+#endif
 
 	//-----------------------------------------------------
 	// BEGIN BUGFIXED HL FIELDS

@@ -1791,12 +1791,18 @@ void CBasePlayer::Jump()
 		SetAnimation(PLAYER_SUPERJUMP);
 	}
 
+	Vector MyVelocity = pev->velocity;
+
+	// If we are a zombie, decrease our jump speed & max speed
+	if ( pev->team == ZP::TEAM_ZOMBIE )
+		pev->fuser4 += 10.0f;
+	else
+		pev->fuser4 += 8.0f;
+
 	// If you're standing on a conveyor, add it's velocity to yours (for momentum)
 	entvars_t *pevGround = VARS(pev->groundentity);
 	if (pevGround && (pevGround->flags & FL_CONVEYOR))
-	{
-		pev->velocity = pev->velocity + pev->basevelocity;
-	}
+		MyVelocity += pev->basevelocity;
 
 	// JoshA: CS behaviour does this for tracktrain + train as well,
 	// but let's just do this for func_vehicle to avoid breaking existing content.
@@ -1809,8 +1815,10 @@ void CBasePlayer::Jump()
 		) ||*/
 	    !strcmp("func_vehicle", STRING(pevGround->classname)))
 	{
-		pev->velocity = pev->velocity + pevGround->velocity;
+		MyVelocity += pevGround->velocity;
 	}
+
+	pev->velocity = MyVelocity;
 }
 
 // This is a glorious hack to find free space when you've crouched into some solid space
@@ -2018,6 +2026,25 @@ void CBasePlayer::WantsToSuicide()
 		pev->health = 0;
 		Killed( pev, GIB_NEVER );
 	}
+}
+
+void CBasePlayer::UpdateFatigue()
+{
+	// We only care if we are on the ground
+	if (!(pev->flags & FL_ONGROUND) || !pev->groundentity) return;
+	// Our fatigue just got increased, reset the timer.
+	if ( m_bFatigueUpdated )
+	{
+		m_flLastFatigue = gpGlobals->time + 1.5f;
+		m_bFatigueUpdated = false;
+		return;
+	}
+	if ( m_flLastFatigue - gpGlobals->time > 0 ) return;
+
+	float flValue = pev->fuser4;
+	flValue -= 0.25f;
+	if ( flValue <= 0 ) flValue = 0;
+	pev->fuser4 = flValue;
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
@@ -2803,6 +2830,9 @@ void CBasePlayer::PostThink()
 
 	// do weapon stuff
 	ItemPostFrame();
+
+	// Update our fatigue
+	UpdateFatigue();
 
 	// If the player is falling to their death (survivor only) cause them to scream in agony!!
 	// And make sure they are not on the ground
@@ -3825,7 +3855,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 	if ((pev->weapons & (1 << WEAPON_SUIT)))
 	{
 		bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-		EMIT_SOUND_DYN(ENT(pev), CHAN_BOT, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
 		if ( !bIsZombie )
 			SetBits(pev->effects, EF_DIMLIGHT);
 		else
@@ -3847,7 +3877,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 void CBasePlayer ::FlashlightTurnOff(void)
 {
 	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-	EMIT_SOUND_DYN(ENT(pev), CHAN_BOT, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+	EMIT_SOUND_DYN(ENT(pev), CHAN_AUTO, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
 	if ( !bIsZombie )
 		ClearBits(pev->effects, EF_DIMLIGHT);
 	else
