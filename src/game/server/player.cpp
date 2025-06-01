@@ -1358,7 +1358,7 @@ void CBasePlayer::PlayerDeathThink(void)
 		if ( pev->team == ZP::TEAM_ZOMBIE )
 			RemoveAllItems( TRUE );
 		else
-		PackDeadPlayerItems();
+			PackDeadPlayerItems();
 	}
 
 	// Clear inclination came from client view
@@ -4279,18 +4279,11 @@ int CBasePlayer::RemovePlayerItem(CBasePlayerItem *pItem)
 	return FALSE;
 }
 
-//
-// Returns the unique ID for the ammo, or -1 if error
-//
-int CBasePlayer ::GiveAmmo(int iCount, char *szName, int iMax)
+int CBasePlayer::GiveAmmo( int iAmount, ZPAmmoTypes ammotype )
 {
-	if (!szName)
-	{
-		// no ammo.
-		return -1;
-	}
+	AmmoData data = GetAmmoByAmmoID( ammotype );
 
-	if (!g_pGameRules->CanHaveAmmo(this, szName, iMax))
+	if (!g_pGameRules->CanHaveAmmo( this, data.AmmoName, data.MaxCarry ) )
 	{
 		// game rules say I can't have any more of this ammo type.
 		return -1;
@@ -4298,12 +4291,12 @@ int CBasePlayer ::GiveAmmo(int iCount, char *szName, int iMax)
 
 	int i = 0;
 
-	i = GetAmmoIndex(szName);
+	i = GetAmmoIndex( data.AmmoName );
 
 	if (i < 0 || i >= ZPAmmoTypes::AMMO_MAX)
 		return -1;
 
-	int iAdd = min(iCount, iMax - m_rgAmmo[i]);
+	int iAdd = min(iAmount, data.MaxCarry - m_rgAmmo[i]);
 	if (iAdd < 1)
 		return i;
 
@@ -4313,7 +4306,7 @@ int CBasePlayer ::GiveAmmo(int iCount, char *szName, int iMax)
 	{
 		// Send the message that ammo has been picked up
 		MESSAGE_BEGIN(MSG_ONE, gmsgAmmoPickup, NULL, pev);
-		WRITE_BYTE(GetAmmoIndex(szName)); // ammo ID
+		WRITE_BYTE(ammotype); // ammo ID
 		WRITE_BYTE(iAdd); // amount
 		MESSAGE_END();
 
@@ -4328,7 +4321,7 @@ int CBasePlayer ::GiveAmmo(int iCount, char *szName, int iMax)
 					continue;
 
 				MESSAGE_BEGIN(MSG_ONE, gmsgAmmoPickup, NULL, plr->pev);
-				WRITE_BYTE(GetAmmoIndex(szName)); // ammo ID
+				WRITE_BYTE(ammotype); // ammo ID
 				WRITE_BYTE(iAdd); // amount
 				MESSAGE_END();
 			}
@@ -4338,6 +4331,19 @@ int CBasePlayer ::GiveAmmo(int iCount, char *szName, int iMax)
 	TabulateAmmo();
 
 	return i;
+}
+
+//
+// Returns the unique ID for the ammo, or -1 if error
+//
+int CBasePlayer ::GiveAmmo(int iCount, char *szName)
+{
+	if (!szName)
+	{
+		// no ammo.
+		return -1;
+	}
+	return GiveAmmo( iCount, GetAmmoByName( szName ).AmmoType );
 }
 
 /*

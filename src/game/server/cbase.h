@@ -49,6 +49,7 @@ CBaseEntity
 
 #include "saverestore.h"
 #include "schedule.h"
+#include "zp/zp_shared.h"
 
 #ifndef MONSTEREVENT_H
 #include "monsterevent.h"
@@ -190,7 +191,8 @@ public:
 	virtual void AddPointsToTeam(int score, BOOL bAllowNegativeScore) { }
 	virtual BOOL AddPlayerItem(CBasePlayerItem *pItem) { return 0; }
 	virtual BOOL RemovePlayerItem(CBasePlayerItem *pItem) { return 0; }
-	virtual int GiveAmmo(int iAmount, char *szName, int iMax) { return -1; };
+	virtual int GiveAmmo(int iAmount, ZPAmmoTypes ammotype) { return -1; };
+	virtual int GiveAmmo(int iAmount, char *szName) { return -1; };
 	virtual float GetDelay(void) { return 0; }
 	virtual int IsMoving(void) { return pev->velocity != g_vecZero; }
 	virtual void OverrideReset(void) { }
@@ -832,6 +834,7 @@ class CWorld : public CBaseEntity
 public:
 	void Spawn(void);
 	void Precache(void);
+	void OnWorldCreated();
 	void KeyValue(KeyValueData *pkvd);
 };
 

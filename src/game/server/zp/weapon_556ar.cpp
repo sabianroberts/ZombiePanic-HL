@@ -214,14 +214,5 @@ class C556ARChainammo : public CBasePlayerAmmo
 		PRECACHE_MODEL("models/w_556box.mdl");
 		PRECACHE_SOUND("items/556clip1.wav");
 	}
-	BOOL AddAmmo(CBaseEntity *pOther)
-	{
-		int bResult = (pOther->GiveAmmo(AmmoToGive(), "556ar", _556AR_MAX_CARRY) != -1);
-		if (bResult)
-		{
-			EMIT_SOUND(ENT(pev), CHAN_ITEM, "items/556clip1.wav", 1, ATTN_NORM);
-		}
-		return bResult;
-	}
 };
 LINK_ENTITY_TO_CLASS(ammo_556box, C556ARChainammo);

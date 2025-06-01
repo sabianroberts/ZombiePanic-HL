@@ -856,18 +856,18 @@ BOOL CBasePlayerWeapon ::AddPrimaryAmmo(int iCount, char *szName, int iMaxClip, 
 	if (iMaxClip < 1)
 	{
 		m_iClip = -1;
-		iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName, iMaxCarry);
+		iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName);
 	}
 	else if (m_iClip == 0)
 	{
 		int i;
 		i = min(m_iClip + iCount, iMaxClip) - m_iClip;
 		m_iClip += i;
-		iIdAmmo = m_pPlayer->GiveAmmo(iCount - i, szName, iMaxCarry);
+		iIdAmmo = m_pPlayer->GiveAmmo(iCount - i, szName);
 	}
 	else
 	{
-		iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName, iMaxCarry);
+		iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName);
 	}
 
 	// m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] = iMaxCarry; // hack for testing
@@ -890,7 +890,7 @@ BOOL CBasePlayerWeapon ::AddSecondaryAmmo(int iCount, char *szName, int iMax)
 {
 	int iIdAmmo;
 
-	iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName, iMax);
+	iIdAmmo = m_pPlayer->GiveAmmo(iCount, szName);
 
 	//m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] = iMax; // hack for testing
 
@@ -1098,7 +1098,7 @@ bool CBasePlayerAmmo::GiveAmmoToPlayer(CBaseEntity *pOther)
 	// If we can't give ammo, ignore.
 	if ( iGiveAmmo == 0 ) return false;
 	// Let's give our ammo
-	if ( pOther->GiveAmmo( AmmoToGive(), (char *)data.AmmoName, data.MaxCarry ) > -1 )
+	if ( pOther->GiveAmmo( AmmoToGive(), data.AmmoType ) > -1 )
 	{
 		m_iAmountLeft -= iGiveAmmo;
 		EMIT_SOUND( ENT(pev), CHAN_ITEM, m_szSound, 1, ATTN_NORM );
@@ -1151,7 +1151,7 @@ int CBasePlayerWeapon::ExtractClipAmmo(CBasePlayerWeapon *pWeapon)
 		iAmmo = m_iClip;
 	}
 
-	return pWeapon->m_pPlayer->GiveAmmo(iAmmo, (char *)GetData().Ammo1, iMaxAmmo1()); // , &m_iPrimaryAmmoType
+	return pWeapon->m_pPlayer->GiveAmmo(iAmmo, (char *)GetData().Ammo1); // , &m_iPrimaryAmmoType
 }
 
 //=========================================================
@@ -1275,6 +1275,9 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 		return;
 	}
 
+	// if not a survivor, ignore.
+	if ( pOther->pev->team != ZP::TEAM_SURVIVIOR ) return;
+
 	if (!pOther->IsAlive())
 	{
 		// no dead guys.
@@ -1290,7 +1293,7 @@ void CWeaponBox::Touch(CBaseEntity *pOther)
 		if (!FStringNull(m_rgiszAmmo[i]))
 		{
 			// there's some ammo of this type.
-			pPlayer->GiveAmmo(m_rgAmmo[i], (char *)STRING(m_rgiszAmmo[i]), MaxAmmoCarry(m_rgiszAmmo[i]));
+			pPlayer->GiveAmmo(m_rgAmmo[i], (char *)STRING(m_rgiszAmmo[i]));
 
 			//ALERT ( at_console, "Gave %d rounds of %s\n", m_rgAmmo[i], STRING(m_rgiszAmmo[i]) );
 
