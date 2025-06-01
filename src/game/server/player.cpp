@@ -69,7 +69,7 @@ extern CGraph WorldGraph;
 #define FLASH_DRAIN_TIME  1.2 //100 units/3 minutes
 #define FLASH_CHARGE_TIME 0.2 // 100 units/20 seconds  (seconds per unit)
 
-#define ZVISION_BLIGHT 1
+#define ZVISION_BLIGHT 0
 
 constexpr int HalfPlayerHeight = 36;
 constexpr int HeightTolerance = 20;
@@ -3825,7 +3825,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 	if ((pev->weapons & (1 << WEAPON_SUIT)))
 	{
 		bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-		EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
+		EMIT_SOUND_DYN(ENT(pev), CHAN_BOT, bIsZombie ? SOUND_ZOMBVISION_ON : SOUND_FLASHLIGHT_ON, 1.0, ATTN_NORM, 0, PITCH_NORM);
 		if ( !bIsZombie )
 			SetBits(pev->effects, EF_DIMLIGHT);
 		else
@@ -3847,7 +3847,7 @@ void CBasePlayer ::FlashlightTurnOn(void)
 void CBasePlayer ::FlashlightTurnOff(void)
 {
 	bool bIsZombie = (pev->team == ZP::TEAM_ZOMBIE) ? true : false;
-	EMIT_SOUND_DYN(ENT(pev), CHAN_BODY, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
+	EMIT_SOUND_DYN(ENT(pev), CHAN_BOT, bIsZombie ? SOUND_ZOMBVISION_OFF : SOUND_FLASHLIGHT_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM);
 	if ( !bIsZombie )
 		ClearBits(pev->effects, EF_DIMLIGHT);
 	else
@@ -3858,7 +3858,7 @@ void CBasePlayer ::FlashlightTurnOff(void)
 #endif
 	MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 	WRITE_BYTE(0);
-	WRITE_BYTE((pev->team == ZP::TEAM_ZOMBIE) ? 1 : 0);
+	WRITE_BYTE(0);
 	WRITE_BYTE(m_iFlashBattery);
 	MESSAGE_END();
 
@@ -4515,7 +4515,7 @@ void CBasePlayer ::UpdateClientData(void)
 		// Send flashlight status
 		MESSAGE_BEGIN(MSG_ONE, gmsgFlashlight, NULL, pev);
 		WRITE_BYTE(FlashlightIsOn() ? 1 : 0);
-		WRITE_BYTE((pev->team == ZP::TEAM_ZOMBIE) ? 1 : 0);
+		WRITE_BYTE((pev->team == ZP::TEAM_ZOMBIE && m_bInZombieVision) ? 1 : 0);
 		WRITE_BYTE(m_iFlashBattery);
 		MESSAGE_END();
 

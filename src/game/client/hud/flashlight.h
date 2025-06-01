@@ -12,8 +12,6 @@ public:
 	int MsgFunc_Flashlight(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_FlashBat(const char *pszName, int iSize, void *pbuf);
 
-	void DoZombieVision();
-
 private:
 	HSPRITE m_hSprite1;
 	HSPRITE m_hSprite2;
@@ -26,8 +24,6 @@ private:
 	int m_fOn;
 	float m_fFade;
 	int m_iWidth; // width of the battery innards
-	float m_flZombieVisionRange;
-	bool m_bUseZombVision;
 };
 
 #endif

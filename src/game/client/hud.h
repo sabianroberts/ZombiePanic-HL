@@ -54,6 +54,8 @@
 #define HUD_INTERMISSION 2
 #define HUD_DRAW_ALWAYS  4 //!< Draw even if hud_draw = 0
 
+#define MAX_DLIGHTS 32 // MAX_DLIGHTS is an engine constant with a value of 32
+
 //! Fallback sprite resolution if the current one can't be found.
 constexpr int HUD_FALLBACK_RES = 640;
 
@@ -260,7 +262,10 @@ public:
 	//! @returns Currently loaded sprite size. Returns Auto if not loaded.
 	EHudScale GetCurrentHudScale() const { return m_CurrentHudScale; }
 
+	bool m_bUseZombVision = false;
+
 private:
+
 	struct SpriteName
 	{
 		char name[MAX_SPRITE_NAME_LENGTH];

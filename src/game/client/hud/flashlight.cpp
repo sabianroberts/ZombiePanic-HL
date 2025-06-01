@@ -38,7 +38,6 @@ void CHudFlashlight::Init(void)
 
 	m_fFade = 0;
 	m_fOn = 0;
-	m_flZombieVisionRange = 0.0f;
 
 	HookMessage<&CHudFlashlight::MsgFunc_Flashlight>("Flashlight");
 	HookMessage<&CHudFlashlight::MsgFunc_FlashBat>("FlashBat");
@@ -52,7 +51,6 @@ void CHudFlashlight::Reset(void)
 	m_fOn = 0;
 	m_iBat = 100;
 	m_flBat = 1.0;
-	m_flZombieVisionRange = 0.0f;
 }
 
 void CHudFlashlight::VidInit(void)
@@ -80,45 +78,11 @@ int CHudFlashlight::MsgFunc_FlashBat(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
-void CHudFlashlight::DoZombieVision()
-{
-	// TODO: make dlight_t work.
-#if 0
-	cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
-	if ( !pLocalPlayer ) return;
-
-	bool bIncrease = (m_fOn) ? true : false;
-	const float flMaxRange = 800;
-
-	if ( bIncrease )
-		m_flZombieVisionRange += 10;
-	else
-		m_flZombieVisionRange -= 5;
-
-	// Clamp it
-	if ( m_flZombieVisionRange > flMaxRange )
-		m_flZombieVisionRange = flMaxRange;
-	else if ( m_flZombieVisionRange < 0.0f )
-		m_flZombieVisionRange = -1;
-
-	// if -1 or lower, then just stop.
-	if ( m_flZombieVisionRange <= -1 ) return;
-
-	dlight_t *dl = gEngfuncs.pEfxAPI->CL_AllocDlight( 2 );
-	VectorCopy( pLocalPlayer->origin, dl->origin );
-	dl->radius = m_flZombieVisionRange;
-	dl->color.r = 255;
-	dl->color.g = 10;
-	dl->color.b = 10;
-	dl->die = 0.1f;
-#endif
-}
-
 int CHudFlashlight::MsgFunc_Flashlight(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 	m_fOn = READ_BYTE();
-	m_bUseZombVision = ( READ_BYTE() == 1 ) ? true : false;
+	gHUD.m_bUseZombVision = ( READ_BYTE() == 1 ) ? true : false;
 	int x = READ_BYTE();
 	m_iBat = x;
 	m_flBat = ((float)x) / 100.0;
@@ -128,12 +92,6 @@ int CHudFlashlight::MsgFunc_Flashlight(const char *pszName, int iSize, void *pbu
 
 void CHudFlashlight::Draw(float flTime)
 {
-	if ( m_bUseZombVision )
-	{
-		DoZombieVision();
-		return;
-	}
-
 	if (gHUD.m_iHideHUDDisplay & (HIDEHUD_FLASHLIGHT | HIDEHUD_ALL))
 		return;
 

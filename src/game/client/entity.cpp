@@ -99,7 +99,7 @@ void CL_DLLEXPORT HUD_TxferLocalOverrides(struct entity_state_s *state, const st
 			frame_9884_t *frame = (frame_9884_t *)((byte *)client - offsetof(frame_9884_t, clientdata));
 			for (int i = 0; i < frame->packet_entities.num_entities; i++)
 			{
-				frame->packet_entities.entities[i].effects &= ~(EF_DIMLIGHT | EF_LIGHT);
+				frame->packet_entities.entities[i].effects &= ~(EF_BRIGHTLIGHT | EF_DIMLIGHT | EF_LIGHT);
 			}
 		}
 		else
@@ -107,7 +107,7 @@ void CL_DLLEXPORT HUD_TxferLocalOverrides(struct entity_state_s *state, const st
 			frame_t *frame = (frame_t *)((byte *)client - offsetof(frame_t, clientdata));
 			for (int i = 0; i < frame->packet_entities.num_entities; i++)
 			{
-				frame->packet_entities.entities[i].effects &= ~(EF_DIMLIGHT | EF_LIGHT);
+				frame->packet_entities.entities[i].effects &= ~(EF_BRIGHTLIGHT | EF_DIMLIGHT | EF_LIGHT);
 			}
 		}
 	}

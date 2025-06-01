@@ -70,6 +70,7 @@ float v_frametime, v_lastDistance;
 float v_cameraRelaxAngle = 5.0f;
 float v_cameraFocusAngle = 35.0f;
 int v_cameraMode = CAM_MODE_FOCUS;
+static float m_ZombieVisionRange = -1;
 qboolean v_resetCamera = 1;
 
 Vector ev_punchangle;
@@ -1681,6 +1682,35 @@ void V_CalcSpectatorRefdef(struct ref_params_s *pparams)
 	VectorCopy(v_origin, pparams->vieworg);
 }
 
+void V_ZombieVision( dlight_t *pZomboVision, struct ref_params_s *pparams )
+{
+	const float flMaxRange = 800;
+
+	if ( gHUD.m_bUseZombVision )
+		m_ZombieVisionRange += 10;
+	else
+		m_ZombieVisionRange -= 5;
+
+	// Clamp it
+	if ( m_ZombieVisionRange > flMaxRange )
+		m_ZombieVisionRange = flMaxRange;
+	else if ( m_ZombieVisionRange < 0.0f )
+		m_ZombieVisionRange = -1;
+
+	// if -1 or lower, then just stop.
+	if ( m_ZombieVisionRange <= -1 ) return;
+
+	cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
+	pZomboVision->origin.x = pLocalPlayer->origin.x;
+	pZomboVision->origin.y = pLocalPlayer->origin.y;
+	pZomboVision->origin.z = pLocalPlayer->origin.z;
+	pZomboVision->radius = m_ZombieVisionRange;
+	pZomboVision->color.r = 255;
+	pZomboVision->color.g = 10;
+	pZomboVision->color.b = 10;
+	pZomboVision->die = pparams->time + 0.1f;
+}
+
 void CL_DLLEXPORT V_CalcRefdef(struct ref_params_s *pparams)
 {
 	CHudSpeedometer::Get()->UpdateSpeed(pparams->simvel);
@@ -1727,6 +1757,9 @@ void CL_DLLEXPORT V_CalcRefdef(struct ref_params_s *pparams)
 	}
 #endif
 */
+	dlight_t *pZomboVision = gEngfuncs.pEfxAPI->CL_AllocDlight( 2 );
+	if ( pZomboVision )
+		V_ZombieVision( pZomboVision, pparams );
 }
 
 /*
