@@ -1689,7 +1689,7 @@ void V_ZombieVision( dlight_t *pZomboVision, struct ref_params_s *pparams )
 	if ( gHUD.m_bUseZombVision )
 		m_ZombieVisionRange += 10;
 	else
-		m_ZombieVisionRange -= 5;
+		m_ZombieVisionRange -= 10;
 
 	// Clamp it
 	if ( m_ZombieVisionRange > flMaxRange )
