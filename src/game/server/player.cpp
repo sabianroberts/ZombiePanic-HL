@@ -4194,6 +4194,12 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
 {
 	int iWepID = pWeapon->GetWeaponID();
+	// Allow duplicates of grenades and satchels.
+	switch ( iWepID )
+	{
+		case WEAPON_HANDGRENADE:
+		case WEAPON_SATCHEL: return true;
+	}
 	int iFlag = (1 << iWepID);
 	if (pev->weapons & iFlag)
 		return true;
