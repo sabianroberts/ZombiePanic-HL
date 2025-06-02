@@ -241,7 +241,7 @@ void LinkUserMessages(void)
 	}
 
 	gmsgSelAmmo = REG_USER_MSG("SelAmmo", sizeof(SelAmmo));
-	gmsgCurWeapon = REG_USER_MSG("CurWeapon", 3);
+	gmsgCurWeapon = REG_USER_MSG("CurWeapon", 4);
 	gmsgGeigerRange = REG_USER_MSG("Geiger", 1);
 	gmsgFlashlight = REG_USER_MSG("Flashlight", 3);
 	gmsgFlashBattery = REG_USER_MSG("FlashBat", 1);
@@ -894,6 +894,7 @@ void CBasePlayer::RemoveAllItems(BOOL removeSuit)
 	WRITE_BYTE(0);
 	WRITE_BYTE(0);
 	WRITE_BYTE(0);
+	WRITE_BYTE(0);
 	MESSAGE_END();
 }
 
@@ -961,6 +962,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 
 	// Tell Ammo Hud that the player is dead
 	MESSAGE_BEGIN(MSG_ONE, gmsgCurWeapon, NULL, pev);
+	WRITE_BYTE(0);
 	WRITE_BYTE(0);
 	WRITE_BYTE(0);
 	WRITE_BYTE(0);
@@ -1596,6 +1598,7 @@ void CBasePlayer::StartWelcomeCam(void)
 
 	// Remove crosshair
 	MESSAGE_BEGIN(MSG_ONE, gmsgCurWeapon, NULL, pev);
+	WRITE_BYTE(0);
 	WRITE_BYTE(0);
 	WRITE_BYTE(0);
 	WRITE_BYTE(0);
@@ -4790,10 +4793,12 @@ void CBasePlayer ::UpdateClientData(void)
 				WRITE_BYTE(0);
 				WRITE_BYTE(0);
 				WRITE_BYTE(0);
+				WRITE_BYTE(0);
 				MESSAGE_END();
 			}
 
 			MESSAGE_BEGIN(MSG_ONE, gmsgCurWeapon, NULL, pPlayer->pev);
+			WRITE_BYTE(0);
 			WRITE_BYTE(0);
 			WRITE_BYTE(0);
 			WRITE_BYTE(0);
@@ -4815,6 +4820,7 @@ void CBasePlayer ::UpdateClientData(void)
 				WRITE_BYTE(state);
 				WRITE_BYTE(gun->GetWeaponID());
 				WRITE_BYTE(gun->m_iClip);
+				WRITE_BYTE(gun->GetData().MaxClip);
 				MESSAGE_END();
 			}
 		}

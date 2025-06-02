@@ -555,6 +555,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf)
 	int iState = READ_BYTE();
 	int iId = READ_CHAR();
 	int iClip = READ_CHAR();
+	int iMaxClip = READ_CHAR();
 
 	// detect if we're also on target
 	m_fOnTarget = iState > 1;
@@ -588,6 +589,11 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf)
 		pWeapon->iClip = abs(iClip);
 	else
 		pWeapon->iClip = iClip;
+
+	if (iMaxClip < -1)
+		pWeapon->iMaxClip = abs(iMaxClip);
+	else
+		pWeapon->iMaxClip = iMaxClip;
 
 	if (iState == 0) // we're not the current weapon, so update no more
 		return 1;
@@ -663,6 +669,7 @@ int CHudAmmo::MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf)
 	Weapon.iFlags = READ_BYTE();
 	Weapon.iWeight = READ_BYTE();
 	Weapon.iClip = 0;
+	Weapon.iMaxClip = 0;
 
 	if (Weapon.iId < 0 || Weapon.iId >= MAX_WEAPONS)
 		return 0;
@@ -932,7 +939,7 @@ void CHudAmmo::Draw(float flTime)
 		if (pw->iClip >= 0)
 		{
 			a = alphaDim * gHUD.GetHudTransparency();
-			gHUD.GetHudAmmoColor(pw->iClip, GetMaxClip(pw->szName), r, g, b);
+			gHUD.GetHudAmmoColor(pw->iClip, pw->iMaxClip, r, g, b);
 			ScaleColors(r, g, b, a);
 
 			// room for the number and the '|' and the current ammo
@@ -984,7 +991,7 @@ void CHudAmmo::Draw(float flTime)
 		if ((pw->iAmmo2Type != 0) && (gWR.CountAmmo(pw->iAmmo2Type) > 0))
 		{
 			a = alphaDim * gHUD.GetHudTransparency();
-			gHUD.GetHudAmmoColor(pw->iClip, GetMaxClip(pw->szName), r, g, b);
+			gHUD.GetHudAmmoColor(pw->iClip, pw->iMaxClip, r, g, b);
 			ScaleColors(r, g, b, a);
 
 			y -= gHUD.m_iFontHeight + gHUD.m_iFontHeight / 4;
@@ -1252,43 +1259,6 @@ int CHudAmmo::DrawWList(float flTime)
 	}
 
 	return 1;
-}
-
-// m_iMaxClip is never sended to the client, until i figure out another way, this is the best thing we can use
-int CHudAmmo::GetMaxClip(char *weaponname)
-{
-	if (!strcmp(weaponname, "weapon_9mmhandgun"))
-	{
-		return 17;
-	}
-	else if (!strcmp(weaponname, "weapon_mp5"))
-	{
-		return 30;
-	}
-	else if (!strcmp(weaponname, "weapon_556AR"))
-	{
-		return 50;
-	}
-	else if (!strcmp(weaponname, "weapon_shotgun"))
-	{
-		return 8;
-	}
-	else if (!strcmp(weaponname, "weapon_crossbow"))
-	{
-		return 5;
-	}
-	else if (!strcmp(weaponname, "weapon_rpg"))
-	{
-		return 1;
-	}
-	else if (!strcmp(weaponname, "weapon_357"))
-	{
-		return 6;
-	}
-	else // if you are using custom weapons, then custom colors for ammo hud aren't going to be used..
-	{
-		return -1;
-	}
 }
 
 /* =================================

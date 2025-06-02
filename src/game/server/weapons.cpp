@@ -809,6 +809,7 @@ int CBasePlayerWeapon::UpdateClientData(CBasePlayer *pPlayer)
 			WRITE_BYTE(state);
 			WRITE_BYTE(iWepID);
 			WRITE_BYTE(m_iClip);
+			WRITE_BYTE(GetData().MaxClip);
 			MESSAGE_END();
 		}
 
@@ -816,6 +817,7 @@ int CBasePlayerWeapon::UpdateClientData(CBasePlayer *pPlayer)
 		WRITE_BYTE(state);
 		WRITE_BYTE(iWepID);
 		WRITE_BYTE(m_iClip);
+		WRITE_BYTE(GetData().MaxClip);
 		MESSAGE_END();
 
 		m_iClientClip = m_iClip;

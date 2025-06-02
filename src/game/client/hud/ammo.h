@@ -33,6 +33,7 @@ struct WEAPON
 	int iFlags;
 	int iId;
 	int iClip;
+	int iMaxClip;
 	int iWeight;
 
 	int iCount; // # of itesm in plist
@@ -75,7 +76,6 @@ public:
 	int MsgFunc_ItemPickup(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_HideWeapon(const char *pszName, int iSize, void *pbuf);
 
-	int GetMaxClip(char *weaponname);
 	int GetMaxSlot() { return m_iMaxSlot; }
 	void SlotInput(int iSlot);
 	void UserCmd_Slot1();
