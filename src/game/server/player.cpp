@@ -4198,7 +4198,7 @@ bool CBasePlayer::AlreadyOwnWeapon( CBasePlayerItem *pWeapon )
 	switch ( iWepID )
 	{
 		case WEAPON_HANDGRENADE:
-		case WEAPON_SATCHEL: return true;
+		case WEAPON_SATCHEL: return false;
 	}
 	int iFlag = (1 << iWepID);
 	if (pev->weapons & iFlag)
