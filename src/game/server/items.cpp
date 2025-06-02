@@ -198,8 +198,13 @@ class CItemSuit : public CItem
 	}
 	BOOL MyTouch(CBasePlayer *pPlayer)
 	{
+		// If we write "give item_suit", let's quickly remove it
+		// if the player already have said "weapon"
 		if (pPlayer->pev->weapons & (1 << WEAPON_SUIT))
-			return FALSE;
+		{
+			SUB_Remove();
+			return TRUE;
+		}
 
 		if (pev->spawnflags & SF_SUIT_SHORTLOGON)
 			EMIT_SOUND_SUIT(pPlayer->edict(), "!HEV_A0"); // short version of suit logon,
