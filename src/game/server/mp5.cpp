@@ -158,7 +158,7 @@ void CMP5::Reload(void)
 	if (m_pPlayer->ammo_9mm <= 0)
 		return;
 
-	DefaultReload(MP5_MAX_CLIP, MP5_RELOAD, 1.5);
+	DefaultReload(MP5_RELOAD, 1.5);
 }
 
 void CMP5::WeaponIdle(void)

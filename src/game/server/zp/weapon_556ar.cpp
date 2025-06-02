@@ -149,7 +149,7 @@ void C556AR::Reload(void)
 	if (m_pPlayer->ammo_556ar <= 0)
 		return;
 
-	DefaultReload(AR556_MAX_CLIP, AR556_RELOAD, 1.5);
+	DefaultReload(AR556_RELOAD, 1.5);
 }
 
 void C556AR::WeaponIdle(void)

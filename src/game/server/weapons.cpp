@@ -941,12 +941,12 @@ BOOL CBasePlayerWeapon ::DefaultDeploy(char *szViewModel, char *szWeaponModel, i
 	return TRUE;
 }
 
-BOOL CBasePlayerWeapon ::DefaultReload(int iClipSize, int iAnim, float fDelay, int body)
+BOOL CBasePlayerWeapon ::DefaultReload(int iAnim, float fDelay, int body)
 {
 	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
 		return FALSE;
 
-	int j = min(iClipSize - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
+	int j = min(GetData().MaxClip - m_iClip, m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType]);
 
 	if (j == 0)
 		return FALSE;

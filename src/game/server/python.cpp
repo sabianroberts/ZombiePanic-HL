@@ -194,7 +194,7 @@ void CPython::Reload(void)
 	bUseScope = g_pGameRules->IsMultiplayer();
 #endif
 
-	if (DefaultReload(6, PYTHON_RELOAD, 2.0, bUseScope))
+	if (DefaultReload(PYTHON_RELOAD, 2.0, bUseScope))
 	{
 		m_flSoundDelay = 1.5;
 	}
