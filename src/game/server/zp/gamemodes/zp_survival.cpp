@@ -13,6 +13,7 @@
 #define MAX_ZOMBIE_LIVES 99
 
 extern int gmsgTeamInfo;
+extern void CopyToBodyQue(entvars_t *pev);
 
 ZPGameMode_Survival::ZPGameMode_Survival()
 {
@@ -64,6 +65,9 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 		OnZombieLifeUpdated( true );
 	if ( m_iZombieLives <= 0 )
 	{
+		// Create a body here, so we don't just go "poof"
+		CopyToBodyQue(pPlayer->pev);
+
 		// Set team to player
 		pPlayer->pev->team = ZP::TEAM_OBSERVER;
 
