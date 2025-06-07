@@ -175,6 +175,7 @@ void CBaseGameMode::RestartRound()
 	SetRoundState( ZP::RoundState::RoundState_WaitingForPlayers );
 	SetWinState( WinState_e::State_None );
 	m_bAllSurvivorsDead = false;
+	m_bTimeRanOut = false;
 	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
 	WRITE_SHORT( GetRoundState() );
 	MESSAGE_END();
