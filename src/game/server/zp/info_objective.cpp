@@ -61,7 +61,7 @@ void CObjectiveMessage::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_
 
 	switch ( m_State )
 	{
-		// If completed, then fire the next objective after 4 seconds.
+		// If completed, then fire the next objective after x amount of seconds.
 		case State_Completed:
 		{
 			SetThink( &CObjectiveMessage::CallNewObjective );
