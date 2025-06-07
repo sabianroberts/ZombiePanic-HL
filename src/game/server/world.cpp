@@ -229,6 +229,12 @@ static void InitBodyQue(void)
 	pev->owner = g_pBodyQueueHead;
 }
 
+void CleanupBodyQue()
+{
+	g_pBodyQueueHead = nullptr;
+	InitBodyQue();
+}
+
 //
 // make a body que entry for the given ent so the ent can be respawned elsewhere
 //
@@ -243,6 +249,7 @@ void CopyToBodyQue(entvars_t *pev)
 		return;
 
 	entvars_t *pevHead = VARS(g_pBodyQueueHead);
+	if ( !pevHead ) return;
 
 	pevHead->angles = pev->angles;
 	pevHead->model = pev->model;

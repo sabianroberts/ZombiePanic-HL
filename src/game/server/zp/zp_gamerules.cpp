@@ -17,6 +17,8 @@ extern cvar_t roundlimit;
 
 extern unsigned short m_usResetDecals;
 
+extern void CleanupBodyQue();
+
 static const char *s_EntitiesRestarts[] = {
 	"cycler_sprite",
 	"light",
@@ -260,6 +262,7 @@ void CZombiePanicGameRules::ResetRound()
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 		if ( plr && plr->IsAlive() )
 		{
+			plr->StopObserver();
 			ChangePlayerTeam(plr, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
 			plr->StartWelcomeCam();
 		}
@@ -304,6 +307,9 @@ void CZombiePanicGameRules::CleanUpMap()
 	UTIL_RemoveAll( "grenade" );
 	UTIL_RemoveAll( "weaponbox" );
 	UTIL_RemoveAll( "bodyque" ); // We don't want any bodies on next round
+
+	// Fix the body que on the next round
+	CleanupBodyQue();
 
 	// Spawn our static stuff
 	ZP::SpawnStaticSpawns();
@@ -548,6 +554,10 @@ void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)
 		pPlayer->pev->maxspeed = ZP::MaxSpeeds[0];
 	else
 		pPlayer->pev->maxspeed = ZP::MaxSpeeds[1];
+
+	// Player models can have up to 5 random skins.
+	// Mostly used by the new "undead" model.
+	pPlayer->pev->skin = RANDOM_LONG( 0, 4 );
 }
 
 //=========================================================
