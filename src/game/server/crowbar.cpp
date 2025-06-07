@@ -150,6 +150,8 @@ void CCrowbar::SwingAgain(void)
 
 int CCrowbar::Swing(int fFirst)
 {
+	if ( !m_pPlayer ) return FALSE;
+
 	int fDidHit = FALSE;
 
 	TraceResult tr;

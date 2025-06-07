@@ -102,6 +102,8 @@ void CSwipe::SwingAgain(void)
 
 int CSwipe::Swing(int fFirst)
 {
+	if ( !m_pPlayer ) return FALSE;
+
 	int fDidHit = FALSE;
 
 	TraceResult tr;
