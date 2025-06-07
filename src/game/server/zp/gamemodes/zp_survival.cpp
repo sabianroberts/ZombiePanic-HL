@@ -12,6 +12,8 @@
 
 #define MAX_ZOMBIE_LIVES 99
 
+extern int gmsgTeamInfo;
+
 ZPGameMode_Survival::ZPGameMode_Survival()
 {
 	SetRoundState( ZP::RoundState_WaitingForPlayers );
@@ -61,19 +63,35 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 	else if ( iTeam == ZP::TEAM_SURVIVIOR )
 		OnZombieLifeUpdated( true );
 	if ( m_iZombieLives <= 0 )
+	{
+		// Set team to player
+		pPlayer->pev->team = ZP::TEAM_OBSERVER;
+
+		// notify everyone's HUD of the team change
+		MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
+		WRITE_BYTE(pPlayer->entindex());
+		WRITE_STRING(pPlayer->pev->iuser1 ? "" : pPlayer->TeamID());
+		MESSAGE_END();
+
+		pPlayer->SendScoreInfo();
+
 		pPlayer->StartObserver();
+	}
 }
 
 void ZPGameMode_Survival::OnPlayerSpawned( CBasePlayer *pPlayer )
 {
 	// TODO: Check if we spawned as a volunteer
 	// m_iZombieLives++
+
+	// Always send this to clients!
+	UpdateZombieLifesForClient();
 }
 
 ZPGameMode_Survival::WinState_e ZPGameMode_Survival::GetWinState()
 {
 	if ( m_bTimeRanOut ) return State_SurvivorWin;
-	if ( m_iZombieLives <= 0 ) return State_SurvivorWin;
+	if ( HasNoRemainingZombies() ) return State_SurvivorWin;
 	return m_bAllSurvivorsDead ? State_ZombieWin : State_None;
 }
 
@@ -82,6 +100,26 @@ void ZPGameMode_Survival::RestartRound()
 	m_bTimeRanOut = false;
 	m_iZombieLives = 5;
 	BaseClass::RestartRound();
+}
+
+bool ZPGameMode_Survival::HasNoRemainingZombies() const
+{
+	if ( m_iZombieLives <= 0 )
+	{
+		int iZombies = 0;
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			if ( plr )
+			{
+				int iTeam = plr->pev->team;
+				if ( iTeam == ZP::TEAM_ZOMBIE && plr->IsAlive() )
+					iZombies++;
+			}
+		}
+		return ( iZombies > 0 ) ? false : true;
+	}
+	return false;
 }
 
 void ZPGameMode_Survival::UpdateZombieLifesForClient()

@@ -19,6 +19,7 @@ protected:
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
 	virtual WinState_e GetWinState();
 	virtual void RestartRound();
+	bool HasNoRemainingZombies() const;
 
 	virtual void UpdateZombieLifesForClient();
 	virtual void GiveWeaponsOnRoundStart();
