@@ -1676,7 +1676,12 @@ void CStudioModelRenderer::StudioRenderModel(void)
 	IEngineStudio.SetChromeOrigin();
 	IEngineStudio.SetForceFaceFlags(0);
 
-	if (m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell)
+	cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
+	bool bIsZombie = false;
+	if ( pLocalPlayer && pLocalPlayer->curstate.team == ZP::TEAM_ZOMBIE )
+		bIsZombie = ( m_pCurrentEntity->player == TRUE ) ? true : false;
+
+	if ( m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || bIsZombie )
 	{
 		m_pCurrentEntity->curstate.renderfx = kRenderFxNone;
 		StudioRenderFinal();
@@ -1687,6 +1692,30 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		}
 
 		IEngineStudio.SetForceFaceFlags(STUDIO_NF_CHROME);
+
+		if ( bIsZombie )
+		{
+			color24 glow_color;
+			glow_color.r = glow_color.g = glow_color.b = 255;
+			switch ( m_pCurrentEntity->curstate.team )
+			{
+				case ZP::TEAM_SURVIVIOR:
+				{
+				    glow_color.r = 0;
+				    glow_color.g = 255;
+				    glow_color.b = 0;
+				}
+				break;
+			    case ZP::TEAM_ZOMBIE:
+			    {
+				    glow_color.r = 255;
+				    glow_color.g = 0;
+				    glow_color.b = 0;
+			    }
+			    break;
+			}
+			m_pCurrentEntity->curstate.rendercolor = glow_color;
+		}
 
 		gEngfuncs.pTriAPI->SpriteTexture(m_pChromeSprite, 0);
 		m_pCurrentEntity->curstate.renderfx = kRenderFxGlowShell;
