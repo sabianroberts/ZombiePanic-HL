@@ -265,6 +265,11 @@ void CZombiePanicGameRules::ResetRound()
 			plr->StopObserver();
 			ChangePlayerTeam(plr, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
 			plr->StartWelcomeCam();
+			// This is being applied in StartWelcomeCam(),
+			// but we do it again, just incase if m_bInWelcomeCam
+			// was never set back to FALSE.
+			plr->pev->solid = SOLID_NOT;
+			plr->pev->effects |= EF_NODRAW;
 		}
 	}
 
