@@ -374,6 +374,10 @@ private:
 	float m_flLastFatigue = -1;
 	bool m_bFatigueUpdated = false;
 
+	float m_flLastRegen = -1;
+	float m_flRegenTime = 0;
+	bool m_bRegenUpdated = false;
+
 public:
 	// Increases the fatigue.
 	void IncreaseFatigue( float flValue )
@@ -386,6 +390,12 @@ public:
 	// simplified version of the ZPS version. Mostly used when
 	// jumping, since the jump delay was not really fun.
 	void UpdateFatigue();
+
+	// Max health for our client
+	int GetMaxHealth();
+
+	// Zombie health regen
+	void UpdateHealthRegen();
 #endif
 
 	//-----------------------------------------------------

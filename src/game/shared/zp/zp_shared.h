@@ -126,6 +126,11 @@ namespace ZP
 		220,	// Human Max Speed
 		250		// Zombie Max Speed
 	};
+
+	static int MaxHealth[2] = {
+		100,	// Human Max Health
+		200		// Zombie Max Health
+	};
 	
 	static const char *Teams[MAX_TEAM] = {
 		"",

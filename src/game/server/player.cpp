@@ -314,6 +314,9 @@ void CBasePlayer ::Pain(void)
 		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
 	else
 		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
+
+	// We got hurt, oh nyo
+	m_bRegenUpdated = true;
 }
 
 /* 
@@ -984,6 +987,9 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 	// UNDONE: Put this in, but add FFADE_PERMANENT and make fade time 8.8 instead of 4.12
 	// UTIL_ScreenFade( edict(), Vector(128,0,0), 6, 15, 255, FFADE_OUT | FFADE_MODULATE );
 
+	if ( pev->team == ZP::TEAM_SURVIVIOR )
+		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
+
 	if ((pev->health < -40 && iGib != GIB_NEVER) || iGib == GIB_ALWAYS)
 	{
 		pev->solid = SOLID_NOT;
@@ -999,9 +1005,6 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 
 	SetThink(&CBasePlayer::PlayerDeathThink);
 	pev->nextthink = gpGlobals->time + 0.1;
-
-	if ( pev->team == ZP::TEAM_SURVIVIOR )
-		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
 }
 
 // Set the activity based on an event or current state
@@ -2050,6 +2053,39 @@ void CBasePlayer::UpdateFatigue()
 	pev->fuser4 = flValue;
 }
 
+int CBasePlayer::GetMaxHealth()
+{
+	if ( pev->team == ZP::TEAM_ZOMBIE ) return ZP::MaxHealth[1];
+	return ZP::MaxHealth[0];
+}
+
+void CBasePlayer::UpdateHealthRegen()
+{
+	// Dead?
+	if ( !IsAlive() ) return;
+	// Zombie?
+	if ( pev->team != ZP::TEAM_ZOMBIE ) return;
+	// We recently got hurt, reset the timer.
+	if ( m_bRegenUpdated )
+	{
+		m_flRegenTime = 3.0f;
+		m_flLastRegen = gpGlobals->time + m_flRegenTime;
+		m_bRegenUpdated = false;
+		return;
+	}
+	if ( m_flLastRegen - gpGlobals->time > 0 ) return;
+	m_flLastRegen = gpGlobals->time + m_flRegenTime;
+	// Reduce the m_flRegenTime, but not too much.
+	float flCurrentReduce = m_flRegenTime;
+	flCurrentReduce -= 0.25f;
+	m_flRegenTime = clamp( flCurrentReduce, 0.25f, 3.0f );
+	float flHP = pev->health;
+	float flHPMax = pev->max_health;
+	if ( flHP >= flHPMax ) return;
+	flHP += 5;
+	pev->health = clamp( flHP, 1, flHPMax );
+}
+
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
 #define MAX_CLIMB_SPEED       200 // fastest vertical climbing speed possible
 #define CLIMB_SPEED_DEC       15 // climbing deceleration rate
@@ -2837,6 +2873,9 @@ void CBasePlayer::PostThink()
 	// Update our fatigue
 	UpdateFatigue();
 
+	// Update zombie health regen
+	UpdateHealthRegen();
+
 	// If the player is falling to their death (survivor only) cause them to scream in agony!!
 	// And make sure they are not on the ground
 	if ( !(FBitSet(pev->flags, FL_ONGROUND)) &&
@@ -3177,7 +3216,6 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 		"info_player_team1"
 	};
 	const char *szSpawnLocation = TeamSpawnLocations[iTeamNum];
-	ALERT(at_warning, "Spawnlocation: [%s][%i]\n", szSpawnLocation, iTeamNum);
 	UTIL_LogPrintf( "Spawnlocation [%s][%i]\n",
 	    szSpawnLocation,
 		iTeamNum
@@ -3281,10 +3319,12 @@ edict_t* EntSelectSpawnPoint(CBasePlayer* pPlayer)
 		if (FStringNull(gpGlobals->startspot) || !strlen(STRING(gpGlobals->startspot)))
 		{
 			pSpot = UTIL_FindEntityByClassname(NULL, "info_player_start");
+			UTIL_LogPrintf( "Failed to spawn player at team location, picking 'info_player_start' instead\n" );
 		}
 		else
 		{
 			pSpot = UTIL_FindEntityByTargetname(NULL, STRING(gpGlobals->startspot));
+			UTIL_LogPrintf( "Failed to spawn player at team location, picking '%s' instead\n", STRING(gpGlobals->startspot) );
 		}
 	}
 
@@ -3306,7 +3346,7 @@ void CBasePlayer::Spawn(void)
 	m_bInZombieVision = false;
 
 	pev->classname = MAKE_STRING("player");
-	pev->health = 100;
+	pev->health = GetMaxHealth();
 	pev->armorvalue = 0;
 	pev->takedamage = DAMAGE_AIM;
 	pev->solid = SOLID_SLIDEBOX;
