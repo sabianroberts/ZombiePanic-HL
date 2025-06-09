@@ -331,6 +331,8 @@ public:
 	virtual void Holster(int skiplocal = 0);
 	virtual BOOL UseDecrement(void) { return FALSE; };
 
+	virtual bool IsAutomaticWeapon() const { return true; }
+
 	int PrimaryAmmoIndex();
 	int SecondaryAmmoIndex();
 
@@ -488,6 +490,8 @@ public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_GLOCK; }
 	int AddToPlayer(CBasePlayer *pPlayer);
 
+	bool IsAutomaticWeapon() const override { return false; }
+
 	void PrimaryAttack(void);
 	void SecondaryAttack(void);
 	void GlockFire(float flSpread, float flCycleTime, BOOL fUseAutoAim);
@@ -589,6 +593,8 @@ public:
 	void WeaponIdle(void);
 	float m_flSoundDelay;
 
+	bool IsAutomaticWeapon() const override { return false; }
+
 	BOOL m_fInZoom; // don't save this.
 
 	virtual BOOL UseDecrement(void)
@@ -681,14 +687,19 @@ public:
 	ZPWeaponID GetWeaponID() override { return WEAPON_SHOTGUN; }
 	int AddToPlayer(CBasePlayer *pPlayer);
 
+	bool IsAutomaticWeapon() const override { return false; }
+
 	void PrimaryAttack(void);
 	void SecondaryAttack(void);
 	BOOL Deploy();
+	void ReloadEnd();
 	void Reload(void);
 	void WeaponIdle(void);
+	void WeaponPump();
 	void ItemPostFrame(void);
 	int m_fInReload;
 	float m_flNextReload;
+	bool m_bRequirePump;
 	int m_iShell;
 
 	virtual BOOL UseDecrement(void)

@@ -95,9 +95,6 @@ void CGlock::PrimaryAttack(void)
 
 void CGlock::GlockFire(float flSpread, float flCycleTime, BOOL fUseAutoAim)
 {
-	// This ain't no automatic weapon
-	m_pPlayer->pev->button &= ~IN_ATTACK;
-
 	if (m_iClip <= 0)
 	{
 		if (m_fFireOnEmpty)

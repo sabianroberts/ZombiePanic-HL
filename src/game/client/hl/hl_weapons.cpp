@@ -319,26 +319,51 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 		m_fInReload = FALSE;
 	}
 
-	if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextSecondaryAttack <= 0.0))
+	if ( IsAutomaticWeapon() )
 	{
-		if (HasValidAmmoType( false ) && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+		if ((m_pPlayer->pev->button & IN_ATTACK2) && (m_flNextSecondaryAttack <= 0.0))
 		{
-			m_fFireOnEmpty = TRUE;
-		}
+			if (HasValidAmmoType( false ) && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+			{
+				m_fFireOnEmpty = TRUE;
+			}
 
-		SecondaryAttack();
-		m_pPlayer->pev->button &= ~IN_ATTACK2;
+			SecondaryAttack();
+			m_pPlayer->pev->button &= ~IN_ATTACK2;
+		}
+		else if ((m_pPlayer->pev->button & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0))
+		{
+			if ((m_iClip == 0 && HasValidAmmoType(true)) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+			{
+				m_fFireOnEmpty = TRUE;
+			}
+
+			PrimaryAttack();
+		}
 	}
-	else if ((m_pPlayer->pev->button & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0))
+	else
 	{
-		if ((m_iClip == 0 && HasValidAmmoType(true)) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+		if ((m_pPlayer->m_afButtonPressed & IN_ATTACK2) && (m_flNextSecondaryAttack <= 0.0))
 		{
-			m_fFireOnEmpty = TRUE;
-		}
+			if (HasValidAmmoType( false ) && !m_pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+			{
+				m_fFireOnEmpty = TRUE;
+			}
 
-		PrimaryAttack();
+			SecondaryAttack();
+		}
+		else if ((m_pPlayer->m_afButtonPressed & IN_ATTACK) && (m_flNextPrimaryAttack <= 0.0))
+		{
+			if ((m_iClip == 0 && HasValidAmmoType(true)) || (iMaxClip() == -1 && !m_pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+			{
+				m_fFireOnEmpty = TRUE;
+			}
+
+			PrimaryAttack();
+		}
 	}
-	else if (m_pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
+
+	if (m_pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
 	{
 		// reload when reload is pressed, or if no buttons are down and weapon is empty.
 		Reload();

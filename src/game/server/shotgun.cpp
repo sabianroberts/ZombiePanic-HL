@@ -29,15 +29,13 @@
 enum shotgun_e
 {
 	SHOTGUN_IDLE = 0,
+	SHOTGUN_IDLE2,
 	SHOTGUN_FIRE,
-	SHOTGUN_FIRE2,
-	SHOTGUN_RELOAD,
 	SHOTGUN_PUMP,
-	SHOTGUN_START_RELOAD,
-	SHOTGUN_DRAW,
-	SHOTGUN_HOLSTER,
-	SHOTGUN_IDLE4,
-	SHOTGUN_IDLE_DEEP
+	SHOTGUN_RELOAD_START,
+	SHOTGUN_RELOAD,
+	SHOTGUN_RELOAD_END,
+	SHOTGUN_DRAW
 };
 
 LINK_ENTITY_TO_CLASS(weapon_shotgun, CShotgun);
@@ -49,6 +47,7 @@ void CShotgun::Spawn()
 
 	WeaponData slot = GetWeaponSlotInfo( GetWeaponID() );
 	m_iDefaultAmmo = slot.DefaultAmmo;
+	m_bRequirePump = false;
 
 	FallInit(); // get ready to fall
 }
@@ -94,8 +93,22 @@ BOOL CShotgun::Deploy()
 	return DefaultDeploy("models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW, "shotgun");
 }
 
+void CShotgun::ReloadEnd()
+{
+	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase()) return;
+	SendWeaponAnim(SHOTGUN_RELOAD_END);
+	EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 105);
+	m_fInSpecialReload = 0;
+	m_bRequirePump = false;
+	m_flNextReload = UTIL_WeaponTimeBase() + 1.5;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
+}
+
 void CShotgun::PrimaryAttack()
 {
+	// We need to pump? Stop!
+	if ( m_bRequirePump ) return;
+
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
 	{
@@ -142,8 +155,6 @@ void CShotgun::PrimaryAttack()
 		// HEV suit - indicate out of ammo condition
 		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 
-	m_flPumpTime = gpGlobals->time + 0.5;
-
 	m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
 	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate();
 	if (m_iClip != 0)
@@ -151,6 +162,7 @@ void CShotgun::PrimaryAttack()
 	else
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
 	m_fInSpecialReload = 0;
+	m_bRequirePump = true;
 }
 
 void CShotgun::SecondaryAttack(void)
@@ -159,8 +171,11 @@ void CShotgun::SecondaryAttack(void)
 
 void CShotgun::Reload(void)
 {
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0 || m_iClip == SHOTGUN_MAX_CLIP)
+	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0)
+	{
+		ReloadEnd();
 		return;
+	}
 
 	// don't reload until recoil is done
 	if (m_flNextPrimaryAttack > UTIL_WeaponTimeBase())
@@ -169,7 +184,7 @@ void CShotgun::Reload(void)
 	// check to see if we're ready to reload
 	if (m_fInSpecialReload == 0)
 	{
-		SendWeaponAnim(SHOTGUN_START_RELOAD);
+		SendWeaponAnim(SHOTGUN_RELOAD_START);
 		m_fInSpecialReload = 1;
 		m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.6;
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.6;
@@ -181,6 +196,14 @@ void CShotgun::Reload(void)
 	{
 		if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase())
 			return;
+
+		// Already full?
+		if ( m_iClip == GetData().MaxClip )
+		{
+			ReloadEnd();
+			return;
+		}
+
 		// was waiting for gun to move to side
 		m_fInSpecialReload = 2;
 
@@ -211,44 +234,20 @@ void CShotgun::WeaponIdle(void)
 
 	if (m_flTimeWeaponIdle < UTIL_WeaponTimeBase())
 	{
-		if (m_iClip == 0 && m_fInSpecialReload == 0 && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
-		{
+		if (m_iClip == 0 && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] || m_fInSpecialReload != 0)
 			Reload();
-		}
-		else if (m_fInSpecialReload != 0)
-		{
-			if (m_iClip != 8 && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
-			{
-				Reload();
-			}
-			else
-			{
-				// reload debounce has timed out
-				SendWeaponAnim(SHOTGUN_PUMP);
-
-				// play cocking sound
-				EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 105);
-				m_fInSpecialReload = 0;
-				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 1.5;
-			}
-		}
 		else
 		{
 			int iAnim;
 			float flRand = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 0, 1);
 			if (flRand <= 0.8)
 			{
-				iAnim = SHOTGUN_IDLE_DEEP;
+				iAnim = SHOTGUN_IDLE2;
 				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + (60.0 / 12.0); // * RANDOM_LONG(2, 5);
-			}
-			else if (flRand <= 0.95)
-			{
-				iAnim = SHOTGUN_IDLE;
-				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + (20.0 / 9.0);
 			}
 			else
 			{
-				iAnim = SHOTGUN_IDLE4;
+				iAnim = SHOTGUN_IDLE;
 				m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + (20.0 / 9.0);
 			}
 			SendWeaponAnim(iAnim);
@@ -256,13 +255,26 @@ void CShotgun::WeaponIdle(void)
 	}
 }
 
+void CShotgun::WeaponPump()
+{
+	if ( m_flNextPrimaryAttack > UTIL_WeaponTimeBase() ) return;
+	m_bRequirePump = false;
+
+	// reload debounce has timed out
+	SendWeaponAnim(SHOTGUN_PUMP);
+
+	// play cocking sound
+	EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 105);
+	m_fInSpecialReload = 0;
+	m_flTimeWeaponIdle = m_flNextPrimaryAttack = UTIL_WeaponTimeBase() + PrimaryFireRate() + 0.2f;
+}
+
 void CShotgun::ItemPostFrame(void)
 {
-	if (m_flPumpTime && m_flPumpTime < gpGlobals->time)
+	if ( m_bRequirePump )
 	{
-		// play pumping sound
-		EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 95 + RANDOM_LONG(0, 0x1f));
-		m_flPumpTime = 0;
+		WeaponPump();
+		return;
 	}
 
 	CBasePlayerWeapon::ItemPostFrame();

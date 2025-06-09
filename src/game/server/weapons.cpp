@@ -618,28 +618,55 @@ void CBasePlayerWeapon::ItemPostFrame(void)
 		m_fInReload = FALSE;
 	}
 
-	if ((pPlayer->pev->button & IN_ATTACK2) && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
+	if ( IsAutomaticWeapon() )
 	{
-		if (HasValidAmmoType( false ) && !pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+		if ((pPlayer->pev->button & IN_ATTACK2) && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
 		{
-			m_fFireOnEmpty = TRUE;
-		}
+			if (HasValidAmmoType(false) && !pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+			{
+				m_fFireOnEmpty = TRUE;
+			}
 
-		pPlayer->TabulateAmmo();
-		SecondaryAttack();
-		pPlayer->pev->button &= ~IN_ATTACK2;
+			pPlayer->TabulateAmmo();
+			SecondaryAttack();
+			pPlayer->pev->button &= ~IN_ATTACK2;
+		}
+		else if ((pPlayer->pev->button & IN_ATTACK) && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+		{
+			if ((m_iClip == 0 && HasValidAmmoType(true)) || (iMaxClip() == WEAPON_NOCLIP && !pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+			{
+				m_fFireOnEmpty = TRUE;
+			}
+
+			pPlayer->TabulateAmmo();
+			PrimaryAttack();
+		}
 	}
-	else if ((pPlayer->pev->button & IN_ATTACK) && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+	else
 	{
-		if ((m_iClip == 0 && HasValidAmmoType( true )) || (iMaxClip() == WEAPON_NOCLIP && !pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+		if ((pPlayer->m_afButtonPressed & IN_ATTACK2) && CanAttack(m_flNextSecondaryAttack, gpGlobals->time, UseDecrement()))
 		{
-			m_fFireOnEmpty = TRUE;
-		}
+			if (HasValidAmmoType(false) && !pPlayer->m_rgAmmo[SecondaryAmmoIndex()])
+			{
+				m_fFireOnEmpty = TRUE;
+			}
 
-		pPlayer->TabulateAmmo();
-		PrimaryAttack();
+			pPlayer->TabulateAmmo();
+			SecondaryAttack();
+		}
+		else if ((pPlayer->m_afButtonPressed & IN_ATTACK) && CanAttack(m_flNextPrimaryAttack, gpGlobals->time, UseDecrement()))
+		{
+			if ((m_iClip == 0 && HasValidAmmoType(true)) || (iMaxClip() == WEAPON_NOCLIP && !pPlayer->m_rgAmmo[PrimaryAmmoIndex()]))
+			{
+				m_fFireOnEmpty = TRUE;
+			}
+
+			pPlayer->TabulateAmmo();
+			PrimaryAttack();
+		}
 	}
-	else if (pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
+
+	if (pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
 	{
 		// reload when reload is pressed, or if no buttons are down and weapon is empty.
 		Reload();
