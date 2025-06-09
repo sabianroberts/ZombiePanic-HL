@@ -56,6 +56,7 @@ void CHandGrenade::Precache(void)
 	PRECACHE_MODEL("models/w_grenade.mdl");
 	PRECACHE_MODEL("models/v_grenade.mdl");
 	PRECACHE_MODEL("models/p_grenade.mdl");
+	PRECACHE_SOUND("weapons/fuse.wav");
 }
 
 BOOL CHandGrenade::Deploy()
