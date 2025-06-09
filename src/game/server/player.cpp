@@ -314,9 +314,6 @@ void CBasePlayer ::Pain(void)
 		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
 	else
 		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
-
-	// We got hurt, oh nyo
-	m_bRegenUpdated = true;
 }
 
 /* 
@@ -742,6 +739,9 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 		else
 			SetSuitUpdate("!HEV_HLTH1", FALSE, SUIT_NEXT_IN_10MIN); // health dropping
 	}
+
+	// We got damaged!
+	m_bRegenUpdated = true;
 
 	return fTookDamage;
 }
