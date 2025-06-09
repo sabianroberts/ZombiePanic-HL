@@ -95,6 +95,7 @@ BOOL CShotgun::Deploy()
 
 void CShotgun::ReloadEnd()
 {
+	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] <= 0) return;
 	if (m_flTimeWeaponIdle > UTIL_WeaponTimeBase()) return;
 	SendWeaponAnim(SHOTGUN_RELOAD_END);
 	EMIT_SOUND_DYN(ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/scock1.wav", 1, ATTN_NORM, 0, 105);
