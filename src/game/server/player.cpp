@@ -1249,30 +1249,34 @@ void CBasePlayer::WaterMove()
 	}
 	else
 	{ // fully under water
-		// stop restoring damage while underwater
-		m_bitsDamageType &= ~DMG_DROWNRECOVER;
-		m_rgbTimeBasedDamage[itbd_DrownRecover] = 0;
-
-		if (pev->air_finished < gpGlobals->time) // drown!
+		// Only drown if we are a survivor
+		if ( pev->team == ZP::TEAM_SURVIVIOR )
 		{
-			if (pev->pain_finished < gpGlobals->time)
+			// stop restoring damage while underwater
+			m_bitsDamageType &= ~DMG_DROWNRECOVER;
+			m_rgbTimeBasedDamage[itbd_DrownRecover] = 0;
+
+			if (pev->air_finished < gpGlobals->time) // drown!
 			{
-				// take drowning damage
-				pev->dmg += 1;
-				if (pev->dmg > 5)
-					pev->dmg = 5;
-				TakeDamage(VARS(eoNullEntity), VARS(eoNullEntity), pev->dmg, DMG_DROWN);
-				pev->pain_finished = gpGlobals->time + 1;
+				if (pev->pain_finished < gpGlobals->time)
+				{
+					// take drowning damage
+					pev->dmg += 1;
+					if (pev->dmg > 5)
+						pev->dmg = 5;
+					TakeDamage(VARS(eoNullEntity), VARS(eoNullEntity), pev->dmg, DMG_DROWN);
+					pev->pain_finished = gpGlobals->time + 1;
 
-				// track drowning damage, give it back when
-				// player finally takes a breath
+					// track drowning damage, give it back when
+					// player finally takes a breath
 
-				m_idrowndmg += pev->dmg;
+					m_idrowndmg += pev->dmg;
+				}
 			}
-		}
-		else
-		{
-			m_bitsDamageType &= ~DMG_DROWN;
+			else
+			{
+				m_bitsDamageType &= ~DMG_DROWN;
+			}
 		}
 	}
 
@@ -2384,7 +2388,9 @@ void CBasePlayer::CheckTimeBasedDamage()
 				bDuration = NERVEGAS_DURATION;
 				break;
 			case itbd_Poison:
-				TakeDamage(pev, pev, POISON_DAMAGE, DMG_GENERIC);
+				// Only survivor die from poison
+				if ( pev->team == ZP::TEAM_SURVIVIOR )
+					TakeDamage(pev, pev, POISON_DAMAGE, DMG_GENERIC);
 				bDuration = POISON_DURATION;
 				break;
 			case itbd_Radiation:
@@ -2397,8 +2403,8 @@ void CBasePlayer::CheckTimeBasedDamage()
 				if (m_idrowndmg > m_idrownrestored)
 				{
 					int idif = min(m_idrowndmg - m_idrownrestored, 10);
-
-					TakeHealth(idif, DMG_GENERIC);
+					if ( pev->team == ZP::TEAM_SURVIVIOR )
+						TakeHealth(idif, DMG_GENERIC);
 					m_idrownrestored += idif;
 				}
 				bDuration = 4; // get up to 5*10 = 50 points back
