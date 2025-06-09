@@ -71,9 +71,7 @@ void CMP5::Precache(void)
 	PRECACHE_SOUND("items/clipinsert1.wav");
 	PRECACHE_SOUND("items/cliprelease1.wav");
 
-	PRECACHE_SOUND("weapons/mp5-fire1.wav"); // H to the K
-	PRECACHE_SOUND("weapons/mp5-fire2.wav"); // H to the K
-	PRECACHE_SOUND("weapons/mp5-fire.wav"); // H to the K
+	PRECACHE_SOUND("weapons/mp5-fire.wav");
 
 	PRECACHE_SOUND("weapons/357_cock1.wav");
 
