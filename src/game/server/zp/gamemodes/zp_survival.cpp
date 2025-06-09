@@ -60,7 +60,13 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 {
 	int iTeam = pPlayer->pev->team;
 	if ( iTeam == ZP::TEAM_ZOMBIE )
+	{
+		bool bKillerIsZombie = ( pKiller && pKiller->team == ZP::TEAM_ZOMBIE ) ? true : false;
+		// Sorry, but you aren't allowed to reduce if
+		// killer is a zombie
+		if ( bKillerIsZombie ) return;
 		OnZombieLifeUpdated( false );
+	}
 	else if ( iTeam == ZP::TEAM_SURVIVIOR )
 		OnZombieLifeUpdated( true );
 	if ( m_iZombieLives <= 0 )
