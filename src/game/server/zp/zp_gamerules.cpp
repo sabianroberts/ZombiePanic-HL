@@ -60,7 +60,6 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_bHasPickedVolunteer = false;
 	m_flRoundRestartDelay = -1;
 	m_Volunteers.clear();
-	m_Rejoiners.clear();
 
 	m_iRounds = 1;
 
@@ -260,11 +259,13 @@ void CZombiePanicGameRules::ResetRound()
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-		if ( plr && plr->IsAlive() )
+		if ( plr )
 		{
 			plr->StopObserver();
 			ChangePlayerTeam(plr, ZP::Teams[ZP::TEAM_OBSERVER], FALSE, FALSE);
 			plr->StartWelcomeCam();
+			// The player is now naked :)
+			plr->RemoveAllItems( TRUE );
 			// This is being applied in StartWelcomeCam(),
 			// but we do it again, just incase if m_bInWelcomeCam
 			// was never set back to FALSE.
@@ -327,7 +328,6 @@ void CZombiePanicGameRules::ResetVolunteers()
 {
 	m_bHasPickedVolunteer = false;
 	m_Volunteers.clear();
-	m_Rejoiners.clear();
 }
 
 void CZombiePanicGameRules::PickRandomVolunteer()
@@ -412,10 +412,6 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 	int iTeamNumber = pPlayer->pev->team;
 	if ( iTeamNumber == ZP::TEAM_OBSERVER ) return;
 
-	// Player rejoined, force zombie.
-	if ( !HasAlreadyJoined( pPlayer ) )
-		m_Rejoiners.push_back( pPlayer->entindex() );
-
 	int aws = pPlayer->m_iAutoWepSwitch;
 	pPlayer->m_iAutoWepSwitch = 1;
 
@@ -443,7 +439,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 {
 	if (FStrEq(pcmd, "joingame"))
 	{
-		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER )
+		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER || pPlayer->m_bInWelcomeCam )
 		{
 			const char *pVolunteer = CMD_ARGV(1);
 			if ( pVolunteer && pVolunteer[0] )
@@ -453,10 +449,8 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			}
 			bool bLateJoin = ( m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundHasBegun ) ? true : false;
 
-			if ( HasAlreadyJoined( pPlayer ) )
-				bLateJoin = true;
-
 			ChangePlayerTeam(pPlayer, ZP::Teams[ bLateJoin ? ZP::TEAM_ZOMBIE : ZP::TEAM_SURVIVIOR], FALSE, FALSE);
+			pPlayer->RemoveAllItems( TRUE );
 			pPlayer->StopWelcomeCam();
 			if ( m_pGameMode->GetRoundState() < ZP::RoundState::RoundState_RoundHasBegun )
 				pPlayer->m_iHideHUD = HIDEHUD_WEAPONS | HIDEHUD_HEALTH | HIDEHUD_FLASHLIGHT;
@@ -532,17 +526,6 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		}
 	}
 	return BaseClass::ClientCommand(pPlayer, pcmd);
-}
-
-bool CZombiePanicGameRules::HasAlreadyJoined(CBasePlayer *pPlayer)
-{
-	for ( int i = 0; i < m_Rejoiners.size(); i++ )
-	{
-		int ent = m_Rejoiners[ i ];
-		if ( pPlayer->entindex() == ent )
-			return true;
-	}
-	return false;
 }
 
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)

@@ -50,8 +50,6 @@ public:
 	virtual BOOL ClientCommand(CBasePlayer *pPlayer, const char *pcmd);
 
 private:
-	bool HasAlreadyJoined(CBasePlayer *pPlayer);
-
 	void SetPlayerModel(CBasePlayer *pPlayer);
 
 	BOOL m_DisableDeathMessages;
@@ -61,7 +59,6 @@ private:
 	ZP::GameModeType_e m_GameModeType;
 	IGameModeBase *m_pGameMode;
 	std::vector<int> m_Volunteers;
-	std::vector<int> m_Rejoiners;
 	float m_flRoundRestartDelay;
 	int m_iRounds;
 };

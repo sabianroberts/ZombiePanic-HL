@@ -1678,7 +1678,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 
 	cl_entity_t *pLocalPlayer = gEngfuncs.GetLocalPlayer();
 	bool bIsZombie = false;
-	if ( pLocalPlayer && pLocalPlayer->curstate.team == ZP::TEAM_ZOMBIE )
+	if ( pLocalPlayer && pLocalPlayer->curstate.team == ZP::TEAM_ZOMBIE && gHUD.m_bUseZombVision )
 		bIsZombie = ( m_pCurrentEntity->player == TRUE ) ? true : false;
 
 	if ( m_pCurrentEntity->curstate.renderfx == kRenderFxGlowShell || bIsZombie )

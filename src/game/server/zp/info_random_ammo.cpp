@@ -22,8 +22,8 @@ tryagain:
 	switch ( RANDOM_LONG( 0, 4 ) )
 	{
 		case 0: szItemToSpawn = "ammo_9mmclip"; break;
-		case 1: szItemToSpawn = "ammo_556AR"; break;
-		case 2: szItemToSpawn = "ammo_556box"; break;
+		case 1:// szItemToSpawn = "ammo_556box"; break;
+		case 2: szItemToSpawn = "ammo_556AR"; break;
 		case 3: szItemToSpawn = "ammo_buckshot"; break;
 		case 4: szItemToSpawn = "ammo_357"; break;
 	}
