@@ -7,6 +7,9 @@
 #include "Color.h"
 #include <vector>
 
+// Auto include em.
+#include "zp_achievements.h"
+
 /// <summary>
 /// Objective states, used by info_objective.cpp & zp_objective.cpp
 /// </summary>

@@ -1,0 +1,27 @@
+// ============== Copyright (c) 2025 Monochrome Games ============== \\
+
+#ifndef SHARED_ZOMBIEPANIC_ACHIEVEMENTS
+#define SHARED_ZOMBIEPANIC_ACHIEVEMENTS
+#pragma once
+
+
+enum EAchievements
+{
+	ONE_OF_US = 0,
+	PANIC_ATTACK,
+	KILLS_PISTOL,
+	KILLS_SHOTGUN,
+	KILLS_RIFLE,
+	KILLS_REVOLVER,
+	KILLS_SATCHEL,
+	KILLS_TNT,
+	KILLS_CROWBAR,
+	KILLS_ZOMBIE,
+	YOU_WILL_DIE_WITH_ME,
+	UNSAFE_HANDLING,
+	I_FELL,
+
+	ACHV_MAX
+};
+
+#endif

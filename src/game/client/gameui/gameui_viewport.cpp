@@ -8,6 +8,7 @@
 #include "gameui_viewport.h"
 #include "gameui_test_panel.h"
 #include "options/adv_options_dialog.h"
+#include "zp/ui/achievements/C_AchievementDialog.h"
 
 CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 {
@@ -57,6 +58,11 @@ void CGameUIViewport::OpenTestPanel()
 CAdvOptionsDialog *CGameUIViewport::GetOptionsDialog()
 {
 	return GetDialog(m_hOptionsDialog);
+}
+
+C_AchievementDialog *CGameUIViewport::GetAchievementDialog()
+{
+	return GetDialog(m_hAchDialog);
 }
 
 void CGameUIViewport::OnThink()

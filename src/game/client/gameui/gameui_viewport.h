@@ -4,6 +4,7 @@
 
 class CGameUITestPanel;
 class CAdvOptionsDialog;
+class C_AchievementDialog;
 
 class CGameUIViewport : public vgui2::EditablePanel
 {
@@ -26,6 +27,7 @@ public:
 
 	void OpenTestPanel();
 	CAdvOptionsDialog *GetOptionsDialog();
+	C_AchievementDialog *GetAchievementDialog();
 
 	virtual void OnThink() override;
 
@@ -34,6 +36,7 @@ private:
 	int m_iDelayedPreventEscapeFrame = 0;
 	vgui2::DHANDLE<CGameUITestPanel> m_hTestPanel;
 	vgui2::DHANDLE<CAdvOptionsDialog> m_hOptionsDialog;
+	vgui2::DHANDLE<C_AchievementDialog> m_hAchDialog;
 
 	template <typename T>
 	inline T *GetDialog(vgui2::DHANDLE<T> &handle)

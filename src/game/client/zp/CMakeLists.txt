@@ -8,4 +8,8 @@ add_sources(
 	hud/zp_roundstate.h
 	hud/zp_ammobank.cpp
 	hud/zp_ammobank.h
+	ui/achievements/AchievementList.cpp
+	ui/achievements/AchievementList.h
+	ui/achievements/C_AchievementDialog.cpp
+	ui/achievements/C_AchievementDialog.h
 )
