@@ -28,6 +28,9 @@ CHudZombieLives::CHudZombieLives()
 void CHudZombieLives::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
+	vgui2::HFont font = pScheme->GetFont( m_szLivesText, IsProportional() );
+	if ( font != vgui2::INVALID_FONT )
+		m_pLives->SetFont( font );
 
 	SetBgColor( Color(0, 0, 0, 0) );
 }

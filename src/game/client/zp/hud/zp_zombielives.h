@@ -26,6 +26,7 @@ private:
 	CPanelAnimationVarAliasType( int, m_iTextXAdd, "TextXAdd", "5", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextSizeWide, "TextWide", "100", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextSizeTall, "TextTall", "20", "proportional_int" );
+	CPanelAnimationStringVar( 32, m_szLivesText, "Font", "ZPLives" );
 
 	vgui2::Label *m_pLives;
 	Color m_clrIcon;
