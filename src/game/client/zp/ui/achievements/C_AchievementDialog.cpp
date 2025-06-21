@@ -3,7 +3,6 @@
 #include "C_AchievementDialog.h"
 
 #include "steam/steam_api.h"
-#include "ienginevgui.h"
 #include "client_vgui.h"
 #include "gameui/gameui_viewport.h"
 #include "IBaseUI.h"
