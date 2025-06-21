@@ -48,6 +48,7 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 
 	// Add language files
 	g_pVGuiLocalize->AddFile(g_pFullFileSystem, VGUI2_ROOT_DIR "resource/language/zp_%language%.txt");
+	g_pVGuiLocalize->AddFile(g_pFullFileSystem, VGUI2_ROOT_DIR "resource/language/achievements_%language%.txt");
 
 	new CClientViewport();
 	new CGameUIViewport();
