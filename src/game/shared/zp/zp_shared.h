@@ -121,24 +121,24 @@ namespace ZP
 	
 		MAX_TEAM
 	};
-	
+
 	static int MaxSpeeds[2] = {
-		220,	// Human Max Speed
-		250		// Zombie Max Speed
+		250,	// Human Max Speed
+		220		// Zombie Max Speed
 	};
 
 	static int MaxHealth[2] = {
 		100,	// Human Max Health
 		200		// Zombie Max Health
 	};
-	
+
 	static const char *Teams[MAX_TEAM] = {
 		"",
 		"Observer",
 		"Survivor",
 		"Zombie"
 	};
-	
+
 	enum GameModeType_e
 	{
 		GAMEMODE_INVALID = -1,
