@@ -29,8 +29,8 @@ CGeneralSubOptions::CGeneralSubOptions(vgui2::Panel *parent)
 	m_pRawInputLabel = new vgui2::Label(this, "RawInputLabel", "#ZP_AdvOptions_General_Input");
 	m_pInputMethodBox = new vgui2::ComboBox(this, "InputMethodBox", 3, false);
 	m_InputMethodItems[0] = m_pInputMethodBox->AddItem("#ZP_AdvOptions_General_InputWin", new KeyValues("Item", "value", 0));
-	m_InputMethodItems[1] = m_pInputMethodBox->AddItem(GetItemText("BHL_AdvOptions_General_InputDX", IsWindows()), new KeyValues("Item", "value", 1));
-	m_InputMethodItems[2] = m_pInputMethodBox->AddItem(GetItemText("BHL_AdvOptions_General_InputSDL", !IsWindows()), new KeyValues("Item", "value", 2));
+	m_InputMethodItems[1] = m_pInputMethodBox->AddItem(GetItemText("ZP_AdvOptions_General_InputDX", IsWindows()), new KeyValues("Item", "value", 1));
+	m_InputMethodItems[2] = m_pInputMethodBox->AddItem(GetItemText("ZP_AdvOptions_General_InputSDL", !IsWindows()), new KeyValues("Item", "value", 2));
 
 	m_pZPSSnd = new CCvarCheckButton(this, "ZPSSnd", "#ZP_AdvOptions_General_ZPSSnd", "cl_zpssound");
 	m_pZPSSndLabel = new vgui2::Label(this, "ZPSSndLabel", "#ZP_AdvOptions_General_ZPSSnd2");
