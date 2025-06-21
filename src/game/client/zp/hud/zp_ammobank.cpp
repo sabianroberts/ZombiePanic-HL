@@ -222,8 +222,18 @@ void CHudAmmoBank::Paint()
 		// =======================================================================================
 	}
 
-	panelrect.x = GetWide() - (panelrect.width + m_pAmmoBank_left);
-	panelrect.y = GetTall() - (panelrect.height + m_pAmmoBank_up);
+	int xy[2];
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320: xy[0] = m_pAmmoBank_up_x05; xy[1] = m_pAmmoBank_left_x05; break;
+		case 640: xy[0] = m_pAmmoBank_up_x1; xy[1] = m_pAmmoBank_left_x1; break;
+		case 1280: xy[0] = m_pAmmoBank_up_x2; xy[1] = m_pAmmoBank_left_x2; break;
+		case 2560: xy[0] = m_pAmmoBank_up_x4; xy[1] = m_pAmmoBank_left_x4; break;
+	}
+
+	panelrect.x = GetWide() - (panelrect.width + xy[1]);
+	panelrect.y = GetTall() - (panelrect.height + xy[0]);
 
 	UpdateVisibility( m_bHasPanelRect );
 

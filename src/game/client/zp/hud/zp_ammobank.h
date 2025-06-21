@@ -33,13 +33,19 @@ public:
 	int MsgFunc_AmmoBankUpdate(const char *pszName, int iSize, void *pbuf);
 
 private:
-	CPanelAnimationVar( int, m_pAmmoBank_width, "width", "250" );
+	CPanelAnimationVar( int, m_pAmmoBank_width, "width", "100" );
 	CPanelAnimationVar( int, m_pText_wide, "text_wide", "150" );
 	CPanelAnimationVar( int, m_pText_wide_drop, "text_wide_drop", "200" );
 	CPanelAnimationVar( int, m_pText_wide_ammo, "text_wide_ammo", "50" );
 	CPanelAnimationVar( int, m_pText_tall, "text_tall", "24" );
-	CPanelAnimationVar( int, m_pAmmoBank_up, "up", "35" );
-	CPanelAnimationVar( int, m_pAmmoBank_left, "left", "25" );
+	CPanelAnimationVar( int, m_pAmmoBank_up_x05, "x05_up", "35" );
+	CPanelAnimationVar( int, m_pAmmoBank_up_x1, "x1_up", "35" );
+	CPanelAnimationVar( int, m_pAmmoBank_up_x2, "x2_up", "35" );
+	CPanelAnimationVar( int, m_pAmmoBank_up_x4, "x4_up", "35" );
+	CPanelAnimationVar( int, m_pAmmoBank_left_x05, "x05_left", "25" );
+	CPanelAnimationVar( int, m_pAmmoBank_left_x1, "x1_left", "25" );
+	CPanelAnimationVar( int, m_pAmmoBank_left_x2, "x2_left", "25" );
+	CPanelAnimationVar( int, m_pAmmoBank_left_x4, "x4_left", "25" );
 	
 	vgui2::Label			*m_pAmmoCount[4];
 	vgui2::Label			*m_pAmmoName[4];
