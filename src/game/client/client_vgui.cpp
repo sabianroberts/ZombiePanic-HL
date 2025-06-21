@@ -13,6 +13,7 @@
 #include "client_vgui.h"
 #include "vgui/client_viewport.h"
 #include "gameui/gameui_viewport.h"
+#include "steam/steam_api.h"
 
 EXPOSE_SINGLE_INTERFACE(CClientVGUI, IClientVGUI, ICLIENTVGUI_NAME);
 
@@ -30,6 +31,9 @@ void CClientVGUI::Initialize(CreateInterfaceFn *pFactories, int iNumFactories)
 {
 	ConnectTier1Libraries(pFactories, iNumFactories);
 	ConnectTier2Libraries(pFactories, iNumFactories);
+
+	// Load our custom SteamAPI here, since the mod is now standalone.
+	GetSteamAPI()->Init();
 
 	if (!vgui2::VGui_InitInterfacesList("CLIENT", pFactories, iNumFactories))
 	{

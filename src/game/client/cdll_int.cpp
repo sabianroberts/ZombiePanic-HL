@@ -252,9 +252,6 @@ int CL_DLLEXPORT Initialize(cl_enginefunc_t *pEnginefuncs, int iVersion)
 	if (!CheckForInvalidBuilds(gHUD.GetEngineBuild()))
 		return 0;
 
-	// Load our custom SteamAPI here, since the mod is now standalone.
-	GetSteamAPI()->Init();
-
 	console::Initialize();
 	CvarSystem::RegisterCvars();
 	EV_HookEvents();
