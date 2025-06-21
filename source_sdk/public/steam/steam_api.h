@@ -630,6 +630,8 @@ inline bool CSteamAPIContext::Init()
 	return true;
 }
 
+CSteamAPIContext *GetSteamAPI();
+
 #endif // VERSION_SAFE_STEAM_API_INTERFACES
 
 #if defined(USE_BREAKPAD_HANDLER) || defined(STEAM_API_EXPORTS)

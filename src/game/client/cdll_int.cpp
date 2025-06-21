@@ -44,6 +44,7 @@
 #include "opengl.h"
 #include "engfuncs.h"
 #include "engine_builds.h"
+#include "steam/steam_api.h"
 
 CHud gHUD;
 
@@ -53,6 +54,10 @@ void EV_HookEvents(void);
 void IN_Commands(void);
 
 bool g_bLocalPlayerIsValid = false;
+
+CSteamAPIContext s_ApiContext;
+CSteamAPIContext *s_APIContext = &s_ApiContext;
+CSteamAPIContext *GetSteamAPI() { return s_APIContext; }
 
 /**
  * Checks that game is launched with working directory set to engine path.
@@ -246,6 +251,9 @@ int CL_DLLEXPORT Initialize(cl_enginefunc_t *pEnginefuncs, int iVersion)
 	
 	if (!CheckForInvalidBuilds(gHUD.GetEngineBuild()))
 		return 0;
+
+	// Load our custom SteamAPI here, since the mod is now standalone.
+	GetSteamAPI()->Init();
 
 	console::Initialize();
 	CvarSystem::RegisterCvars();
