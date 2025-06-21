@@ -43,8 +43,8 @@ AchievementList::AchievementList(vgui2::Panel *parent, char const *panelName) : 
 
 	if (IsProportional())
 	{
-		m_iDefaultHeight = vgui2::scheme()->GetProportionalScaledValueEx(GetScheme(), DEFAULT_HEIGHT);
-		m_iPanelBuffer = vgui2::scheme()->GetProportionalScaledValueEx(GetScheme(), PANELBUFFER);
+		m_iDefaultHeight = vgui2::scheme()->GetProportionalScaledValue(GetScheme());
+		m_iPanelBuffer = vgui2::scheme()->GetProportionalScaledValue(GetScheme());
 	}
 	else
 	{
