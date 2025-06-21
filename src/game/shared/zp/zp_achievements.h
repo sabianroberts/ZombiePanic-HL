@@ -8,6 +8,7 @@
 enum EAchievements
 {
 	ONE_OF_US = 0,
+	FIRST_TO_DIE,
 	PANIC_ATTACK,
 	KILLS_PISTOL,
 	KILLS_SHOTGUN,
