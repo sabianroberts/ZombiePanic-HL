@@ -137,7 +137,7 @@ const wchar_t *CGeneralSubOptions::GetItemText(const char *token, bool isRecomme
 		return text;
 
 	static wchar_t wbuf[256];
-	wchar_t *rec = g_pVGuiLocalize->Find("BHL_AdvOptions_General_InputRec");
+	wchar_t *rec = g_pVGuiLocalize->Find("ZP_AdvOptions_General_InputRec");
 	V_snwprintf(wbuf, std::size(wbuf), L"%ls %ls", text, rec);
 	return wbuf;
 }
