@@ -4,7 +4,6 @@
 #define SHARED_ZOMBIEPANIC_ACHIEVEMENTS
 #pragma once
 
-
 enum EAchievements
 {
 	ONE_OF_US = 0,

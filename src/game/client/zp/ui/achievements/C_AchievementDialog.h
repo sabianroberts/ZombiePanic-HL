@@ -64,3 +64,5 @@ struct DialogAchievement_t
 	int tmp_mvalue;
 	int tmp_ivalue;
 };
+
+DialogAchievement_t GetAchievementByID( int eAchievement );

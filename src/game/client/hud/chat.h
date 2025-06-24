@@ -253,6 +253,7 @@ protected:
 	Color m_ColorCustom;
 
 	int MsgFunc_SayText(const char *pszName, int iSize, void *pbuf);
+	int MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf);
 
 private:
 	void Clear(void);

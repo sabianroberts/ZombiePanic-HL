@@ -396,6 +396,9 @@ public:
 
 	// Zombie health regen
 	void UpdateHealthRegen();
+
+	// Give achivement
+	void GiveAchievement( EAchievements eAchivement );
 #endif
 
 	//-----------------------------------------------------

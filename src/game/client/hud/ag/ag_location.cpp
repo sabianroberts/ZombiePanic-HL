@@ -340,6 +340,8 @@ char *AgHudLocation::FillLocation(const Vector &vPosition, char *pszSay, int psz
 
 void AgHudLocation::ParseAndEditSayString(int iPlayer, char *pszSay, int pszSaySize)
 {
+	if ( iPlayer < 0 ) return;
+
 	// Make backup
 	char *pszText = new char[pszSaySize];
 	char *pszSayTemp = pszText;

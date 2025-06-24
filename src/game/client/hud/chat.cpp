@@ -25,6 +25,7 @@
 #include "results.h"
 #include "hud/ag/ag_location.h"
 #include "gameui/gameui_viewport.h"
+#include "zp/ui/achievements/C_AchievementDialog.h"
 
 ConVar hud_saytext("hud_saytext", "1", FCVAR_BHL_ARCHIVE, "Enable/disable display of new chat messages");
 ConVar hud_saytext_time("hud_saytext_time", "12", FCVAR_BHL_ARCHIVE, "How long for new messages should stay on the screen");
@@ -462,6 +463,7 @@ void CHudChat::Init(void)
 	BaseHudClass::Init();
 
 	HookMessage<&CHudChat::MsgFunc_SayText>("SayText");
+	HookMessage<&CHudChat::MsgFunc_GiveAch>("GiveAch");
 
 	// Hook messagemode and messagemode2
 	cmd_function_t *item = gEngfuncs.GetFirstCmdFunctionHandle();
@@ -1158,6 +1160,49 @@ int CHudChat::MsgFunc_SayText(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
+int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+
+	int client = READ_SHORT(); // the player
+	int achievement = READ_SHORT(); // the achivement we got
+
+	// Grab the name of the player
+	wchar_t wszPlayerName[32];
+	char szPlayerName[32];
+	if ( CPlayerInfo *pi = GetPlayerInfoSafe( client ) )
+		Q_snprintf( szPlayerName, sizeof( szPlayerName ), "%s", pi->Update()->GetDisplayName() );
+	else
+		Q_snprintf( szPlayerName, sizeof( szPlayerName ), "Unknown" );
+	g_pVGuiLocalize->ConvertANSIToUnicode( szPlayerName, wszPlayerName, sizeof( wszPlayerName ) );
+
+	// What is the achievement we got?
+	char szAchievement[32];
+	Q_snprintf( szAchievement, sizeof( szAchievement ), "#ZP_ACH_%s_NAME", GetAchievementByID( achievement ).m_pchAchievementID );
+
+	// Convert to a string that we can read
+	wchar_t output[128];
+	g_pVGuiLocalize->ConstructString(
+		output, sizeof(output),
+		g_pVGuiLocalize->Find( "ZP_Achivement_Earned" ), 2,
+	    wszPlayerName,
+	    g_pVGuiLocalize->Find( szAchievement )
+	);
+
+	// Convert it all to char
+	char outout_string[128];
+	g_pVGuiLocalize->ConvertUnicodeToANSI( output, outout_string, sizeof(outout_string) );
+
+	// print raw chat text
+	ChatPrintf( -1, "%s", outout_string );
+
+	// Give the achievement.
+	if ( GetSteamAPI() && GetSteamAPI()->SteamUserStats() )
+		GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( achievement ).m_pchAchievementID );
+
+	return 1;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -1295,6 +1340,7 @@ void CHudChat::ChatPrintf(int iPlayerIndex, const char *fmt, ...)
 	{
 		playerName = pi->Update()->GetDisplayName();
 	}
+	if ( iPlayerIndex < 0 ) playerName = nullptr;
 
 	int msglen = strlen(pmsg);
 	int bufSize = (msglen + 1) * sizeof(wchar_t);
@@ -1338,7 +1384,7 @@ void CHudChat::ChatPrintf(int iPlayerIndex, const char *fmt, ...)
 		line->InsertAndColorizeText(wbuf, iPlayerIndex);
 	}
 
-	if (hud_saytext.GetBool() && hud_saytext_sound.GetFloat() > 0)
+	if (iPlayerIndex >= 0 && hud_saytext.GetBool() && hud_saytext_sound.GetFloat() > 0)
 		PlaySound(m_pszChatSoundPath, hud_saytext_sound.GetFloat());
 
 	// Print to console

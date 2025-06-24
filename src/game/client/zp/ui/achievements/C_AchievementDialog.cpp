@@ -417,11 +417,11 @@ ReadAchievement:
 }
 
 
-CON_COMMAND(gameui_achievements, "Opens Advanced Options dialog")
+CON_COMMAND(gameui_achievements, "Opens Achievements dialog")
 {
-	// Since this command is called from game menu using "engine gameui_cl_open_adv_options"
+	// Since this command is called from game menu using "engine gameui_achievements"
 	// GameUI will hide itself and show the game.
-	// We need to show it again and after that activate CAdvOptionsDialog
+	// We need to show it again and after that activate C_AchievementDialog
 	// Otherwise it may be hidden by the dev console
 	gHUD.CallOnNextFrame([]() {
 		CGameUIViewport::Get()->GetAchievementDialog()->Activate();
@@ -445,4 +445,15 @@ void C_AchievementDialog::OnCommand(const char* pcCommand)
 	{
 		BaseClass::OnCommand(pcCommand);
 	}
+}
+
+DialogAchievement_t GetAchievementByID( int eAchievement )
+{
+	for ( int i = 0; i < ARRAYSIZE( g_DAchievements ); i++ )
+	{
+		DialogAchievement_t item = g_DAchievements[ i ];
+		if ( item.m_eAchievementID == eAchievement )
+			return item;
+	}
+	return g_DAchievements[0];
 }

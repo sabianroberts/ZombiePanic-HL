@@ -221,6 +221,7 @@ int gmsgStatusIcon = 0;
 int gmsgFog = 0;
 
 int gmsgObjective = 0;
+int gmsgAchievement = 0;
 
 const char *const gCustomMessages[] = {
 	"IconInfo",
@@ -298,6 +299,7 @@ void LinkUserMessages(void)
 	gmsgFog = REG_USER_MSG("Fog", 7);
 
 	gmsgObjective = REG_USER_MSG("ObjMsg", -1);
+	gmsgAchievement = REG_USER_MSG("GiveAch", -1);
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -2090,6 +2092,14 @@ void CBasePlayer::UpdateHealthRegen()
 	pev->health = clamp( flHP, 1, flHPMax );
 }
 
+void CBasePlayer::GiveAchievement( EAchievements eAchivement )
+{
+	MESSAGE_BEGIN( MSG_ONE, gmsgAchievement, NULL, pev );
+	WRITE_SHORT( entindex() );
+	WRITE_SHORT( eAchivement );
+	MESSAGE_END();
+}
+
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
 #define MAX_CLIMB_SPEED       200 // fastest vertical climbing speed possible
 #define CLIMB_SPEED_DEC       15 // climbing deceleration rate
@@ -2934,6 +2944,8 @@ void CBasePlayer::PostThink()
 		else if (m_flFallVelocity > PLAYER_MAX_SAFE_FALL_SPEED)
 		{ // after this point, we start doing damage
 
+			bool bFallingToDeath = m_bFallingToMyDeath;
+
 			m_bFallingToMyDeath = false;
 			float flFallDamage = g_pGameRules->FlPlayerFallDamage(this);
 
@@ -2947,6 +2959,8 @@ void CBasePlayer::PostThink()
 			{
 				TakeDamage(VARS(eoNullEntity), VARS(eoNullEntity), flFallDamage, DMG_FALL);
 				pev->punchangle.x = 0;
+				if ( bFallingToDeath )
+					GiveAchievement( EAchievements::I_FELL );
 			}
 		}
 
