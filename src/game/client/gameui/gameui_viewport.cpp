@@ -211,7 +211,7 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 				MountAddon.bMounted = false;
 
 				// Default title
-				Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), strFile );
+				Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), "%s", strFile );
 				Q_snprintf( MountAddon.szDesc, sizeof( MountAddon.szDesc ), "Unknown 3rd party addon" );
 				Q_snprintf( MountAddon.szAuthor, sizeof( MountAddon.szAuthor ), "Unknown Author" );
 
@@ -228,11 +228,11 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 						Q_strcpy( strValue, sub->GetString() );
 
 						if ( !Q_stricmp( sub->GetName(), "Author" ) )
-							Q_snprintf( MountAddon.szAuthor, sizeof( MountAddon.szAuthor ), strValue );
+							Q_snprintf( MountAddon.szAuthor, sizeof( MountAddon.szAuthor ), "%s", strValue );
 						else if ( !Q_stricmp( sub->GetName(), "Description" ) )
-							Q_snprintf( MountAddon.szDesc, sizeof( MountAddon.szDesc ), strValue );
+							Q_snprintf( MountAddon.szDesc, sizeof( MountAddon.szDesc ), "%s", strValue );
 						else if ( !Q_stricmp( sub->GetName(), "Title" ) )
-							Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), strValue );
+							Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), "%s", strValue );
 					}
 					// Go trough our flags
 					KeyValues *pAddonFilterFlags = manifest->FindKey( "Tags" );
@@ -348,12 +348,12 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 			Q_snprintf( path, sizeof( path ), "%llu/", WorkshopFile.uWorkshopID );
 	}
 	else
-		Q_snprintf( path, sizeof( path ), szPath );
+		Q_snprintf( path, sizeof( path ), "%s", szPath );
 
 	if ( !szRootPath )
-		Q_snprintf( pathRoot, sizeof( pathRoot ), path );
+		Q_snprintf( pathRoot, sizeof( pathRoot ), "%s", path );
 	else
-		Q_snprintf( pathRoot, sizeof( pathRoot ), szRootPath );
+		Q_snprintf( pathRoot, sizeof( pathRoot ), "%s", szRootPath );
 	
 	// Load our data from zp_workshop
 	FileFindHandle_t fh;
@@ -477,7 +477,7 @@ void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, PublishedFileId_t
 	pInfoBox->Activate();
 
 	char buffer[32];
-	Q_snprintf( buffer, sizeof( buffer ), szText );
+	Q_snprintf( buffer, sizeof( buffer ), "%s", szText );
 	if ( szText[0] == '#' )
 	{
 		wchar_t *pStr = g_pVGuiLocalize->Find( szText );
