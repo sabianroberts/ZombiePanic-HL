@@ -12,4 +12,14 @@ add_sources(
 	ui/achievements/AchievementList.h
 	ui/achievements/C_AchievementDialog.cpp
 	ui/achievements/C_AchievementDialog.h
+	ui/workshop/CWorkshopDialog.cpp
+	ui/workshop/CWorkshopDialog.h
+	ui/workshop/CWorkshopSubList.cpp
+	ui/workshop/CWorkshopSubList.h
+	ui/workshop/CWorkshopSubUpload.cpp
+	ui/workshop/CWorkshopSubUpload.h
+	ui/workshop/CWorkshopSubUploaded.cpp
+	ui/workshop/CWorkshopSubUploaded.h
+	ui/workshop/WorkshopItemList.cpp
+	ui/workshop/WorkshopItemList.h
 )

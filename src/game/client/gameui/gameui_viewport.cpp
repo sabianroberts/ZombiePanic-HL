@@ -7,8 +7,14 @@
 #include "client_vgui.h"
 #include "gameui_viewport.h"
 #include "gameui_test_panel.h"
+#include "CCreateWorkshopInfoBox.h"
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
+#include "zp/ui/workshop/CWorkshopDialog.h"
+#include <FileSystem.h>
+#include <filesystem>
+#include <iostream>
+#include <fstream>
 
 CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 {
@@ -25,6 +31,9 @@ CGameUIViewport::CGameUIViewport()
 	SetScheme(vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme"));
 	SetProportional(false);
 	SetSize(0, 0);
+
+	LoadWorkshopItems( false );
+	LoadWorkshop();
 }
 
 CGameUIViewport::~CGameUIViewport()
@@ -65,6 +74,11 @@ C_AchievementDialog *CGameUIViewport::GetAchievementDialog()
 	return GetDialog(m_hAchDialog);
 }
 
+CWorkshopDialog *CGameUIViewport::GetWorkshopDialog()
+{
+	return GetDialog(m_hWorkshopDialog);
+}
+
 void CGameUIViewport::OnThink()
 {
 	BaseClass::OnThink();
@@ -88,4 +102,464 @@ void CGameUIViewport::OnThink()
 			m_iDelayedPreventEscapeFrame = 0;
 		}
 	}
+}
+
+void CGameUIViewport::GetCurrentItems( std::vector<vgui2::WorkshopItem> &items )
+{
+	items = m_Items;
+}
+
+void CGameUIViewport::UpdateAddonList()
+{
+	// Update addonlist.txt
+	KeyValues *pAddonList = new KeyValues( "AddonList" );
+	KeyValuesAD autodel( pAddonList );
+	if ( pAddonList->LoadFromFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" ) )
+	{
+		for ( int iID = 0; iID < m_Items.size(); iID++ )
+		{
+			vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+			std::string strWorkshopID( std::to_string( WorkshopAddon.uWorkshopID ) );
+			pAddonList->SetBool( strWorkshopID.c_str(), WorkshopAddon.bMounted );
+		}
+	}
+	// Save the file
+	pAddonList->SaveToFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" );
+}
+
+// ===================================
+// Purpose: Load Workshop Content
+// ===================================
+void CGameUIViewport::LoadWorkshop()
+{
+	if ( !GetSteamAPI() ) return;
+	if ( GetSteamAPI()->SteamUGC() && GetSteamAPI()->SteamUser() )
+	{
+		handle = GetSteamAPI()->SteamUGC()->CreateQueryUserUGCRequest(
+			GetSteamAPI()->SteamUser()->GetSteamID().GetAccountID(),
+			k_EUserUGCList_Subscribed,
+			k_EUGCMatchingUGCType_Items_ReadyToUse,
+			k_EUserUGCListSortOrder_LastUpdatedDesc,
+		    (AppId_t)3825360, (AppId_t)3825360, 1
+		);
+		GetSteamAPI()->SteamUGC()->SetReturnChildren( handle, true );
+		SteamAPICall_t apiCall = GetSteamAPI()->SteamUGC()->SendQueryUGCRequest( handle );
+		m_SteamCallResultOnSendQueryUGCRequest.Set( apiCall, this, &CGameUIViewport::OnSendQueryUGCRequest );
+	}
+}
+
+bool CGameUIViewport::HasWorkshopAddon( PublishedFileId_t nWorkshopID )
+{
+	for ( int iID = 0; iID < m_pSubscribedContent.size(); iID++ )
+	{
+		SubscribedContent &WorkshopAddon = m_pSubscribedContent[ iID ];
+		if ( WorkshopAddon.m_FileID == nWorkshopID )
+			return true;
+	}
+	return false;
+}
+
+bool CGameUIViewport::HasLoadedItem( PublishedFileId_t nWorkshopID )
+{
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		if ( WorkshopAddon.uWorkshopID == nWorkshopID )
+			return true;
+	}
+	return false;
+}
+
+void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
+{
+	// Load our data from zp_workshop
+	FileFindHandle_t fh;
+	char const *fn = g_pFullFileSystem->FindFirst( bWorkshopFolder ? "content/3825360/*.*" : "*.*", &fh, "WORKSHOP" );
+	if ( !fn ) return;
+	do
+	{
+		// Setup the path string, and lowercase it, so we don't need to search for both uppercase, and lowercase files.
+		char strFile[ 4028 ];
+		bool isSameDir = false;
+		strFile[ 0 ] = 0;
+		V_strcpy_safe( strFile, fn );
+		Q_strlower( strFile );
+
+		// Ignore the same folder
+		// And ignore content folder, unless we are loading workshop content trough it.
+		if ( vgui2::FStrEq( strFile, "." ) || vgui2::FStrEq( strFile, ".." ) || vgui2::FStrEq( strFile, "content" ) )
+			isSameDir = true;
+
+		// Folder found!
+		if ( g_pFullFileSystem->FindIsDirectory( fh ) && !isSameDir )
+		{
+			// Setup the string
+			std::string strAddonInfo = bWorkshopFolder ? "content/3825360/" + std::string( strFile ) : strFile;
+			strAddonInfo += "/addoninfo.txt";
+
+			// The Workshop file item.
+			unsigned long long nFileItem = std::strtoull( strFile, NULL, 0 );
+
+			// Check if the file exist
+			if ( g_pFullFileSystem->FileExists( strAddonInfo.c_str() ) && !HasLoadedItem( nFileItem ) )
+			{
+
+				vgui2::WorkshopItem MountAddon;
+				MountAddon.iFilterFlag = 0;
+				MountAddon.uWorkshopID = nFileItem;
+				MountAddon.bIsWorkshopDownload = bWorkshopFolder;
+				MountAddon.bMounted = false;
+
+				// Default title
+				Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), strFile );
+				Q_snprintf( MountAddon.szDesc, sizeof( MountAddon.szDesc ), "Unknown 3rd party addon" );
+				Q_snprintf( MountAddon.szAuthor, sizeof( MountAddon.szAuthor ), "Unknown Author" );
+
+				// Check if the keyvalues exist
+				KeyValues *manifest = new KeyValues( "AddonInfo" );
+				if ( manifest->LoadFromFile( g_pFullFileSystem, strAddonInfo.c_str(), "WORKSHOP" ) )
+				{
+					// Go trough all keyvalues, and grab the ones we need
+					for ( KeyValues *sub = manifest->GetFirstSubKey(); sub != NULL ; sub = sub->GetNextKey() )
+					{
+						int length = Q_strlen( sub->GetString() ) + 1;
+						char *strValue = (char *)malloc( length );
+
+						Q_strcpy( strValue, sub->GetString() );
+
+						if ( !Q_stricmp( sub->GetName(), "Author" ) )
+							Q_snprintf( MountAddon.szAuthor, sizeof( MountAddon.szAuthor ), strValue );
+						else if ( !Q_stricmp( sub->GetName(), "Description" ) )
+							Q_snprintf( MountAddon.szDesc, sizeof( MountAddon.szDesc ), strValue );
+						else if ( !Q_stricmp( sub->GetName(), "Title" ) )
+							Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), strValue );
+					}
+					// Go trough our flags
+					KeyValues *pAddonFilterFlags = manifest->FindKey( "Tags" );
+					if ( pAddonFilterFlags )
+					{
+						if ( pAddonFilterFlags->GetBool( "Map" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_MAP;
+						if ( pAddonFilterFlags->GetBool( "Weapons" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_WEAPONS;
+						if ( pAddonFilterFlags->GetBool( "Sounds" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_SOUNDS;
+						if ( pAddonFilterFlags->GetBool( "Survivor" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_SURVIVOR;
+						if ( pAddonFilterFlags->GetBool( "Zombie" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_ZOMBIE;
+						if ( pAddonFilterFlags->GetBool( "Background" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_BACKGROUND;
+						if ( pAddonFilterFlags->GetBool( "Sprays" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_SPRAYS;
+						if ( pAddonFilterFlags->GetBool( "Music" ) ) MountAddon.iFilterFlag |= vgui2::FILTER_MUSIC;
+					}
+				}
+				manifest->deleteThis();
+#if defined( _DEBUG )
+				// Only show on Debug mode
+				ConPrintf(
+					Color( 255, 255, 0, 255 ),
+					"Workshop Addon [%llu] Added | Flags: %i\n",
+					MountAddon.uWorkshopID,
+					MountAddon.iFilterFlag
+				);
+#endif
+				// Auto mount, if found.
+				AutoMountWorkshopItem( MountAddon );
+				m_Items.push_back( MountAddon );
+			}
+		}
+
+		fn = g_pFullFileSystem->FindNext(fh);
+	}
+	while(fn);
+
+	g_pFullFileSystem->FindClose(fh);
+}
+
+void CGameUIViewport::AutoMountWorkshopItem( vgui2::WorkshopItem WorkshopFile )
+{
+	if ( !WorkshopIDIsMounted( WorkshopFile.uWorkshopID ) ) return;
+	MountWorkshopItem( WorkshopFile, nullptr, nullptr );
+}
+
+struct CopyPath
+{
+	std::string from;
+	std::string to;
+	uint64 item;
+};
+
+// From: https://stackoverflow.com/questions/6163611/compare-two-files
+bool CompareFiles( const std::string &p1, const std::string &p2 )
+{
+	std::ifstream f1(p1, std::ifstream::binary | std::ifstream::ate);
+	std::ifstream f2(p2, std::ifstream::binary | std::ifstream::ate);
+
+	if (f1.fail() || f2.fail())
+	{
+		return false; //file problem
+	}
+
+	if (f1.tellg() != f2.tellg())
+	{
+		return false; //size mismatch
+	}
+
+	//seek back to beginning and use std::equal to compare contents
+	f1.seekg(0, std::ifstream::beg);
+	f2.seekg(0, std::ifstream::beg);
+	return std::equal(std::istreambuf_iterator<char>(f1.rdbuf()),
+	    std::istreambuf_iterator<char>(),
+	    std::istreambuf_iterator<char>(f2.rdbuf()));
+}
+
+unsigned CopyFilesToNewDestination( void *Data )
+{
+	bool bNoChange = CompareFiles( ((CopyPath *)Data)->from, ((CopyPath *)Data)->to );
+	if ( std::filesystem::exists( ((CopyPath *)Data)->to ) )
+		CGameUIViewport::Get()->SetConflictingFiles(((CopyPath *)Data)->item, !bNoChange);
+	std::ifstream src( ((CopyPath *)Data)->from, std::ios::binary );
+	std::ofstream dest( ((CopyPath *)Data)->to, std::ios::binary );
+	dest << src.rdbuf();
+	return 1;
+}
+
+struct DeleteFile
+{
+	std::string file;
+};
+
+unsigned RemoveFilesFromAddons( void *Data )
+{
+	g_pFullFileSystem->RemoveFile( ((DeleteFile *)Data)->file.c_str(), "ADDON" );
+	return 1;
+}
+
+void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const char *szPath, const char *szRootPath )
+{
+	// Copies files to zp_addon,
+	// or remove them from zp_addon.
+	// Depends really, if we are mounting or not.
+
+	bool bIsRoot = szRootPath ? false : true;
+
+	char path[ 4028 ];
+	char pathRoot[ 4028 ];
+	if ( !szPath )
+	{
+		if ( WorkshopFile.bIsWorkshopDownload )
+			Q_snprintf( path, sizeof( path ), "content/3825360/%llu/", WorkshopFile.uWorkshopID );
+		else
+			Q_snprintf( path, sizeof( path ), "%llu/", WorkshopFile.uWorkshopID );
+	}
+	else
+		Q_snprintf( path, sizeof( path ), szPath );
+
+	if ( !szRootPath )
+		Q_snprintf( pathRoot, sizeof( pathRoot ), path );
+	else
+		Q_snprintf( pathRoot, sizeof( pathRoot ), szRootPath );
+	
+	// Load our data from zp_workshop
+	FileFindHandle_t fh;
+	char const *fn = g_pFullFileSystem->FindFirst( vgui2::VarArgs( "%s*.*", path ), &fh, "WORKSHOP" );
+	if ( !fn ) return;
+	do
+	{
+		// Setup the path string, and lowercase it, so we don't need to search for both uppercase, and lowercase files.
+		char strFile[ 4028 ];
+		bool bIsValidFile = true;
+		strFile[ 0 ] = 0;
+		V_strcpy_safe( strFile, fn );
+		Q_strlower( strFile );
+
+		// Ignore the same folder
+		// And ignore content folder, unless we are loading workshop content trough it.
+		if ( vgui2::FStrEq( strFile, "." ) || vgui2::FStrEq( strFile, ".." ) )
+			bIsValidFile = false;
+
+		// If we are a root dir, ignore.
+		// We do NOT want to override any CFG files and so on.
+		if ( bIsRoot && !g_pFullFileSystem->FindIsDirectory( fh ) )
+			bIsValidFile = false;
+		// If root, and is a dir, make sure we only allow certain folders.
+		else if ( bIsRoot && g_pFullFileSystem->FindIsDirectory( fh ) )
+		{
+			bIsValidFile = false;
+			if ( vgui2::FStrEq( strFile, "logos" )
+				|| vgui2::FStrEq( strFile, "maps" )
+				|| vgui2::FStrEq( strFile, "media" )
+				|| vgui2::FStrEq( strFile, "models" )
+				|| vgui2::FStrEq( strFile, "resource" )
+				|| vgui2::FStrEq( strFile, "sound" )
+				|| vgui2::FStrEq( strFile, "ui" )
+				|| vgui2::FStrEq( strFile, "sprites" ) )
+				bIsValidFile = true;
+		}
+
+		if ( g_pFullFileSystem->FindIsDirectory( fh ) && bIsValidFile )
+		{
+			char strNewPath[ 4028 ];
+			Q_snprintf( strNewPath, sizeof( strNewPath ), "%s%s/", path, strFile );
+
+			// Create our folders, so we can copy the files over!
+			std::string strNewPathDir( strNewPath );
+			vgui2::STDReplaceString( strNewPathDir, pathRoot, "" );
+			g_pFullFileSystem->CreateDirHierarchy( strNewPathDir.c_str(), "ADDON" );
+
+			MountWorkshopItem( WorkshopFile, strNewPath, pathRoot );
+		}
+		else if ( !g_pFullFileSystem->FindIsDirectory( fh ) && bIsValidFile )
+		{
+			std::string strNewFilePath( std::string( path ) + std::string( strFile ) );
+			std::string strNewFilePathDest( strNewFilePath );
+			vgui2::STDReplaceString( strNewFilePathDest, pathRoot, "" );
+			CopyPath *data = new CopyPath;
+			data->from = "zp_workshop/" + strNewFilePath;
+			data->to = "zp_addon/" + strNewFilePathDest;
+			data->item = WorkshopFile.uWorkshopID;
+			if ( !WorkshopFile.bMounted )
+				CreateSimpleThread( CopyFilesToNewDestination, data );
+			else
+			{
+				DeleteFile *data = new DeleteFile;
+				data->file = strNewFilePathDest;
+				CreateSimpleThread( RemoveFilesFromAddons, data );
+			}
+		}
+
+		fn = g_pFullFileSystem->FindNext( fh );
+	}
+	while( fn );
+
+	SetMountedState( WorkshopFile.uWorkshopID, !WorkshopFile.bMounted );
+	UpdateAddonList();
+
+	g_pFullFileSystem->FindClose( fh );
+}
+
+bool CGameUIViewport::HasConflictingFiles( vgui2::WorkshopItem WorkshopFile )
+{
+	return WorkshopFile.bFoundConflictingFiles;
+}
+
+vgui2::WorkshopItem CGameUIViewport::GetWorkshopItem( PublishedFileId_t nWorkshopID )
+{
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		if ( WorkshopAddon.uWorkshopID == nWorkshopID )
+			return WorkshopAddon;
+	}
+	return vgui2::WorkshopItem();
+}
+
+void CGameUIViewport::SetMountedState( PublishedFileId_t nWorkshopID, bool state )
+{
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		if ( WorkshopAddon.uWorkshopID == nWorkshopID )
+			WorkshopAddon.bMounted = state;
+	}
+}
+
+void CGameUIViewport::SetConflictingFiles( PublishedFileId_t nWorkshopID, bool state )
+{
+	for ( int iID = 0; iID < m_Items.size(); iID++ )
+	{
+		vgui2::WorkshopItem &WorkshopAddon = m_Items[iID];
+		if ( WorkshopAddon.uWorkshopID == nWorkshopID )
+			WorkshopAddon.bFoundConflictingFiles = state;
+	}
+}
+
+void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, PublishedFileId_t nWorkshopID, float flDrawTime )
+{
+	if ( !szText ) return;
+
+	CCreateWorkshopInfoBox *pInfoBox = new CCreateWorkshopInfoBox( this );
+	pInfoBox->Activate();
+
+	char buffer[32];
+	Q_snprintf( buffer, sizeof( buffer ), szText );
+	if ( szText[0] == '#' )
+	{
+		wchar_t *pStr = g_pVGuiLocalize->Find( szText );
+		if ( pStr )
+			g_pVGuiLocalize->ConvertUnicodeToANSI( pStr, buffer, sizeof(buffer) );
+	}
+
+	pInfoBox->SetData( buffer, nWorkshopID, flDrawTime );
+}
+
+bool CGameUIViewport::WorkshopIDIsMounted( PublishedFileId_t nWorkshopID )
+{
+	KeyValues *pAddonList = new KeyValues( "AddonList" );
+	KeyValuesAD autodel( pAddonList );
+	if ( pAddonList->LoadFromFile( g_pFullFileSystem, "addonlist.txt", "WORKSHOP" ) )
+	{
+		std::string strWorkshopID( std::to_string( nWorkshopID ) );
+		return pAddonList->GetBool( strWorkshopID.c_str(), false );
+	}
+	return false;
+}
+
+// ===================================
+// Purpose: Mount said content.
+// ===================================
+void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure )
+{
+	int childrencount = 0;
+	bool bFailed = ( bIOFailure || ( pCallback->m_eResult != k_EResultOK ) );
+	if ( bFailed )
+	{
+#if defined( SPDLOG )
+		SpdLog(
+			"workshop_client",
+			UTIL_CurrentMapLog(),
+			LOGTYPE_WARN,
+			"Failed to send query. ErrorID: %i",
+			pCallback->m_eResult
+		);
+#else
+		ConPrintf( Color( 255, 255, 0, 255 ), "[Workshop] Failed to send query. ErrorID: %i\n", pCallback->m_eResult );
+#endif
+		GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
+		return;
+	}
+
+	// Create it
+	SteamUGCDetails_t *pDetails = new SteamUGCDetails_t;
+
+	// Get our info
+	if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, 0, pDetails ) )
+	{
+		childrencount = pDetails->m_unNumChildren;
+	}
+
+	// Delete it
+	if ( pDetails )
+		delete pDetails;
+
+	if ( childrencount > 0 )
+	{
+		// Create it
+		PublishedFileId_t *pChildrenID = new PublishedFileId_t[childrencount];
+
+		// Get our info
+		if ( GetSteamAPI()->SteamUGC()->GetQueryUGCChildren( pCallback->m_handle, 0, pChildrenID, childrencount ) )
+		{
+			for ( int i = 0; i < childrencount; i++ )
+			{
+				SubscribedContent WorkshopAddon;
+				WorkshopAddon.m_FileID = pChildrenID[ i ];
+				m_pSubscribedContent.push_back( WorkshopAddon );
+			}
+		}
+
+		// Delete it
+		if ( pChildrenID )
+			delete pChildrenID;
+	}
+
+	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
+
+	// Now check the client workshop content
+	LoadWorkshopItems( true );
 }
