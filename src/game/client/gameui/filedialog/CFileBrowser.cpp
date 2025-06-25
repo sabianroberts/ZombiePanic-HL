@@ -333,7 +333,7 @@ int CFileBrowser::GetFullPath( const char *szLocalPath, std::string &output )
 		buffer[count] = '\0';
 	GetFolder( buffer, output );
 	output += "/" + GetGamePath() + std::string( szLocalPath );
-	return bytes;
+	return count;
 #endif
 }
 
