@@ -328,9 +328,9 @@ int CFileBrowser::GetFullPath( const char *szLocalPath, std::string &output )
 	output += "/" + GetGamePath() + std::string( szLocalPath );
 	return bytes ? bytes : -1;
 #else
-	int bytes = MIN( readlink( "/proc/self/exe", buffer, len ), len - 1 );
-	if ( bytes >= 0 )
-		buffer[bytes] = '\0';
+	ssize_t count = readlink( "/proc/self/exe", buffer, len );
+	if ( count >= 0 )
+		buffer[count] = '\0';
 	GetFolder( buffer, output );
 	output += "/" + GetGamePath() + std::string( szLocalPath );
 	return bytes;
