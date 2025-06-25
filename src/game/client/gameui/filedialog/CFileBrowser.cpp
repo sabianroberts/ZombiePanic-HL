@@ -164,11 +164,12 @@ void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
 
 void CFileBrowser::Open( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
 {
-	Q_snprintf( this->szFolder, sizeof( this->szFolder ), "%s", szFolder );
+	Q_snprintf( this->szFolder, sizeof( this->szFolder ), "" );
 	Q_snprintf( this->szPathID, sizeof( this->szPathID ), "%s", szPathID );
 	nFilter = eFilter;
 	pFunctor = pFunction;
-	OpenFolder( this->szFolder, this->szPathID, true );
+	bool bIsRoot = !Q_stricmp( szFolder, "" ) ? true : false;
+	OpenFolder( szFolder, this->szPathID, bIsRoot );
 }
 
 void CFileBrowser::OnCommand( const char *pcCommand )
