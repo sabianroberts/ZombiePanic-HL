@@ -21,8 +21,8 @@ public:
 	virtual void PerformLayout();
 	virtual void OnCommand(const char *pcCommand);
 
-	void UpdateContentPath( const std::string szLocalpath, const std::string szFullpath );
-	void UpdatePreviewImage( const std::string szFileext, const std::string szLocalpath, const std::string szLocalGamepath, const std::string szFullpath );
+	void UpdateContentPath( DialogData *pData );
+	void UpdatePreviewImage( DialogData *pData );
 
 protected:
 	std::string last_folder[2];

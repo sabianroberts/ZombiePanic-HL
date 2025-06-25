@@ -132,9 +132,9 @@ void CWorkshopSubUpload::PerformLayout()
 void OnFileSelected( DialogData *pData )
 {
 	if ( pData->IsFolder )
-		pUploader->UpdateContentPath( pData->LocalPath, pData->FullPath );
+		pUploader->UpdateContentPath( pData );
 	else
-		pUploader->UpdatePreviewImage( pData->FileExtension, pData->LocalPath, pData->LocalGamePath, pData->FullPath );
+		pUploader->UpdatePreviewImage( pData );
 }
 
 void CWorkshopSubUpload::OnCommand(const char *pcCommand)
@@ -163,17 +163,18 @@ void CWorkshopSubUpload::OnCheckButtonChecked( KeyValues *pParams )
 	//ConPrintf( Color( 255, 255, 0, 255 ), "ItemID(\n\t%i\n)\n", pParams->GetInt( "itemid" ) );
 }
 
-void CWorkshopSubUpload::UpdateContentPath( const std::string szLocalpath, const std::string szFullpath )
+void CWorkshopSubUpload::UpdateContentPath( DialogData *pData )
 {
-	last_folder[1] = szLocalpath;
-	pContentText->SetText( szFullpath.c_str() );
+	last_folder[1] = pData->LocalPath;
+	pContentText->SetText( pData->FullPath.c_str() );
 }
 
-void CWorkshopSubUpload::UpdatePreviewImage( const std::string szFileext, const std::string szLocalpath, const std::string szLocalGamepath, const std::string szFullpath )
+void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 {
-	last_folder[0] = szLocalpath;
-	std::string szFile = szLocalGamepath;
-	const size_t found = szFileext.size();
+	last_folder[0] = pData->LocalPath;
+	vgui2::STDReplaceString( last_folder[0], pData->File, "" );
+	std::string szFile = pData->LocalGamePath;
+	const size_t found = pData->FileExtension.size();
 	szFile = szFile.substr(0, szFile.size() - found);
 	pAddonImage->SetImage( szFile.c_str() );
 }
