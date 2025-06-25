@@ -17,6 +17,7 @@ set( VGUI_CONTROLS_HEADER_FILES
 	${SOURCE_SDK_ROOT}/public/vgui_controls/BuildGroup.h
 	${SOURCE_SDK_ROOT}/public/vgui_controls/BuildModeDialog.h
 	${SOURCE_SDK_ROOT}/public/vgui_controls/Button.h
+	${SOURCE_SDK_ROOT}/public/vgui_controls/ButtonImage.h
 	${SOURCE_SDK_ROOT}/public/vgui_controls/CheckButton.h
 	${SOURCE_SDK_ROOT}/public/vgui_controls/CheckButtonList.h
 	#${SOURCE_SDK_ROOT}/public/vgui_controls/CircularProgressBar.h
@@ -103,6 +104,7 @@ set( VGUI_CONTROLS_SOURCE_FILES
 	BuildGroup.cpp
 	BuildModeDialog.cpp
 	Button.cpp
+	ButtonImage.cpp
 	CheckButton.cpp
 	CheckButtonList.cpp
 	#CircularProgressBar.cpp

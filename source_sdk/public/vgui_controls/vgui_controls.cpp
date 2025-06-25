@@ -11,6 +11,7 @@
 #include "vgui_controls/ExpandButton.h"
 #include "vgui_controls/TreeViewListControl.h"
 #include "vgui_controls/HTML.h"
+#include "vgui_controls/ButtonImage.h"
 
 // NOTE: This has to be the last file included!
 #include "tier0/memdbgon.h"
@@ -19,6 +20,7 @@
 using namespace vgui2;
 
 USING_BUILD_FACTORY( Button );
+USING_BUILD_FACTORY( ButtonImage );
 USING_BUILD_FACTORY( EditablePanel );
 USING_BUILD_FACTORY( ImagePanel );
 USING_BUILD_FACTORY( Label );

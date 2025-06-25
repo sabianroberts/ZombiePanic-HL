@@ -3,6 +3,11 @@
 #ifndef CWORKSHOP_SUB_UPLOAD_H
 #define CWORKSHOP_SUB_UPLOAD_H
 #include <vgui_controls/PropertyPage.h>
+#include <vgui_controls/Label.h>
+#include <vgui_controls/TextEntry.h>
+#include <vgui_controls/ComboBox.h>
+#include <vgui_controls/CheckButtonList.h>
+#include <vgui_controls/ImagePanel.h>
 #include "WorkshopItemList.h"
 
 class CWorkshopSubUpload : public vgui2::PropertyPage
@@ -14,6 +19,24 @@ public:
 	~CWorkshopSubUpload();
 	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
 	virtual void PerformLayout();
+	virtual void OnCommand(const char *pcCommand);
+
+	void UpdateContentPath( const std::string szLocalpath, const std::string szFullpath );
+	void UpdatePreviewImage( const std::string szFileext, const std::string szLocalpath, const std::string szLocalGamepath, const std::string szFullpath );
+
+protected:
+	std::string last_folder[2];
+	MESSAGE_FUNC_PARAMS( OnCheckButtonChecked, "CheckButtonChecked", pParams );
+
+private:
+	vgui2::TextEntry *pDescBox;
+	vgui2::TextEntry *pTitleBox;
+	vgui2::TextEntry *pContentText;
+	vgui2::Label *pChangeLogLabel;
+	vgui2::TextEntry *pChangeLogText;
+	vgui2::ImagePanel *pAddonImage;
+	vgui2::ComboBox *pVisibilty;
+	vgui2::CheckButtonList *pTags[3];
 };
 
 #endif

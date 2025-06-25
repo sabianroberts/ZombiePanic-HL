@@ -36,19 +36,15 @@ CWorkshopDialog::CWorkshopDialog(vgui2::Panel *pParent)
 	AddPage(new CWorkshopSubUploaded(this), "#ZP_Workshop_Tab_Uploaded");
 	AddPage(new CWorkshopSubUpload(this), "#ZP_Workshop_Tab_Upload");
 
-	SetApplyButtonVisible(true);
-	EnableApplyButton(true);
+	SetOKButtonVisible(false);
+	SetApplyButtonVisible(false);
+	EnableApplyButton(false);
+	SetCancelButtonText("#PropertyDialog_Close");
 	GetPropertySheet()->SetTabWidth(84);
 	MoveToCenterOfScreen();
 }
 
 void CWorkshopDialog::OnCommand(const char *command)
 {
-	if (!stricmp(command, "Apply"))
-	{
-		BaseClass::OnCommand("Apply");
-		EnableApplyButton(true); // Apply should always be enabled
-	}
-	else
-		BaseClass::OnCommand(command);
+	BaseClass::OnCommand(command);
 }

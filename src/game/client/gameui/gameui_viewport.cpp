@@ -148,17 +148,6 @@ void CGameUIViewport::LoadWorkshop()
 	}
 }
 
-bool CGameUIViewport::HasWorkshopAddon( PublishedFileId_t nWorkshopID )
-{
-	for ( int iID = 0; iID < m_pSubscribedContent.size(); iID++ )
-	{
-		SubscribedContent &WorkshopAddon = m_pSubscribedContent[ iID ];
-		if ( WorkshopAddon.m_FileID == nWorkshopID )
-			return true;
-	}
-	return false;
-}
-
 bool CGameUIViewport::HasLoadedItem( PublishedFileId_t nWorkshopID )
 {
 	for ( int iID = 0; iID < m_Items.size(); iID++ )
@@ -174,7 +163,7 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 {
 	// Load our data from zp_workshop
 	FileFindHandle_t fh;
-	char const *fn = g_pFullFileSystem->FindFirst( bWorkshopFolder ? "content/3825360/*.*" : "*.*", &fh, "WORKSHOP" );
+	char const *fn = g_pFullFileSystem->FindFirst( "*.*", &fh, bWorkshopFolder ? "WORKSTOPDL" : "WORKSHOP" );
 	if ( !fn ) return;
 	do
 	{
@@ -187,14 +176,14 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 
 		// Ignore the same folder
 		// And ignore content folder, unless we are loading workshop content trough it.
-		if ( vgui2::FStrEq( strFile, "." ) || vgui2::FStrEq( strFile, ".." ) || vgui2::FStrEq( strFile, "content" ) )
+		if ( vgui2::FStrEq( strFile, "." ) || vgui2::FStrEq( strFile, ".." ) )
 			isSameDir = true;
 
 		// Folder found!
 		if ( g_pFullFileSystem->FindIsDirectory( fh ) && !isSameDir )
 		{
 			// Setup the string
-			std::string strAddonInfo = bWorkshopFolder ? "content/3825360/" + std::string( strFile ) : strFile;
+			std::string strAddonInfo = strFile;
 			strAddonInfo += "/addoninfo.txt";
 
 			// The Workshop file item.
@@ -207,8 +196,8 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 				vgui2::WorkshopItem MountAddon;
 				MountAddon.iFilterFlag = 0;
 				MountAddon.uWorkshopID = nFileItem;
-				MountAddon.bIsWorkshopDownload = bWorkshopFolder;
 				MountAddon.bMounted = false;
+				MountAddon.bIsWorkshopDownload = bWorkshopFolder;
 
 				// Default title
 				Q_snprintf( MountAddon.szName, sizeof( MountAddon.szName ), "%s", strFile );
@@ -217,7 +206,7 @@ void CGameUIViewport::LoadWorkshopItems( bool bWorkshopFolder )
 
 				// Check if the keyvalues exist
 				KeyValues *manifest = new KeyValues( "AddonInfo" );
-				if ( manifest->LoadFromFile( g_pFullFileSystem, strAddonInfo.c_str(), "WORKSHOP" ) )
+				if ( manifest->LoadFromFile( g_pFullFileSystem, strAddonInfo.c_str(), bWorkshopFolder ? "WORKSTOPDL" : "WORKSHOP" ) )
 				{
 					// Go trough all keyvalues, and grab the ones we need
 					for ( KeyValues *sub = manifest->GetFirstSubKey(); sub != NULL ; sub = sub->GetNextKey() )
@@ -341,12 +330,7 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 	char path[ 4028 ];
 	char pathRoot[ 4028 ];
 	if ( !szPath )
-	{
-		if ( WorkshopFile.bIsWorkshopDownload )
-			Q_snprintf( path, sizeof( path ), "content/3825360/%llu/", WorkshopFile.uWorkshopID );
-		else
-			Q_snprintf( path, sizeof( path ), "%llu/", WorkshopFile.uWorkshopID );
-	}
+		Q_snprintf( path, sizeof( path ), "%llu/", WorkshopFile.uWorkshopID );
 	else
 		Q_snprintf( path, sizeof( path ), "%s", szPath );
 
@@ -357,7 +341,7 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 	
 	// Load our data from zp_workshop
 	FileFindHandle_t fh;
-	char const *fn = g_pFullFileSystem->FindFirst( vgui2::VarArgs( "%s*.*", path ), &fh, "WORKSHOP" );
+	char const *fn = g_pFullFileSystem->FindFirst( vgui2::VarArgs( "%s*.*", path ), &fh, WorkshopFile.bIsWorkshopDownload ? "WORKSTOPDL" : "WORKSHOP" );
 	if ( !fn ) return;
 	do
 	{
@@ -410,7 +394,10 @@ void CGameUIViewport::MountWorkshopItem( vgui2::WorkshopItem WorkshopFile, const
 			std::string strNewFilePathDest( strNewFilePath );
 			vgui2::STDReplaceString( strNewFilePathDest, pathRoot, "" );
 			CopyPath *data = new CopyPath;
-			data->from = "zp_workshop/" + strNewFilePath;
+			if ( WorkshopFile.bIsWorkshopDownload )
+				data->from = "../../workshop/content/3825360/" + strNewFilePath;
+			else
+				data->from = "zp_workshop/" + strNewFilePath;
 			data->to = "zp_addon/" + strNewFilePathDest;
 			data->item = WorkshopFile.uWorkshopID;
 			if ( !WorkshopFile.bMounted )
@@ -500,12 +487,16 @@ bool CGameUIViewport::WorkshopIDIsMounted( PublishedFileId_t nWorkshopID )
 	return false;
 }
 
+void CGameUIViewport::OpenFileExplorer( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
+{
+	g_pFileDialogManager->OpenFileBrowser( eFilter, szFolder, szPathID, pFunction );
+}
+
 // ===================================
 // Purpose: Mount said content.
 // ===================================
 void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure )
 {
-	int childrencount = 0;
 	bool bFailed = ( bIOFailure || ( pCallback->m_eResult != k_EResultOK ) );
 	if ( bFailed )
 	{
@@ -518,7 +509,7 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 			pCallback->m_eResult
 		);
 #else
-		ConPrintf( Color( 255, 255, 0, 255 ), "[Workshop] Failed to send query. ErrorID: %i\n", pCallback->m_eResult );
+		ConPrintf( Color( 255, 22, 22, 255 ), "[Workshop] Failed to send query. ErrorID: %i\n", pCallback->m_eResult );
 #endif
 		GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 		return;
@@ -530,33 +521,13 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 	// Get our info
 	if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, 0, pDetails ) )
 	{
-		childrencount = pDetails->m_unNumChildren;
+		// Show the addon we are mounting
+		ShowWorkshopInfoBox( pDetails->m_rgchTitle, pDetails->m_nPublishedFileId, 2.0f );
 	}
 
 	// Delete it
 	if ( pDetails )
 		delete pDetails;
-
-	if ( childrencount > 0 )
-	{
-		// Create it
-		PublishedFileId_t *pChildrenID = new PublishedFileId_t[childrencount];
-
-		// Get our info
-		if ( GetSteamAPI()->SteamUGC()->GetQueryUGCChildren( pCallback->m_handle, 0, pChildrenID, childrencount ) )
-		{
-			for ( int i = 0; i < childrencount; i++ )
-			{
-				SubscribedContent WorkshopAddon;
-				WorkshopAddon.m_FileID = pChildrenID[ i ];
-				m_pSubscribedContent.push_back( WorkshopAddon );
-			}
-		}
-
-		// Delete it
-		if ( pChildrenID )
-			delete pChildrenID;
-	}
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 

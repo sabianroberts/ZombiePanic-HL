@@ -3,6 +3,7 @@
 #include <vgui_controls/EditablePanel.h>
 #include "steam/steam_api.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
+#include "filedialog/IFileDialogManager.h"
 
 class CGameUITestPanel;
 class CAdvOptionsDialog;
@@ -47,20 +48,15 @@ public:
 
 	bool WorkshopIDIsMounted( PublishedFileId_t nWorkshopID );
 
+	void OpenFileExplorer( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
+
 protected:
 	void UpdateAddonList();
 	void LoadWorkshop();
-	bool HasWorkshopAddon( PublishedFileId_t nWorkshopID );
 	bool HasLoadedItem( PublishedFileId_t nWorkshopID );
 	void LoadWorkshopItems( bool bWorkshopFolder );
 
-	typedef struct subscribedcontent_t
-	{
-		PublishedFileId_t	m_FileID;
-	} SubscribedContent;
-
 	// list of our sources
-	std::vector<SubscribedContent> m_pSubscribedContent;
 	std::vector<vgui2::WorkshopItem> m_Items;
 
 	void OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure );
