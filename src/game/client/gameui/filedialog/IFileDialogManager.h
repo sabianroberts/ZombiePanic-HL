@@ -5,12 +5,12 @@
 
 enum OpenFileDialog_e
 {
-	FILE_ANY = 0,		// Any file
-	FILE_TGA,			// .tga files
-	FILE_JPG,			// .jpg files
-	FILE_BSP,			// .bsp files
-	FILE_TXT,			// .txt files
-	FOLDER				// Folders only
+	FILE_ANY	= 0,		// Any file
+	FILE_TGA	= (1<<0),	// .tga files
+	FILE_JPG	= (1<<1),	// .jpg files
+	FILE_PNG	= (1<<2),	// .png files
+	FILE_BSP	= (1<<3),	// .bsp files
+	FILE_TXT	= (1<<4),	// .txt files
 };
 
 // File selected dialog data
@@ -21,6 +21,7 @@ struct DialogData
 	std::string LocalPath;
 	std::string LocalGamePath;
 	std::string FullPath;
+	std::string PathID;
 	bool IsFolder;
 };
 
@@ -31,7 +32,8 @@ typedef void (*DialogSelected_t)( DialogData *pData );
 class IFileDialogManager
 {
 public:
-	virtual void OpenFileBrowser( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction ) = 0;
+	virtual void OpenFileBrowser( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction ) = 0;
+	virtual void OpenFolderBrowser( const char *szFolder, const char *szPathID, DialogSelected_t pFunction ) = 0;
 };
 
 extern IFileDialogManager *g_pFileDialogManager;

@@ -30,7 +30,7 @@ class CFileBrowser : public vgui2::Frame
 public:
 	CFileBrowser( vgui2::Panel *pParent );
 	void ApplySchemeSettings( vgui2::IScheme *pScheme );
-	void Open( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
+	void Open( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
 	void OnCommand( const char* pcCommand );
 
 	bool OnEnterPressed();
@@ -48,13 +48,13 @@ private:
 
 	void OpenFolder( const char *szFolder, const char *szPathID, bool bIsRoot );
 
-
 	enum FileType
 	{
 		FileType_Unknown,
 		FileType_Folder,
 		FileType_TGA,
 		FileType_JPG,
+		FileType_PNG,
 		FileType_BSP,
 		FileType_TXT,
 	};
@@ -69,10 +69,12 @@ private:
 	};
 	void IsFileValid( FileFindHandle_t fh, const char *szFile, const char *szLocalPath, bool bIsRoot, FileResult &out );
 	bool IsAllowedInFilter( const char *szLocalPath, FileType &eType );
+	bool HasFilterFlag( int flag );
 
 	char szFolder[52];
 	char szPathID[32];
-	OpenFileDialog_e nFilter;
+	int nFilter;
+	bool bIsFolderOnly;
 	DialogSelected_t pFunctor;
 
 	std::string szCurrentFolderSelected;

@@ -162,10 +162,11 @@ void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
 	pList->SetImageList( imageList, true );
 }
 
-void CFileBrowser::Open( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
+void CFileBrowser::Open( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
 {
 	Q_snprintf( this->szFolder, sizeof( this->szFolder ), "" );
 	Q_snprintf( this->szPathID, sizeof( this->szPathID ), "%s", szPathID );
+	bIsFolderOnly = (eFilter == -1) ? true : false;
 	nFilter = eFilter;
 	pFunctor = pFunction;
 	bool bIsRoot = !Q_stricmp( szFolder, "" ) ? true : false;
@@ -176,7 +177,7 @@ void CFileBrowser::OnCommand( const char *pcCommand )
 {
 	if ( !Q_stricmp( pcCommand, "Select" ) )
 	{
-		if ( nFilter == OpenFileDialog_e::FOLDER )
+		if ( bIsFolderOnly )
 		{
 			// If folder, then we check szCurrentFolderSelected instead.
 			if ( pFunctor )
@@ -192,6 +193,7 @@ void CFileBrowser::OnCommand( const char *pcCommand )
 				pData->LocalGamePath = GetGamePath() + szCurrentFolderSelected;
 				pData->FullPath = fullpath.c_str();
 				pData->IsFolder = true;
+				pData->PathID = szPathID;
 				pFunctor( pData );
 			}
 		}
@@ -211,6 +213,7 @@ void CFileBrowser::OnCommand( const char *pcCommand )
 				pData->LocalGamePath = GetGamePath() + kv->GetString( "LocalPath" );
 				pData->FullPath = fullpath.c_str();
 				pData->IsFolder = kv->GetBool( "IsFolder" );
+				pData->PathID = szPathID;
 				pFunctor( pData );
 			}
 		}
@@ -466,24 +469,32 @@ void CFileBrowser::IsFileValid( FileFindHandle_t fh, const char *szFile, const c
 bool CFileBrowser::IsAllowedInFilter( const char *szLocalPath, FileType &eType )
 {
 	eType = FileType_Unknown;
-	if ( nFilter == OpenFileDialog_e::FOLDER ) return false;
+	if ( bIsFolderOnly ) return false;
 
 	std::string FileExt;
 	GetFileExtension( szLocalPath, FileExt );
 	if ( FileExt == "tga" ) eType = FileType::FileType_TGA;
 	else if ( FileExt == "jpg" ) eType = FileType::FileType_JPG;
+	else if ( FileExt == "png" ) eType = FileType::FileType_PNG;
 	else if ( FileExt == "bsp" ) eType = FileType::FileType_BSP;
 	else if ( FileExt == "txt" ) eType = FileType::FileType_TXT;
 
-	// If we are using the filter, only show what we want to show
-	switch ( nFilter )
+	bool bIsFile = true;
+	int filter = OpenFileDialog_e::FILE_ANY;
+	switch ( eType )
 	{
-		case OpenFileDialog_e::FILE_TGA: return (eType == FileType_TGA);
-		case OpenFileDialog_e::FILE_JPG: return (eType == FileType_JPG);
-		case OpenFileDialog_e::FILE_BSP: return (eType == FileType_BSP);
-		case OpenFileDialog_e::FILE_TXT: return (eType == FileType_TXT);
+		case FileType_TGA: filter |= OpenFileDialog_e::FILE_TGA; break;
+		case FileType_JPG: filter |= OpenFileDialog_e::FILE_JPG; break;
+		case FileType_PNG: filter |= OpenFileDialog_e::FILE_PNG; break;
+		case FileType_BSP: filter |= OpenFileDialog_e::FILE_BSP; break;
+		case FileType_TXT: filter |= OpenFileDialog_e::FILE_TXT; break;
 	}
 
-	// If ANY, then return true always.
-	return true;
+	return HasFilterFlag( filter );
+}
+
+bool CFileBrowser::HasFilterFlag( int flag )
+{
+	if ( nFilter == OpenFileDialog_e::FILE_ANY ) return true;
+	return ((nFilter & flag) != 0);
 }
