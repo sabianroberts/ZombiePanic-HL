@@ -66,7 +66,7 @@ namespace vgui2
 
 		// DATA & ROW HANDLING
 		// The list now owns the panel
-	    virtual int AddItem(vgui2::Panel *texture, vgui2::Panel *author, vgui2::Panel *title, vgui2::Panel *desc, vgui2::Panel *activated, vgui2::Panel *error_msg, uint64 nWorkshopID);
+	    virtual int AddItem(vgui2::Panel *texture, vgui2::Panel *author, vgui2::Panel *title, vgui2::Panel *desc, vgui2::Panel *activated, vgui2::Panel *error_msg, uint64 nWorkshopID, bool bCanEdit = false);
 		int	GetItemCount() const;
 		int GetItemIDFromRow(int nRow) const;
 
@@ -138,6 +138,7 @@ namespace vgui2
 			vgui2::Panel *activated;
 		    vgui2::Panel *error_msg;
 		    vgui2::Panel *button;
+		    vgui2::Panel *button_edit;
 		    uint64 workshopid;
 		} DATAITEM;
 

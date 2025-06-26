@@ -96,6 +96,7 @@ void CWorkshopSubList::UpdateItems()
 		pIcon->SetImage( vgui2::scheme()->GetImage( buffer, false ) );
 		pIcon->SetSize( 56, 56 );
 		pIcon->SetPos( 4, 4 );
+		pIcon->SetShouldScaleImage( true );
 
 		// Font Text
 		vgui2::Label *pTitle = new vgui2::Label( this, "Title", "" );

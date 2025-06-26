@@ -32,9 +32,14 @@ CWorkshopDialog::CWorkshopDialog(vgui2::Panel *pParent)
 
 	SetTitle("#ZP_Workshop", true);
 
+	CWorkshopSubUpload *pUploadPage = new CWorkshopSubUpload(this);
+	CWorkshopSubUploaded *pUploaded = new CWorkshopSubUploaded(this);
+	pUploaded->SetPropertyDialog( this );
+	pUploaded->SetUploadPage( pUploadPage );
+
 	AddPage(new CWorkshopSubList(this), "#ZP_Workshop_Tab_Subscribed");
-	AddPage(new CWorkshopSubUploaded(this), "#ZP_Workshop_Tab_Uploaded");
-	AddPage(new CWorkshopSubUpload(this), "#ZP_Workshop_Tab_Upload");
+	AddPage(pUploaded, "#ZP_Workshop_Tab_Uploaded");
+	AddPage(pUploadPage, "#ZP_Workshop_Tab_Upload");
 
 	SetOKButtonVisible(false);
 	SetApplyButtonVisible(false);

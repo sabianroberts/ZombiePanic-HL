@@ -163,7 +163,7 @@ vgui2::Panel *WorkshopItemList::GetCellRenderer(int row)
 //			data->GetName() is used to uniquely identify an item
 //			data sub items are matched against column header name to be used in the table
 //-----------------------------------------------------------------------------
-int WorkshopItemList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Author, vgui2::Panel *Title, vgui2::Panel *Description, vgui2::Panel *Activated, vgui2::Panel *Error_msg, uint64 nWorkshopID)
+int WorkshopItemList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Author, vgui2::Panel *Title, vgui2::Panel *Description, vgui2::Panel *Activated, vgui2::Panel *Error_msg, uint64 nWorkshopID, bool bCanEdit)
 {
 	if (Author)
 		Author->SetParent(m_pPanelEmbedded);
@@ -213,6 +213,27 @@ int WorkshopItemList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Author, vgui2
 		pWorkshopButton->SetFont( hTextFont );
 
 	newitem.button = pWorkshopButton;
+
+	if ( bCanEdit )
+	{
+		vgui2::Button *pEditButton = new vgui2::Button(
+			m_pPanelEmbedded,
+			"EditButton",
+			"#ZP_UI_Workshop_Edit",
+			this,
+			VarArgs(
+				"WorkshopEdit_%llu",
+				nWorkshopID
+			)
+		);
+		hTextFont = pScheme->GetFont( "AchievementItemDescription" );
+		if ( hTextFont != vgui2::INVALID_FONT )
+			pEditButton->SetFont( hTextFont );
+		newitem.button_edit = pEditButton;
+	}
+	else
+		newitem.button_edit = nullptr;
+
 	newitem.workshopid = nWorkshopID;
 	m_SortedItems.AddToTail(itemID);
 
@@ -308,6 +329,9 @@ void WorkshopItemList::RemoveItem(int itemID)
 	if (item.button)
 		item.button->MarkForDeletion();
 
+	if (item.button_edit)
+		item.button_edit->MarkForDeletion();
+
 	m_DataItems.Remove(itemID);
 	m_SortedItems.FindAndRemove(itemID);
 
@@ -355,6 +379,11 @@ void WorkshopItemList::DeleteAllItems()
 		{
 			m_DataItems[i].button->MarkForDeletion();
 			m_DataItems[i].button = NULL;
+		}
+		if (m_DataItems[i].button_edit)
+		{
+			m_DataItems[i].button_edit->MarkForDeletion();
+			m_DataItems[i].button_edit = NULL;
 		}
 	}
 
@@ -473,6 +502,9 @@ void WorkshopItemList::PerformLayout()
 		if (item.button)
 			item.button->SetBounds(wide - 130, y - 2, 100, 24);
 
+		if (item.button_edit)
+			item.button_edit->SetBounds(wide - 130, y + 32, 100, 24);
+
 		if (iCurrentColumn >= m_iNumColumns - 1)
 		{
 			y += h;
@@ -559,6 +591,17 @@ void vgui2::WorkshopItemList::OnCommand( const char *pcCommand )
 		        szCommand.c_str()
 			)
 		);
+	}
+	else if ( vgui2::STDContains( pcCommand, "WorkshopEdit_" ) )
+	{
+		if ( !GetSteamAPI() ) return;
+		if ( !GetSteamAPI()->SteamFriends() ) return;
+		std::string szCommand( pcCommand );
+		vgui2::STDReplaceString( szCommand, "WorkshopEdit_", "" );
+		uint64 nWorkshopID = std::strtoull( szCommand.c_str(), NULL, 0 );
+		KeyValues *kv = new KeyValues( "WorkshopEdit" );
+		kv->SetUint64( "workshopID", nWorkshopID );
+		PostActionSignal( kv );
 	}
 	else
 	{

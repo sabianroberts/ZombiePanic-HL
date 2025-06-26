@@ -8,12 +8,15 @@
 #include <vgui_controls/Button.h>
 #include <vgui_controls/ImagePanel.h>
 #include <vgui_controls/Frame.h>
+#include <vgui_controls/PropertyDialog.h>
+#include <vgui_controls/PropertySheet.h>
 #include <KeyValues.h>
 #include <appversion.h>
 #include <bhl_urls.h>
 #include "client_vgui.h"
 #include "gameui/gameui_viewport.h"
 #include "CWorkshopSubUploaded.h"
+#include "CWorkshopSubUpload.h"
 
 CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
     : BaseClass(parent, "WorkshopSubUploaded")
@@ -24,6 +27,9 @@ CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
 	pList = new vgui2::WorkshopItemList( this, "listpanel" );
 	pList->SetPos( 15, 100 );
 	pList->SetSize( 600, 302 );
+	pList->AddActionSignalTarget( this );
+
+	// TODO: Add a refresh button.
 
 	// Load this last, so we can move our items around.
 	LoadControlSettings( VGUI2_ROOT_DIR "resource/workshop/uploaded.res" );
@@ -58,6 +64,17 @@ void CWorkshopSubUploaded::ApplySchemeSettings(vgui2::IScheme *pScheme)
 void CWorkshopSubUploaded::PerformLayout()
 {
 	BaseClass::PerformLayout();
+}
+
+void CWorkshopSubUploaded::OnWorkshopEdit( uint64 workshopID )
+{
+	if ( !pProperty ) return;
+	if ( !pProperty->GetPropertySheet() ) return;
+	pProperty->GetPropertySheet()->ChangeActiveTab( 2 );
+	pUploadPage->SetUpdating( workshopID );
+
+	WorkshopItem item = GetWorkshopItem( workshopID );
+	pUploadPage->SetUploadData( item.Title, item.Desc, item.Tags, item.Visibility );
 }
 
 void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
@@ -112,7 +129,7 @@ void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 	    pIcon, pAuthor,
 		pTitle, pDesc,
 	    nullptr, nullptr,
-	    item.uWorkshopID
+	    item.uWorkshopID, true
 	);
 }
 
@@ -151,6 +168,16 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		WorkshopAddon.bIsWorkshopDownload = false;
 		WorkshopAddon.bFoundConflictingFiles = false;
 		WorkshopAddon.uWorkshopID = pDetails->m_nPublishedFileId;
+
+		// Save our data, which we will use strictly for pUploadPage
+		WorkshopItem data;
+		Q_snprintf( data.Title, sizeof( data.Title ), "%s", pDetails->m_rgchTitle );
+		Q_snprintf( data.Desc, sizeof( data.Desc ), "%s", pDetails->m_rgchDescription );
+		Q_snprintf( data.Tags, sizeof( data.Tags ), "%s", pDetails->m_rgchTags );
+		data.Visibility = pDetails->m_eVisibility;
+		data.PublishedFileID = pDetails->m_nPublishedFileId;
+		m_Items.push_back( data );
+
 		AddItem( WorkshopAddon );
 	}
 
@@ -159,4 +186,15 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		delete pDetails;
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
+}
+
+CWorkshopSubUploaded::WorkshopItem CWorkshopSubUploaded::GetWorkshopItem( PublishedFileId_t nWorkshopID )
+{
+	for ( size_t i = 0; i < m_Items.size(); i++ )
+	{
+		WorkshopItem item = m_Items[i];
+		if ( item.PublishedFileID == nWorkshopID )
+			return item;
+	}
+	return WorkshopItem();
 }
