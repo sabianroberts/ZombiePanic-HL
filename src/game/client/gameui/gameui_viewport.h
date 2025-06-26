@@ -1,6 +1,7 @@
 #ifndef GAMEUI_VIEWPORT_H
 #define GAMEUI_VIEWPORT_H
 #include <vgui_controls/EditablePanel.h>
+#include <vgui_controls/MessageBox.h>
 #include "steam/steam_api.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 #include "filedialog/IFileDialogManager.h"
@@ -48,7 +49,10 @@ public:
 
 	bool WorkshopIDIsMounted( PublishedFileId_t nWorkshopID );
 
-	void OpenFileExplorer( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
+	void OpenFileExplorer( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
+	void OpenFileExplorer( const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
+
+	void ShowMessageDialog( const char *szTitle, const char *szDescription );
 
 protected:
 	void UpdateAddonList();

@@ -487,9 +487,22 @@ bool CGameUIViewport::WorkshopIDIsMounted( PublishedFileId_t nWorkshopID )
 	return false;
 }
 
-void CGameUIViewport::OpenFileExplorer( OpenFileDialog_e eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
+void CGameUIViewport::OpenFileExplorer( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
 {
 	g_pFileDialogManager->OpenFileBrowser( eFilter, szFolder, szPathID, pFunction );
+}
+
+void CGameUIViewport::OpenFileExplorer( const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
+{
+	g_pFileDialogManager->OpenFolderBrowser( szFolder, szPathID, pFunction );
+}
+
+void CGameUIViewport::ShowMessageDialog( const char *szTitle, const char *szDescription )
+{
+	vgui2::MessageBox *pMessageBox = new vgui2::MessageBox( szTitle, szDescription, this );
+	pMessageBox->SetOKButtonVisible( true );
+	pMessageBox->SetCancelButtonVisible( false );
+	pMessageBox->DoModal();
 }
 
 // ===================================
