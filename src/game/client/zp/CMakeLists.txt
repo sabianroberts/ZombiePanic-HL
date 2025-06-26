@@ -23,3 +23,5 @@ add_sources(
 	ui/workshop/WorkshopItemList.cpp
 	ui/workshop/WorkshopItemList.h
 )
+
+add_subdirectory( lodepng )
