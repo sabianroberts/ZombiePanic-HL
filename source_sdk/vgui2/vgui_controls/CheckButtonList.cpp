@@ -168,6 +168,14 @@ bool CheckButtonList::IsItemChecked(int itemID)
 //-----------------------------------------------------------------------------
 // Purpose: Sets the state of the check button
 //-----------------------------------------------------------------------------
+void CheckButtonList::SetItemSelected(int itemID, bool state)
+{
+	m_CheckItems[itemID].checkButton->SetSelected(state);
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Sets the state of the check button
+//-----------------------------------------------------------------------------
 void CheckButtonList::SetItemCheckable(int itemID, bool state)
 {
 	m_CheckItems[itemID].checkButton->SetCheckButtonCheckable(state);

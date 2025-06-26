@@ -21,7 +21,7 @@ CMessageDialog::CMessageDialog( vgui2::Panel *pParent, const uint nType, const c
 	SetSize( 500, 200 );
 	SetDeleteSelfOnClose( true );
 	SetTitleBarVisible( false );
-	SetCloseButtonVisible( false );
+	SetCloseButtonVisible( true );
 	SetSizeable( false );
 
 	m_pControlSettings = NULL;
@@ -145,7 +145,7 @@ void CMessageDialog::ApplySchemeSettings( vgui2::IScheme *pScheme )
 {
 	BaseClass::ApplySchemeSettings( pScheme );
 
-	LoadControlSettings( "resource/UI/MessageDialog.res", "GAME", m_pControlSettings );
+	LoadControlSettings( "ui/resource/messagedialog.res", nullptr, m_pControlSettings );
 
 	m_hButtonFont = pScheme->GetFont( "GameUIButtons" );
 	m_hTextFont = pScheme->GetFont( "MenuLarge" );

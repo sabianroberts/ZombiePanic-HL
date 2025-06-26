@@ -44,6 +44,7 @@ public:
 	// item info
 	KeyValues *GetItemData(int itemID);
 	bool IsItemChecked(int itemID);
+	void SetItemSelected(int itemID, bool state);
 	void SetItemCheckable(int itemID, bool state);
 
 	/* MESSAGES SENT

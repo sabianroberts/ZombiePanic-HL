@@ -130,7 +130,11 @@ protected:
 	virtual void PaintBorder();
 	virtual void PerformLayout();
 	virtual Panel *HasHotkey(wchar_t key);
+
+public:
 	virtual void ChangeActiveTab(int index);
+
+protected:
 	virtual void OnKeyCodePressed(KeyCode code);
 	virtual void OnCommand(const char *command);
 	virtual void ApplySchemeSettings(IScheme *pScheme);
