@@ -520,7 +520,7 @@ bool CWorkshopSubUpload::ValidateTheEntries()
 	{
 		if ( preview_image.empty() )
 		{
-			ThrowError( "You need to assign a preview image." );
+			ThrowError( "#ZP_Workshop_ErrorMsg_AssignImage" );
 			return false;
 		}
 	}
@@ -530,19 +530,19 @@ bool CWorkshopSubUpload::ValidateTheEntries()
 	pTitleBox->GetText( buffer, sizeof( buffer ) );
 	if ( !Q_stricmp( buffer, "" ) )
 	{
-		ThrowError( "You can't assign an empty title." );
+		ThrowError( "#ZP_Workshop_ErrorMsg_AssignEmptyTitle" );
 		return false;
 	}
 	pDescBox->GetText( buffer, sizeof( buffer ) );
 	if ( !Q_stricmp( buffer, "" ) )
 	{
-		ThrowError( "You can't assign an description." );
+		ThrowError( "#ZP_Workshop_ErrorMsg_AssignEmptyDesc" );
 		return false;
 	}
 	pContentText->GetText( buffer, sizeof( buffer ) );
 	if ( !Q_stricmp( buffer, "" ) )
 	{
-		ThrowError( "You can't assign empty content." );
+		ThrowError( "#ZP_Workshop_ErrorMsg_AssignNoContent" );
 		return false;
 	}
 
@@ -570,7 +570,7 @@ bool CWorkshopSubUpload::ValidateTheEntries()
 
 	if ( !bHasAtleastOneAssignedTag )
 	{
-		ThrowError( "You need to atleast assign one workshop tag." );
+		ThrowError( "#ZP_Workshop_ErrorMsg_AssignTags" );
 		return false;
 	}
 	return true;
