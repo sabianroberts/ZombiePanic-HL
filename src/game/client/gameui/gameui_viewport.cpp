@@ -528,19 +528,22 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 		return;
 	}
 
-	// Create it
-	SteamUGCDetails_t *pDetails = new SteamUGCDetails_t;
-
-	// Get our info
-	if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, 0, pDetails ) )
+	for ( size_t i = 0; i < pCallback->m_unNumResultsReturned; i++ )
 	{
-		// Show the addon we are mounting
-		ShowWorkshopInfoBox( pDetails->m_rgchTitle, pDetails->m_nPublishedFileId, 2.0f );
-	}
+		// Create it
+		SteamUGCDetails_t *pDetails = new SteamUGCDetails_t;
 
-	// Delete it
-	if ( pDetails )
-		delete pDetails;
+		// Get our info
+		if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, i, pDetails ) )
+		{
+			// Show the addon we are mounting
+			ShowWorkshopInfoBox( pDetails->m_rgchTitle, pDetails->m_nPublishedFileId, 2.0f );
+		}
+
+		// Delete it
+		if ( pDetails )
+			delete pDetails;
+	}
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 
