@@ -5,6 +5,7 @@
 #include "steam/steam_api.h"
 #include "zp/ui/workshop/WorkshopItemList.h"
 #include "filedialog/IFileDialogManager.h"
+#include "CCreateWorkshopInfoBox.h"
 
 class CGameUITestPanel;
 class CAdvOptionsDialog;
@@ -45,7 +46,8 @@ public:
 	void SetConflictingFiles( PublishedFileId_t nWorkshopID, bool state );
 	void SetMountedState( PublishedFileId_t nWorkshopID, bool state );
 
-	void ShowWorkshopInfoBox( const char *szText, PublishedFileId_t nWorkshopID, float flDrawTime );
+	void ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxState nState );
+	void SetWorkshopInfoBoxProgress( float flProgress );
 
 	bool WorkshopIDIsMounted( PublishedFileId_t nWorkshopID );
 
@@ -67,6 +69,18 @@ protected:
 	CCallResult<CGameUIViewport, SteamUGCQueryCompleted_t> m_SteamCallResultOnSendQueryUGCRequest;
 	UGCQueryHandle_t	handle;
 
+	struct PrepareForDownload
+	{
+		PublishedFileId_t WorkshopID = 0;
+		char Title[k_cchPublishedDocumentTitleMax];
+		bool IsDownloading;
+	};
+	std::vector<PrepareForDownload> m_QueryRequests;
+	PrepareForDownload m_CurrentQueryItem;
+	float m_flQueryWait;
+	bool m_bPrepareForQueryDownload;
+	bool PrepareForQueryDownload();
+
 private:
 	bool m_bPreventEscape = false;
 	int m_iDelayedPreventEscapeFrame = 0;
@@ -74,6 +88,7 @@ private:
 	vgui2::DHANDLE<CAdvOptionsDialog> m_hOptionsDialog;
 	vgui2::DHANDLE<C_AchievementDialog> m_hAchDialog;
 	vgui2::DHANDLE<CWorkshopDialog> m_hWorkshopDialog;
+	vgui2::DHANDLE<CCreateWorkshopInfoBox> m_hWorkshopInfoBox;
 
 	template <typename T>
 	inline T *GetDialog(vgui2::DHANDLE<T> &handle)

@@ -15,8 +15,9 @@ CCreateWorkshopInfoBox::CCreateWorkshopInfoBox(vgui2::Panel *pParent)
 	SetTitleBarVisible( false );
 	SetDeleteSelfOnClose( true );
 
-	m_pText = new vgui2::Label( this, "Text", "Mounting Addon..." );
-	m_pWorkshopID = new vgui2::Label( this, "WorkshopID", "12345" );
+	m_pText = new vgui2::Label( this, "Text", "My Example Addon" );
+	m_pState = new vgui2::Label( this, "State", "#ZP_Workshop_InfoBox_GatheringData" );
+	m_pProgressBar = new vgui2::ProgressBar( this, "Progress" );
 
 	SetScheme( vgui2::scheme()->LoadSchemeFromFile( VGUI2_ROOT_DIR "resource/ClientSourceSchemeBase.res", "ClientSourceSchemeBase" ) );
 
@@ -29,19 +30,34 @@ CCreateWorkshopInfoBox::CCreateWorkshopInfoBox(vgui2::Panel *pParent)
 
 	MoveToFront();
 
-	m_RemoveTime = 2.0f;
+	m_RemoveTime = -1.0f;
 }
 
-void CCreateWorkshopInfoBox::SetData( const char *szString, uint64 nWorkshopID, float flTime )
+void CCreateWorkshopInfoBox::SetData( const char *szString, WorkshopInfoBoxState nState )
 {
 	m_pText->SetColorCodedText( szString );
-	m_pWorkshopID->SetText( vgui2::VarArgs( "%llu", nWorkshopID ) );
-	m_RemoveTime = flTime;
+	switch ( nState )
+	{
+		case State_GatheringData: m_pState->SetText( "#ZP_Workshop_InfoBox_GatheringData" ); break;
+		case State_Downloading: m_pState->SetText( "#ZP_Workshop_InfoBox_Downloading" ); break;
+		case State_Updating: m_pState->SetText( "#ZP_Workshop_InfoBox_Updating" ); break;
+		case State_Dismounting: m_pState->SetText( "#ZP_Workshop_InfoBox_Dismounting" ); break;
+		case State_Mounting: m_pState->SetText( "#ZP_Workshop_InfoBox_Mounting" ); break;
+		case State_Done: m_pState->SetText( "" ); break;
+	}
+	if ( nState == WorkshopInfoBoxState::State_Done )
+		m_RemoveTime = 2.0f;
+}
+
+void CCreateWorkshopInfoBox::SetProgressState( float flProgress )
+{
+	m_pProgressBar->SetProgress( flProgress );
 }
 
 void CCreateWorkshopInfoBox::OnTick()
 {
 	BaseClass::OnTick();
+	if ( m_RemoveTime <= -1 ) return;
 	if ( m_RemoveTime <= 0 )
 		Close();
 	m_RemoveTime--;

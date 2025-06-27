@@ -201,7 +201,8 @@ void CWorkshopSubList::OnCommand( const char *pcCommand )
 		uint64 nWorkshopID = std::strtoull( szCommand.c_str(), NULL, 0 );
 		vgui2::WorkshopItem item = CGameUIViewport::Get()->GetWorkshopItem( nWorkshopID );
 
-		CGameUIViewport::Get()->ShowWorkshopInfoBox( item.bMounted ? "#ZP_UI_Workshop_AddonDismounting" : "#ZP_UI_Workshop_AddonMounting", nWorkshopID, 2.0f );
+		CGameUIViewport::Get()->ShowWorkshopInfoBox( item.szName, item.bMounted ? WorkshopInfoBoxState::State_Dismounting : WorkshopInfoBoxState::State_Mounting );
+		CGameUIViewport::Get()->ShowWorkshopInfoBox( item.szName, WorkshopInfoBoxState::State_Done );
 		CGameUIViewport::Get()->MountWorkshopItem( item, nullptr, nullptr );
 	}
 	else

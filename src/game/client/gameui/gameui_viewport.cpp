@@ -7,7 +7,6 @@
 #include "client_vgui.h"
 #include "gameui_viewport.h"
 #include "gameui_test_panel.h"
-#include "CCreateWorkshopInfoBox.h"
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
@@ -31,6 +30,10 @@ CGameUIViewport::CGameUIViewport()
 	SetScheme(vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme"));
 	SetProportional(false);
 	SetSize(0, 0);
+
+	m_bPrepareForQueryDownload = false;
+	m_hWorkshopInfoBox = nullptr;
+	m_flQueryWait = 0.0f;
 
 	LoadWorkshopItems( false );
 	LoadWorkshop();
@@ -101,6 +104,49 @@ void CGameUIViewport::OnThink()
 			m_bPreventEscape = false;
 			m_iDelayedPreventEscapeFrame = 0;
 		}
+	}
+
+	if ( m_bPrepareForQueryDownload )
+	{
+		// We are currently downloading, check for progress.
+		if ( m_CurrentQueryItem.WorkshopID > 0 )
+		{
+			uint32 eState = GetSteamAPI()->SteamUGC()->GetItemState( m_CurrentQueryItem.WorkshopID );
+			bool bCompleted = (( eState & k_EItemStateInstalled ) != 0);
+
+			uint64 progress[2];
+			GetSteamAPI()->SteamUGC()->GetItemDownloadInfo( m_CurrentQueryItem.WorkshopID, &progress[0], &progress[1] );
+			float flCurrent = (float)progress[0];
+			float flTotal = (float)progress[1];
+			float flProgress = flCurrent / flTotal;
+			SetWorkshopInfoBoxProgress( flProgress );
+			if ( flProgress == 1.0f || bCompleted )
+			{
+				m_flQueryWait = 2.0f;
+				ShowWorkshopInfoBox( m_CurrentQueryItem.Title, WorkshopInfoBoxState::State_Done );
+				m_CurrentQueryItem.WorkshopID = 0;
+			}
+			return;
+		}
+
+		if ( m_flQueryWait > 0.0f )
+		{
+			m_flQueryWait -= 0.25f;
+			return;
+		}
+
+		// Prepare the next query.
+		if ( PrepareForQueryDownload() )
+			return;
+
+		// Clear it
+		m_QueryRequests.clear();
+
+		// Returned false? then stop the query download.
+		m_bPrepareForQueryDownload = false;
+
+		// Now check the client workshop content
+		LoadWorkshopItems( true );
 	}
 }
 
@@ -456,12 +502,15 @@ void CGameUIViewport::SetConflictingFiles( PublishedFileId_t nWorkshopID, bool s
 	}
 }
 
-void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, PublishedFileId_t nWorkshopID, float flDrawTime )
+void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, WorkshopInfoBoxState nState )
 {
 	if ( !szText ) return;
 
-	CCreateWorkshopInfoBox *pInfoBox = new CCreateWorkshopInfoBox( this );
-	pInfoBox->Activate();
+	if ( !m_hWorkshopInfoBox )
+	{
+		m_hWorkshopInfoBox = new CCreateWorkshopInfoBox( this );
+		m_hWorkshopInfoBox->Activate();
+	}
 
 	char buffer[32];
 	Q_snprintf( buffer, sizeof( buffer ), "%s", szText );
@@ -472,7 +521,13 @@ void CGameUIViewport::ShowWorkshopInfoBox( const char *szText, PublishedFileId_t
 			g_pVGuiLocalize->ConvertUnicodeToANSI( pStr, buffer, sizeof(buffer) );
 	}
 
-	pInfoBox->SetData( buffer, nWorkshopID, flDrawTime );
+	m_hWorkshopInfoBox->SetData( buffer, nState );
+}
+
+void CGameUIViewport::SetWorkshopInfoBoxProgress( float flProgress )
+{
+	if ( !m_hWorkshopInfoBox ) return;
+	m_hWorkshopInfoBox->SetProgressState( flProgress );
 }
 
 bool CGameUIViewport::WorkshopIDIsMounted( PublishedFileId_t nWorkshopID )
@@ -536,8 +591,14 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 		// Get our info
 		if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, i, pDetails ) )
 		{
-			// Show the addon we are mounting
-			ShowWorkshopInfoBox( pDetails->m_rgchTitle, pDetails->m_nPublishedFileId, 2.0f );
+			PrepareForDownload data;
+			data.IsDownloading = false;
+			data.WorkshopID = pDetails->m_nPublishedFileId;
+			Q_snprintf( data.Title, sizeof( data.Title ), "%s", pDetails->m_rgchTitle );
+			m_QueryRequests.push_back( data );
+
+			// Show the addon we want to mount
+			ShowWorkshopInfoBox( pDetails->m_rgchTitle, WorkshopInfoBoxState::State_GatheringData );
 		}
 
 		// Delete it
@@ -547,6 +608,24 @@ void CGameUIViewport::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 
-	// Now check the client workshop content
-	LoadWorkshopItems( true );
+	m_flQueryWait = 1.15f;
+	m_bPrepareForQueryDownload = true;
+}
+
+bool CGameUIViewport::PrepareForQueryDownload()
+{
+	for ( size_t i = 0; i < m_QueryRequests.size(); i++ )
+	{
+		PrepareForDownload &data = m_QueryRequests[i];
+		if ( data.IsDownloading ) continue;
+		data.IsDownloading = true;
+		bool bCanDownload = GetSteamAPI()->SteamUGC()->DownloadItem( m_QueryRequests[i].WorkshopID, true );
+		if ( bCanDownload )
+		{
+			ShowWorkshopInfoBox( data.Title, WorkshopInfoBoxState::State_Downloading );
+			m_CurrentQueryItem = data;
+			return true;
+		}
+	}
+	return false;
 }
