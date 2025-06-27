@@ -79,8 +79,6 @@ void CWorkshopSubUploaded::OnWorkshopEdit( uint64 workshopID )
 
 void CWorkshopSubUploaded::AddItem( vgui2::WorkshopItem item )
 {
-	pList->DeleteAllItems();
-
 	// Fonts
 	vgui2::HFont hTextFont;
 	vgui2::IScheme *pScheme = vgui2::scheme()->GetIScheme(
@@ -153,37 +151,42 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 		return;
 	}
 
-	// Create it
-	SteamUGCDetails_t *pDetails = new SteamUGCDetails_t;
+	pList->DeleteAllItems();
 
-	// Get our info
-	if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, 0, pDetails ) )
+	for ( size_t i = 0; i < pCallback->m_unNumResultsReturned; i++ )
 	{
-		vgui2::WorkshopItem WorkshopAddon;
-		Q_snprintf( WorkshopAddon.szName, sizeof( WorkshopAddon.szName ), "%s", pDetails->m_rgchTitle );
-		Q_snprintf( WorkshopAddon.szDesc, sizeof( WorkshopAddon.szDesc ), "%s", pDetails->m_rgchDescription );
-		Q_snprintf( WorkshopAddon.szAuthor, sizeof( WorkshopAddon.szAuthor ), "%s", GetSteamAPI()->SteamFriends()->GetPersonaName() );
-		WorkshopAddon.iFilterFlag = 0;
-		WorkshopAddon.bMounted = false;
-		WorkshopAddon.bIsWorkshopDownload = false;
-		WorkshopAddon.bFoundConflictingFiles = false;
-		WorkshopAddon.uWorkshopID = pDetails->m_nPublishedFileId;
+		// Create it
+		SteamUGCDetails_t *pDetails = new SteamUGCDetails_t;
 
-		// Save our data, which we will use strictly for pUploadPage
-		WorkshopItem data;
-		Q_snprintf( data.Title, sizeof( data.Title ), "%s", pDetails->m_rgchTitle );
-		Q_snprintf( data.Desc, sizeof( data.Desc ), "%s", pDetails->m_rgchDescription );
-		Q_snprintf( data.Tags, sizeof( data.Tags ), "%s", pDetails->m_rgchTags );
-		data.Visibility = pDetails->m_eVisibility;
-		data.PublishedFileID = pDetails->m_nPublishedFileId;
-		m_Items.push_back( data );
+		// Get our info
+		if ( GetSteamAPI()->SteamUGC()->GetQueryUGCResult( pCallback->m_handle, i, pDetails ) )
+		{
+			vgui2::WorkshopItem WorkshopAddon;
+			Q_snprintf( WorkshopAddon.szName, sizeof( WorkshopAddon.szName ), "%s", pDetails->m_rgchTitle );
+			Q_snprintf( WorkshopAddon.szDesc, sizeof( WorkshopAddon.szDesc ), "%s", pDetails->m_rgchDescription );
+			Q_snprintf( WorkshopAddon.szAuthor, sizeof( WorkshopAddon.szAuthor ), "%s", GetSteamAPI()->SteamFriends()->GetPersonaName() );
+			WorkshopAddon.iFilterFlag = 0;
+			WorkshopAddon.bMounted = false;
+			WorkshopAddon.bIsWorkshopDownload = false;
+			WorkshopAddon.bFoundConflictingFiles = false;
+			WorkshopAddon.uWorkshopID = pDetails->m_nPublishedFileId;
 
-		AddItem( WorkshopAddon );
+			// Save our data, which we will use strictly for pUploadPage
+			WorkshopItem data;
+			Q_snprintf( data.Title, sizeof( data.Title ), "%s", pDetails->m_rgchTitle );
+			Q_snprintf( data.Desc, sizeof( data.Desc ), "%s", pDetails->m_rgchDescription );
+			Q_snprintf( data.Tags, sizeof( data.Tags ), "%s", pDetails->m_rgchTags );
+			data.Visibility = pDetails->m_eVisibility;
+			data.PublishedFileID = pDetails->m_nPublishedFileId;
+			m_Items.push_back( data );
+
+			AddItem( WorkshopAddon );
+		}
+
+		// Delete it
+		if ( pDetails )
+			delete pDetails;
 	}
-
-	// Delete it
-	if ( pDetails )
-		delete pDetails;
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
 }
