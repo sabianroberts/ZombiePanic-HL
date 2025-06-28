@@ -78,15 +78,21 @@ ConVar cl_autojump_priority("cl_autojump_priority", "0", FCVAR_BHL_ARCHIVE, "Aut
 // ZOMBIE PANIC - START
 float GetMaxPossibleSpeed( ZPPlayerMovementDirection_t dir )
 {
+	float flValue = 0.0f;
+	switch ( gEngfuncs.GetLocalPlayer()->curstate.team )
+	{
+		default:
+	    case ZP::TEAM_SURVIVIOR: flValue = ZP::MaxSpeeds[0]; break;
+	    case ZP::TEAM_ZOMBIE: flValue = ZP::MaxSpeeds[1]; break;
+	}
 	switch (dir)
 	{
-		case DirForward: return cl_forwardspeed->value;
-		case DirBack: return cl_backspeed->value;
-		case DirSides: return cl_sidespeed->value;
-	    default: return 0.0f;
+		//case DirForward: flValue = cl_forwardspeed->value; break;
+		case DirBack: flValue -= 20; break;
+		case DirSides: flValue -= 10; break;
 	}
+	return flValue;
 }
-
 // ZOMBIE PANIC - END
 
 /*
