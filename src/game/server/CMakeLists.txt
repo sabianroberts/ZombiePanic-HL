@@ -32,11 +32,9 @@ add_sources(
 	com_utils.h
 	combat.cpp
 	controller.cpp
-	crowbar.cpp
 	decals.h
 	defaultai.cpp
 	defaultai.h
-	mp5.cpp
 	doors.cpp
 	doors.h
 	effects.cpp
@@ -63,7 +61,6 @@ add_sources(
 	h_cine.cpp
 	h_cycler.cpp
 	h_export.cpp
-	handgrenade.cpp
 	hassassin.cpp
 	headcrab.cpp
 	healthkit.cpp
@@ -99,10 +96,8 @@ add_sources(
 	plats.cpp
 	player.cpp
 	player.h
-	python.cpp
 	rat.cpp
 	roach.cpp
-	satchel.cpp
 	saverestore.h
 	schedule.cpp
 	schedule.h
@@ -110,7 +105,6 @@ add_sources(
 	scripted.cpp
 	scripted.h
 	scriptevent.h
-	shotgun.cpp
 	singleplay_gamerules.cpp
 	skill.cpp
 	skill.h
@@ -140,7 +134,6 @@ add_sources(
 	weapons.cpp
 	weapons.h
 	world.cpp
-	wpn_shared/hl_wpn_glock.cpp
 	xen.cpp
 	zombie.cpp
 )

@@ -78,9 +78,10 @@ ConVar mp_blastradius("mp_blastradius", "1.0", 0, "Explosion radius scale.");
 
 cvar_t mp_dmg_crowbar = { "mp_dmg_crowbar", "25", FCVAR_SERVER };
 cvar_t mp_dmg_swipe = { "mp_dmg_swipe", "35", FCVAR_SERVER };
-cvar_t mp_dmg_glock = { "mp_dmg_glock", "12", FCVAR_SERVER };
+cvar_t mp_dmg_sig = { "mp_dmg_sig", "12", FCVAR_SERVER };
 cvar_t mp_dmg_357 = { "mp_dmg_357", "50", FCVAR_SERVER };
 cvar_t mp_dmg_mp5 = { "mp_dmg_mp5", "12", FCVAR_SERVER };
+cvar_t mp_dmg_m16 = { "mp_dmg_m16", "15", FCVAR_SERVER };
 cvar_t mp_dmg_shotgun = { "mp_dmg_shotgun", "20", FCVAR_SERVER };
 cvar_t mp_dmg_xbow_scope = { "mp_dmg_xbow_scope", "120", FCVAR_SERVER };
 cvar_t mp_dmg_xbow_noscope = { "mp_dmg_xbow_noscope", "40", FCVAR_SERVER };
@@ -570,9 +571,10 @@ void GameDLLInit(void)
 
 	CVAR_REGISTER(&mp_dmg_crowbar);
 	CVAR_REGISTER(&mp_dmg_swipe);
-	CVAR_REGISTER(&mp_dmg_glock);
+	CVAR_REGISTER(&mp_dmg_sig);
 	CVAR_REGISTER(&mp_dmg_357);
 	CVAR_REGISTER(&mp_dmg_mp5);
+	CVAR_REGISTER(&mp_dmg_m16);
 	CVAR_REGISTER(&mp_dmg_shotgun);
 	CVAR_REGISTER(&mp_dmg_xbow_scope);
 	CVAR_REGISTER(&mp_dmg_xbow_noscope);

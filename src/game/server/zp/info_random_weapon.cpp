@@ -16,10 +16,10 @@ const char *CRandomItemWeapon::GetRandomClassname() const
 {
 	switch ( RANDOM_LONG( 0, 3 ) )
 	{
-		case 0: return "weapon_9mmhandgun";
+		case 0: return "weapon_sig";
 		case 1: return "weapon_357";
 		case 2: return "weapon_556ar";
 		case 3: return "weapon_shotgun";
 	}
-	return "weapon_9mmhandgun";
+	return "weapon_sig";
 }

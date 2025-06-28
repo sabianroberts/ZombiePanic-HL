@@ -29,7 +29,7 @@ enum ZPWeaponID
 	WEAPON_NONE = 0,
 	WEAPON_CROWBAR,
 	WEAPON_SWIPE,
-	WEAPON_GLOCK,
+	WEAPON_SIG,
 	WEAPON_PYTHON,
 	WEAPON_MP5,
 	WEAPON_556AR,
@@ -124,6 +124,8 @@ namespace ZP
 	
 		MAX_TEAM
 	};
+
+	static int ExtraPanicSpeed = 60;
 
 	static int MaxSpeeds[2] = {
 		250,	// Human Max Speed

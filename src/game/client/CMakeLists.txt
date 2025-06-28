@@ -81,15 +81,6 @@ add_sources(
 	wrect.h
 	
 	# Weapons
-	../server/crowbar.cpp
-	../server/zp/weapon_swipe.cpp
-	../server/zp/weapon_556ar.cpp
-	../server/handgrenade.cpp
-	../server/wpn_shared/hl_wpn_glock.cpp
-	../server/mp5.cpp
-	../server/python.cpp
-	../server/satchel.cpp
-	../server/shotgun.cpp
 	../server/util_shared.cpp
 )
 

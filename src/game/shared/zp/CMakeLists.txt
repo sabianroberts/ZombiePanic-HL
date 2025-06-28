@@ -3,3 +3,5 @@ add_sources(
 	zp_shared.cpp
 	zp_shared.h
 )
+
+add_subdirectory( weapons )

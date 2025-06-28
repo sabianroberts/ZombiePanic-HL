@@ -31,6 +31,16 @@
 #include "../com_weapons.h"
 #include "../demo.h"
 
+#include "zp/weapons/weapon_sidearm_sig.h"
+#include "zp/weapons/weapon_sidearm_revolver.h"
+#include "zp/weapons/weapon_smg_mp5.h"
+#include "zp/weapons/weapon_rifle_m16.h"
+#include "zp/weapons/weapon_shotgun_remington.h"
+#include "zp/weapons/weapon_melee_swipe.h"
+#include "zp/weapons/weapon_melee_crowbar.h"
+#include "zp/weapons/weapon_explosive_frag.h"
+#include "zp/weapons/weapon_explosive_satchel.h"
+
 extern globalvars_t *gpGlobals;
 extern int g_iUser1;
 
@@ -51,16 +61,16 @@ int g_irunninggausspred = 0;
 
 Vector previousorigin;
 
-// HLDM Weapon placeholder entities.
-CGlock g_Glock;
-CCrowbar g_Crowbar;
-CSwipe g_Swipe;
-CPython g_Python;
-CMP5 g_Mp5;
-C556AR g_556AR;
-CShotgun g_Shotgun;
-CHandGrenade g_HandGren;
-CSatchel g_Satchel;
+// Weapon entities.
+CWeaponSideArmSig g_Sig;
+CWeaponMeleeCrowbar g_Crowbar;
+CWeaponMeleeSwipe g_Swipe;
+CWeaponSideArmRevolver g_Python;
+CWeaponSMGMP5 g_Mp5;
+CWeaponRifleM16 g_M16;
+CWeaponShotgunRemington g_Shotgun;
+CWeaponExplosiveFrag g_HandGren;
+CWeaponExplosiveSatchel g_Satchel;
 
 /*
 ======================
@@ -609,12 +619,12 @@ void HUD_InitClientWeapons(void)
 	HUD_PrepEntity(&player, NULL);
 
 	// Allocate slot(s) for each weapon that we are going to be predicting
-	HUD_PrepEntity(&g_Glock, &player);
+	HUD_PrepEntity(&g_Sig, &player);
 	HUD_PrepEntity(&g_Crowbar, &player);
 	HUD_PrepEntity(&g_Swipe, &player);
 	HUD_PrepEntity(&g_Python, &player);
 	HUD_PrepEntity(&g_Mp5, &player);
-	HUD_PrepEntity(&g_556AR, &player);
+	HUD_PrepEntity(&g_M16, &player);
 	HUD_PrepEntity(&g_Shotgun, &player);
 	HUD_PrepEntity(&g_HandGren, &player);
 	HUD_PrepEntity(&g_Satchel, &player);
@@ -691,8 +701,8 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		pWeapon = &g_Swipe;
 		break;
 
-	case WEAPON_GLOCK:
-		pWeapon = &g_Glock;
+	case WEAPON_SIG:
+		pWeapon = &g_Sig;
 		break;
 
 	case WEAPON_PYTHON:
@@ -704,7 +714,7 @@ void HUD_WeaponsPostThink(local_state_s *from, local_state_s *to, usercmd_t *cmd
 		break;
 
 	case WEAPON_556AR:
-		pWeapon = &g_556AR;
+		pWeapon = &g_M16;
 		break;
 
 	case WEAPON_SHOTGUN:

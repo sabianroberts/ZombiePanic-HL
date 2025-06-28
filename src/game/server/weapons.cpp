@@ -1545,17 +1545,3 @@ void CBasePlayerWeapon::PrintState(void)
 
 	ALERT(at_console, "m_iclip:  %i\n", m_iClip);
 }
-
-TYPEDESCRIPTION CShotgun::m_SaveData[] = {
-	DEFINE_FIELD(CShotgun, m_flNextReload, FIELD_TIME),
-	DEFINE_FIELD(CShotgun, m_fInSpecialReload, FIELD_INTEGER),
-	DEFINE_FIELD(CShotgun, m_flNextReload, FIELD_TIME),
-	// DEFINE_FIELD( CShotgun, m_iShell, FIELD_INTEGER ),
-	DEFINE_FIELD(CShotgun, m_flPumpTime, FIELD_TIME),
-};
-IMPLEMENT_SAVERESTORE(CShotgun, CBasePlayerWeapon);
-
-TYPEDESCRIPTION CSatchel::m_SaveData[] = {
-	DEFINE_FIELD(CSatchel, m_chargeReady, FIELD_INTEGER),
-};
-IMPLEMENT_SAVERESTORE(CSatchel, CBasePlayerWeapon);

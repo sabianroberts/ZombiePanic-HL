@@ -1,0 +1,27 @@
+add_sources(
+	CMakeLists.txt
+	CWeaponBase.cpp
+	CWeaponBase.h
+	CWeaponBaseSingleAction.cpp
+	CWeaponBaseSingleAction.h
+	throwable_satchel.cpp
+	throwable_satchel.h
+	weapon_shotgun_remington.cpp
+	weapon_shotgun_remington.h
+	weapon_rifle_m16.cpp
+	weapon_rifle_m16.h
+	weapon_smg_mp5.cpp
+	weapon_smg_mp5.h
+	weapon_sidearm_sig.cpp
+	weapon_sidearm_sig.h
+	weapon_sidearm_revolver.cpp
+	weapon_sidearm_revolver.h
+	weapon_melee_crowbar.cpp
+	weapon_melee_crowbar.h
+	weapon_melee_swipe.cpp
+	weapon_melee_swipe.h
+	weapon_explosive_frag.cpp
+	weapon_explosive_frag.h
+	weapon_explosive_satchel.cpp
+	weapon_explosive_satchel.h
+)

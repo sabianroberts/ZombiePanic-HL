@@ -162,13 +162,15 @@ void CHalfLifeMultiplay::RefreshSkillData(void)
 	gSkillData.plrDmgSwipe = mp_dmg_swipe.value;
 
 	// Glock Round
-	gSkillData.plrDmg9MM = mp_dmg_glock.value;
+	gSkillData.plrDmg9MM = mp_dmg_sig.value;
 
 	// 357 Round
 	gSkillData.plrDmg357 = mp_dmg_357.value;
 
 	// MP5 Round
 	gSkillData.plrDmgMP5 = mp_dmg_mp5.value;
+
+	gSkillData.plrDmgM16 = mp_dmg_m16.value;
 
 	// M203 grenade
 	gSkillData.plrDmgM203Grenade = mp_dmg_m203.value;

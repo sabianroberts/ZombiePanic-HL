@@ -46,7 +46,7 @@ tryagain:
 bool CRandomItemAmmo::WeaponExistInWorld( const char *szAmmoType ) const
 {
 	const char *szEntToCheck = nullptr;
-	if ( FStrEq( szAmmoType, "ammo_9mmclip" ) ) szEntToCheck = "weapon_9mmhandgun";
+	if ( FStrEq( szAmmoType, "ammo_9mmclip" ) ) szEntToCheck = "weapon_sig";
 	else if ( FStrEq( szAmmoType, "ammo_556AR" ) || FStrEq( szAmmoType, "ammo_556box" ) ) szEntToCheck = "weapon_556ar";
 	else if ( FStrEq( szAmmoType, "ammo_buckshot" ) ) szEntToCheck = "weapon_shotgun";
 	else if ( FStrEq( szAmmoType, "ammo_357" ) ) szEntToCheck = "weapon_357";

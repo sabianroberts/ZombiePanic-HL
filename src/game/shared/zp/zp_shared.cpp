@@ -44,7 +44,7 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	{
 		case WEAPON_CROWBAR: szWeaponScriptFile = WEAPON_SCRIPT_PATH "crowbar" WEAPON_SCRIPT_FILE; break;
 		case WEAPON_SWIPE: szWeaponScriptFile = WEAPON_SCRIPT_PATH "swipe" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_GLOCK: szWeaponScriptFile = WEAPON_SCRIPT_PATH "beretta" WEAPON_SCRIPT_FILE; break;
+		case WEAPON_SIG: szWeaponScriptFile = WEAPON_SCRIPT_PATH "sig" WEAPON_SCRIPT_FILE; break;
 		case WEAPON_PYTHON: szWeaponScriptFile = WEAPON_SCRIPT_PATH "357" WEAPON_SCRIPT_FILE; break;
 		case WEAPON_MP5: szWeaponScriptFile = WEAPON_SCRIPT_PATH "mp5" WEAPON_SCRIPT_FILE; break;
 		case WEAPON_556AR: szWeaponScriptFile = WEAPON_SCRIPT_PATH "556ar" WEAPON_SCRIPT_FILE; break;
@@ -281,6 +281,12 @@ void CBasePlayer::UpdatePlayerMaxSpeed()
 	float flNewSpeed = ZP::MaxSpeeds[0] - iHowFatAmI - pev->fuser4;
 	if ( flNewSpeed < 50 )
 		flNewSpeed = 50;
+
+#if !defined( CLIENT_DLL )
+	// If we are in panic, ignore our weight
+	if ( IsInPanic() )
+		flNewSpeed += ZP::ExtraPanicSpeed;
+#endif
 
 	pev->maxspeed = flNewSpeed;
 }
