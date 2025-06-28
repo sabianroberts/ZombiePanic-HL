@@ -1807,9 +1807,9 @@ void CBasePlayer::Jump()
 
 	// If we are a zombie, decrease our jump speed & max speed
 	if ( pev->team == ZP::TEAM_ZOMBIE )
-		pev->fuser4 += 10.0f;
+		pev->fuser4 += 35.0f;
 	else
-		pev->fuser4 += 8.0f;
+		pev->fuser4 += 28.0f;
 
 	// If you're standing on a conveyor, add it's velocity to yours (for momentum)
 	entvars_t *pevGround = VARS(pev->groundentity);
@@ -2054,6 +2054,9 @@ void CBasePlayer::UpdateFatigue()
 	if ( m_flLastFatigue - gpGlobals->time > 0 ) return;
 
 	float flValue = pev->fuser4;
+	if ( pev->team == ZP::TEAM_ZOMBIE )
+		flValue -= 2.25f;
+	else
 	flValue -= 0.25f;
 	if ( flValue <= 0 ) flValue = 0;
 	pev->fuser4 = flValue;
