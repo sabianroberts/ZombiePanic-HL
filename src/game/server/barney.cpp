@@ -579,7 +579,7 @@ void CBarney::Killed(entvars_t *pevAttacker, int iGib)
 
 		GetAttachment(0, vecGunPos, vecGunAngles);
 
-		CBaseEntity *pGun = DropItem("weapon_9mmhandgun", vecGunPos, vecGunAngles);
+		CBaseEntity *pGun = DropItem("weapon_sig", vecGunPos, vecGunAngles);
 	}
 
 	SetUse(NULL);

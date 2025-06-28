@@ -315,7 +315,7 @@ void EXPORT W_Precache(void)
 	UTIL_PrecacheOtherWeapon("weapon_swipe");
 
 	// glock
-	UTIL_PrecacheOtherWeapon("weapon_9mmhandgun");
+	UTIL_PrecacheOtherWeapon("weapon_sig");
 	UTIL_PrecacheOther("ammo_9mmclip");
 	UTIL_PrecacheOther("ammo_9mmAR");
 

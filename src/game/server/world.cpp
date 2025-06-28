@@ -679,8 +679,10 @@ void CWorld ::Precache(void)
 void CWorld::OnWorldCreated()
 {
 	static const char *s_StaticSpawns[] = {
+		"weapon_sig",
 		"weapon_9mmhandgun",
 		"weapon_357",
+		"weapon_mp5",
 		"weapon_556ar",
 		"weapon_shotgun",
 		"weapon_satchel",

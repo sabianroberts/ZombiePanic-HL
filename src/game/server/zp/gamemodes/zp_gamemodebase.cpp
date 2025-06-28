@@ -248,7 +248,7 @@ void CBaseGameMode::GiveWeapons(CBasePlayer *pPlayer)
 	if (addDefault)
 	{
 		pPlayer->GiveNamedItem( "weapon_crowbar" );
-		pPlayer->GiveNamedItem( "weapon_9mmhandgun" );
+		pPlayer->GiveNamedItem( "weapon_sig" );
 		pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
 	}
 }

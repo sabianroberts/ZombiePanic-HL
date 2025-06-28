@@ -22,7 +22,7 @@ LINK_ENTITY_TO_CLASS(weapon_9mmhandgun, CWeaponSideArmSig); // Only used by old 
 
 void CWeaponSideArmSig::Spawn()
 {
-	pev->classname = MAKE_STRING("weapon_sig");
+	pev->classname = MAKE_STRING( "weapon_sig" );
 	Precache();
 	SET_MODEL(ENT(pev), "models/w_9mmhandgun.mdl");
 
