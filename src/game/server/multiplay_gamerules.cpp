@@ -203,6 +203,9 @@ void CHalfLifeMultiplay::RefreshSkillData(void)
 	// gauss
 	gSkillData.plrDmgGauss = mp_dmg_gauss_primary.value;
 	gSkillData.plrDmgGaussSecondary = mp_dmg_gauss_secondary.value;
+
+	gSkillData.batteryCapacity = mp_item_armor.value;
+	gSkillData.healthkitCapacity = mp_item_medkit.value;
 }
 
 //=========================================================

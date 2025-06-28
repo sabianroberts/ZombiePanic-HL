@@ -66,6 +66,8 @@ extern cvar_t mp_dmg_hgrenade;
 extern cvar_t mp_dmg_satchel;
 extern cvar_t mp_dmg_tripmine;
 extern cvar_t mp_dmg_m203;
+extern cvar_t mp_item_medkit;
+extern cvar_t mp_item_armor;
 
 // Engine Cvars
 extern cvar_t *g_psv_gravity;
