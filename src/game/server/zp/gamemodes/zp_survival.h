@@ -20,6 +20,7 @@ protected:
 	virtual WinState_e GetWinState();
 	virtual void RestartRound();
 	bool HasNoRemainingZombies() const;
+	void CalculateZombieLives();
 
 	virtual void UpdateZombieLifesForClient();
 	virtual void GiveWeaponsOnRoundStart();

@@ -6,6 +6,7 @@
 #include "player.h"
 #include "weapons.h"
 #include "zp/zp_shared.h"
+#include <convar.h>
 
 #include "zp_gamemodebase.h"
 #include "zp_survival.h"
@@ -15,12 +16,14 @@
 extern int gmsgTeamInfo;
 extern void CopyToBodyQue(entvars_t *pev);
 
+ConVar zps_zombielives( "zps_zombielives", "5", FCVAR_SERVER, "Amount of zombie starter lives" );
+
 ZPGameMode_Survival::ZPGameMode_Survival()
 {
 	SetRoundState( ZP::RoundState_WaitingForPlayers );
 	m_bTimeRanOut = false;
 	m_bAllSurvivorsDead = false;
-	m_iZombieLives = 5;
+	m_iZombieLives = zps_zombielives.GetInt();
 	m_flRoundBeginsIn = 0;
 }
 
@@ -35,6 +38,15 @@ void ZPGameMode_Survival::OnHUDInit(CBasePlayer *pPlayer)
 void ZPGameMode_Survival::OnGameModeThink()
 {
 	BaseClass::OnGameModeThink();
+
+	switch ( GetRoundState() )
+	{
+		case ZP::RoundState_PickVolunteers:
+		{
+		    CalculateZombieLives();
+		}
+	    break;
+	}
 }
 
 void ZPGameMode_Survival::GetZombieLifeData( int &current, int &max )
@@ -108,7 +120,7 @@ ZPGameMode_Survival::WinState_e ZPGameMode_Survival::GetWinState()
 void ZPGameMode_Survival::RestartRound()
 {
 	m_bTimeRanOut = false;
-	m_iZombieLives = 5;
+	m_iZombieLives = zps_zombielives.GetInt();
 	BaseClass::RestartRound();
 }
 
@@ -130,6 +142,20 @@ bool ZPGameMode_Survival::HasNoRemainingZombies() const
 		return ( iZombies > 0 ) ? false : true;
 	}
 	return false;
+}
+
+void ZPGameMode_Survival::CalculateZombieLives()
+{
+	// Default value of starter zombies
+	m_iZombieLives = zps_zombielives.GetInt();
+	int iAdd = 0;
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr )
+			iAdd += 2;
+	}
+	m_iZombieLives = (int)clamp( iAdd, 5, 18 );
 }
 
 void ZPGameMode_Survival::UpdateZombieLifesForClient()
