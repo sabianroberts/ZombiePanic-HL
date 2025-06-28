@@ -43,7 +43,7 @@ bool CHudZombieLives::IsAllowedToDraw()
 	if ( gHUD.m_GameMode != ZP::GAMEMODE_SURVIVAL ) return false;
 	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
 	if ( !localplayer->IsConnected() ) return false;
-	return true;
+	return hud_draw.GetBool();
 }
 
 void CHudZombieLives::Paint()

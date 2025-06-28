@@ -104,7 +104,7 @@ bool CHudAmmoBank::IsAllowedToDraw()
 	CPlayerInfo *localplayer = GetPlayerInfo( gEngfuncs.GetLocalPlayer()->index );
 	if ( !localplayer->IsConnected() ) return false;
 	if ( localplayer->GetTeamNumber() != ZP::TEAM_SURVIVIOR ) return false;
-	return true;
+	return hud_draw.GetBool();
 }
 
 void CHudAmmoBank::PaintBackground()
