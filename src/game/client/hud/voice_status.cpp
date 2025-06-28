@@ -149,6 +149,7 @@ void CHudVoiceStatus::RunFrame(float fTime)
 
 void CHudVoiceStatus::Paint()
 {
+	if ( !hud_draw.GetBool() ) return;
 	if (m_iVoiceIconTexture == -1)
 		return;
 
