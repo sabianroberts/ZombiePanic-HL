@@ -240,7 +240,7 @@ WEAPON *WeaponsResource::GetNextActivePos(int iSlot, int iSlotPos)
 
 int giBucketHeight, giBucketWidth, giABHeight, giABWidth; // Ammo Bar width and height
 
-HSPRITE ghsprBuckets; // Sprite for top row of weapons menu
+V_HSPRITE ghsprBuckets; // Sprite for top row of weapons menu
 
 // width of ammo fonts
 #define AMMO_SMALL_WIDTH 10
@@ -380,7 +380,7 @@ void CHudAmmo::Think(void)
 // Helper function to return a Ammo pointer from id
 //
 
-HSPRITE *WeaponsResource::GetAmmoPicFromWeapon(int iAmmoId, wrect_t &rect)
+V_HSPRITE *WeaponsResource::GetAmmoPicFromWeapon(int iAmmoId, wrect_t &rect)
 {
 	for (int i = 0; i < MAX_WEAPONS; i++)
 	{
@@ -1147,7 +1147,7 @@ int CHudAmmo::DrawWList(float flTime)
 			if (p)
 				iWidth = p->rcActive.right - p->rcActive.left;
 
-			HSPRITE hSprSelection = gHUD.GetSprite(m_HUD_selection);
+			V_HSPRITE hSprSelection = gHUD.GetSprite(m_HUD_selection);
 			const wrect_t &rcSprSelection = gHUD.GetSpriteRect(m_HUD_selection);
 
 			for (int iPos = 0; iPos < MAX_WEAPON_POSITIONS; iPos++)

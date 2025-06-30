@@ -10,3 +10,4 @@ add_sources(
 
 add_subdirectory( options )
 add_subdirectory( filedialog )
+add_subdirectory( serverbrowser )

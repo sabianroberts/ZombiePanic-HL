@@ -11,6 +11,7 @@ class CGameUITestPanel;
 class CAdvOptionsDialog;
 class C_AchievementDialog;
 class CWorkshopDialog;
+class CServerBrowser;
 
 class CGameUIViewport : public vgui2::EditablePanel
 {
@@ -35,6 +36,7 @@ public:
 	CAdvOptionsDialog *GetOptionsDialog();
 	C_AchievementDialog *GetAchievementDialog();
 	CWorkshopDialog *GetWorkshopDialog();
+	CServerBrowser *GetServerBrowser();
 
 	virtual void OnThink() override;
 
@@ -55,6 +57,8 @@ public:
 	void OpenFileExplorer( const char *szFolder, const char *szPathID, DialogSelected_t pFunction );
 
 	void ShowMessageDialog( const char *szTitle, const char *szDescription );
+
+	bool IsVACBanned() const;
 
 protected:
 	void UpdateAddonList();
@@ -89,6 +93,7 @@ private:
 	vgui2::DHANDLE<C_AchievementDialog> m_hAchDialog;
 	vgui2::DHANDLE<CWorkshopDialog> m_hWorkshopDialog;
 	vgui2::DHANDLE<CCreateWorkshopInfoBox> m_hWorkshopInfoBox;
+	vgui2::DHANDLE<CServerBrowser> m_hServerBrowser;
 
 	template <typename T>
 	inline T *GetDialog(vgui2::DHANDLE<T> &handle)

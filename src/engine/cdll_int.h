@@ -29,7 +29,9 @@
 #include "studio_event.h"
 #include "in_buttons.h"
 
-typedef int HSPRITE; // handle to a graphic
+// This cannot be HSPRITE!!
+// One cpp file has winsock.h, which will break shit.
+typedef int V_HSPRITE; // handle to a graphic
 
 #define SCRINFO_SCREENFLASH 1
 #define SCRINFO_STRETCHED   2

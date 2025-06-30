@@ -109,7 +109,7 @@ void CHudDeathNotice::Draw(float flTime)
 			y = YRES(DEATHNOTICE_TOP) + 2 + (20 * i); //!!!
 
 			int id = (rgDeathNoticeList[i].iId == -1) ? m_HUD_d_skull : rgDeathNoticeList[i].iId;
-			HSPRITE spr = gHUD.GetSprite(id);
+			V_HSPRITE spr = gHUD.GetSprite(id);
 			wrect_t rect = gHUD.GetSpriteRect(id);
 			x = ScreenWidth - ConsoleStringLen(rgDeathNoticeList[i].szVictim) - (rect.right - rect.left);
 

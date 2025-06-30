@@ -7,6 +7,7 @@
 #include "client_vgui.h"
 #include "gameui_viewport.h"
 #include "gameui_test_panel.h"
+#include "serverbrowser/CServerBrowser.h"
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
@@ -80,6 +81,11 @@ C_AchievementDialog *CGameUIViewport::GetAchievementDialog()
 CWorkshopDialog *CGameUIViewport::GetWorkshopDialog()
 {
 	return GetDialog(m_hWorkshopDialog);
+}
+
+CServerBrowser *CGameUIViewport::GetServerBrowser()
+{
+	return GetDialog(m_hServerBrowser);
 }
 
 void CGameUIViewport::OnThink()
@@ -558,6 +564,12 @@ void CGameUIViewport::ShowMessageDialog( const char *szTitle, const char *szDesc
 	pMessageBox->SetOKButtonVisible( true );
 	pMessageBox->SetCancelButtonVisible( false );
 	pMessageBox->DoModal();
+}
+
+bool CGameUIViewport::IsVACBanned() const
+{
+	// Have you been a naughty boy?
+	return GetSteamAPI()->SteamApps()->BIsVACBanned();
 }
 
 // ===================================

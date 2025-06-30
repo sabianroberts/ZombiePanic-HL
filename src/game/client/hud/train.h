@@ -11,7 +11,7 @@ public:
 	int MsgFunc_Train(const char *pszName, int iSize, void *pbuf);
 
 private:
-	HSPRITE m_hSprite;
+	V_HSPRITE m_hSprite;
 	int m_iPos;
 };
 

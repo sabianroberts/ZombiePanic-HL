@@ -236,7 +236,7 @@ void CHudDeathNoticePanel::PaintBackground()
 		int x = panelWide - wide;
 
 		// Get sprite info
-		HSPRITE hSprite = gHUD.GetSprite(entry.nSpriteIdx);
+		V_HSPRITE hSprite = gHUD.GetSprite(entry.nSpriteIdx);
 		const wrect_t &rc = gHUD.GetSpriteRect(entry.nSpriteIdx);
 
 		// Calculate sprite pos
