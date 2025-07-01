@@ -31,7 +31,7 @@ namespace vgui2
 
 		// DATA & ROW HANDLING
 		// The list now owns the panel
-	    virtual int AddItem(vgui2::Panel *texture, vgui2::Panel *title, vgui2::Panel *desc, vgui2::Panel *progress_num, vgui2::Panel *progress, vgui2::Panel *progress_bg, int achv_progress, int achv_progress_max, vgui2::Panel *AchievedBG);
+	    virtual int AddItem(vgui2::Panel *texture, vgui2::Panel *title, vgui2::Panel *desc, vgui2::Panel *progress_num, vgui2::Panel *progress, vgui2::Panel *progress_bg, int achv_progress, int achv_progress_max, vgui2::Panel *AchievedBG, vgui2::Panel *required_steps = nullptr);
 		int	GetItemCount() const;
 		int GetItemIDFromRow(int nRow) const;
 
@@ -104,6 +104,7 @@ namespace vgui2
 			int achv_progress;
 			int achv_progress_max;
 		    vgui2::Panel *texture_obtained;
+		    vgui2::Panel *required_steps;
 		} DATAITEM;
 
 		// list of the column headers

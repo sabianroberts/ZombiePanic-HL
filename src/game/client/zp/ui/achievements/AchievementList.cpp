@@ -133,7 +133,7 @@ vgui2::Panel *AchievementList::GetCellRenderer(int row)
 //			data->GetName() is used to uniquely identify an item
 //			data sub items are matched against column header name to be used in the table
 //-----------------------------------------------------------------------------
-int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::Panel *Description, vgui2::Panel *Progress_NUM, vgui2::Panel *Progress, vgui2::Panel *Progress_BG, int progress_achv, int progress_achv_max, vgui2::Panel *AchievedBG)
+int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::Panel *Description, vgui2::Panel *Progress_NUM, vgui2::Panel *Progress, vgui2::Panel *Progress_BG, int progress_achv, int progress_achv_max, vgui2::Panel *AchievedBG, vgui2::Panel *RequiredSteps)
 {
 	if (AchievedBG)
 		AchievedBG->SetParent(m_pPanelEmbedded);
@@ -153,6 +153,9 @@ int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::
 	if (Progress_NUM)
 		Progress_NUM->SetParent(m_pPanelEmbedded);
 
+	if (RequiredSteps)
+		RequiredSteps->SetParent(m_pPanelEmbedded);
+
 	Texture->SetParent(m_pPanelEmbedded);
 
 	int itemID = m_DataItems.AddToTail();
@@ -166,6 +169,7 @@ int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::
 	newitem.achv_progress = progress_achv;
 	newitem.achv_progress_max = progress_achv_max;
 	newitem.texture_obtained = AchievedBG;
+	newitem.required_steps = RequiredSteps;
 	m_SortedItems.AddToTail(itemID);
 
 	InvalidateLayout();
@@ -260,6 +264,9 @@ void AchievementList::RemoveItem(int itemID)
 	if (item.texture_obtained)
 		item.texture_obtained->MarkForDeletion();
 
+	if (item.required_steps)
+		item.required_steps->MarkForDeletion();
+
 	m_DataItems.Remove(itemID);
 	m_SortedItems.FindAndRemove(itemID);
 
@@ -307,6 +314,11 @@ void AchievementList::DeleteAllItems()
 		{
 			m_DataItems[i].texture_obtained->MarkForDeletion();
 			m_DataItems[i].texture_obtained = NULL;
+		}
+		if (m_DataItems[i].required_steps)
+		{
+			m_DataItems[i].required_steps->MarkForDeletion();
+			m_DataItems[i].required_steps = NULL;
 		}
 	}
 
@@ -376,7 +388,6 @@ void AchievementList::PerformLayout()
 	// Now lay out the controls on the embedded panel
 	int y = 0;
 	int h = 10;
-	int totalh = 0;
 
 	int xpos = m_iFirstColumnWidth + m_iPanelBuffer;
 	int iColumnWidth = (wide - xpos - m_vbar->GetWide() - 12) / m_iNumColumns;
@@ -410,6 +421,11 @@ void AchievementList::PerformLayout()
 
 		item.texture_obtained->SetBounds(5, y - 2, iColumnWidth + 50, item.texture->GetTall() - 2);
 
+		if ( item.required_steps )
+		{
+			// TODO: Add the steps, and if expanded, increase the item height.
+		}
+
 		// Lets calculate the achievement bar
 		int barWidth_cur = item.achv_progress;
 		int barWidth_max = item.achv_progress_max;
@@ -437,8 +453,6 @@ void AchievementList::PerformLayout()
 		if (iCurrentColumn >= m_iNumColumns - 1)
 		{
 			y += h;
-			totalh += h;
-
 			h = 0;
 		}
 	}
