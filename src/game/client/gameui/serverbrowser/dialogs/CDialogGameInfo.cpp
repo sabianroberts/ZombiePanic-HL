@@ -44,6 +44,7 @@ CDialogGameInfo::CDialogGameInfo( vgui2::Panel *parent, int nIP, int iPort, unsi
 	m_hPingQuery = HSERVERQUERY_INVALID;
 	m_hPlayersQuery = HSERVERQUERY_INVALID;
 	m_bPlayerListUpdatePending = false;
+	m_bClosing = false;
 
 	m_szPassword[0] = 0;
 
@@ -152,6 +153,12 @@ void CDialogGameInfo::RulesRefreshComplete()
 {
 	m_hRulesQuery = HSERVERQUERY_INVALID;
 	m_bServerNotResponding = false;
+}
+
+void CDialogGameInfo::Close()
+{
+	m_bClosing = true;
+	BaseClass::Close();
 }
 
 

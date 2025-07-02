@@ -1109,6 +1109,11 @@ void CBaseTab::OnKeyCodePressed(vgui2::KeyCode code)
 //-----------------------------------------------------------------------------
 bool CBaseTab::OnGameListEnterPressed()
 {
+	if ( m_pServerList->GetSelectedItemsCount() )
+	{
+		OnBeginConnect();
+		return true;
+	}
 	return false;
 }
 
