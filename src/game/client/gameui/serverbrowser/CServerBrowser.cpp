@@ -92,6 +92,7 @@ bool CServerBrowser::JoinGame( uint64 ulSteamIDFriend )
 	if ( OpenGameInfoDialog( m_pGameList, ulSteamIDFriend ) )
 	{
 		CDialogGameInfo *pDialogGameInfo = GetDialogGameInfoForFriend( ulSteamIDFriend );
+		if ( !pDialogGameInfo ) return false;
 		pDialogGameInfo->Connect();
 		return true;
 	}
