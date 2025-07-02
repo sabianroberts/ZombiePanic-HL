@@ -98,7 +98,10 @@ void CWeaponBase::ItemPostFrame( void )
 		}
 	}
 
-	if (pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload)
+	if ( pPlayer->pev->button & IN_RELOAD
+		&& iMaxClip() != WEAPON_NOCLIP
+		&& !m_fInReload
+		&& CanAttack( m_flNextPrimaryAttack, gpGlobals->time, true ) )
 	{
 		// reload when reload is pressed, or if no buttons are down and weapon is empty.
 		Reload();
