@@ -1,4 +1,4 @@
-//========= Copyright (c) 2022 Zombie Panic! Team, All rights reserved. ============//
+//========= Copyright (c) 2025 Monochrome Games, All rights reserved. ============//
 
 #include "vgui/MouseCode.h"
 #include "vgui/IInput.h"
@@ -8,10 +8,8 @@
 #include "vgui_controls/EditablePanel.h"
 #include "vgui_controls/ScrollBar.h"
 #include "vgui_controls/Label.h"
-#include "vgui_controls/Button.h"
 #include "vgui_controls/ImagePanel.h"
 #include "vgui_controls/Controls.h"
-#include "AchievementList.h"
 #include "CAchievementRequirements.h"
 
 #include "KeyValues.h"
@@ -21,12 +19,12 @@
 
 using namespace vgui2;
 
-DECLARE_BUILD_FACTORY(AchievementList);
+DECLARE_BUILD_FACTORY(CAchievementRequirements);
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-AchievementList::AchievementList(vgui2::Panel *parent, char const *panelName) : EditablePanel(parent, panelName)
+CAchievementRequirements::CAchievementRequirements(vgui2::Panel *parent, char const *panelName) : EditablePanel(parent, panelName)
 {
 	SetBounds(0, 0, 100, 100);
 
@@ -38,6 +36,8 @@ AchievementList::AchievementList(vgui2::Panel *parent, char const *panelName) : 
 	m_pPanelEmbedded->SetBounds(0, 0, 43, 20);
 	m_pPanelEmbedded->SetPaintBackgroundEnabled(false);
 	m_pPanelEmbedded->SetPaintBorderEnabled(false);
+
+	m_bAutoHideScrollbar = true;
 
 	m_iFirstColumnWidth = 100; // default width
 	m_iNumColumns = 1; // 1 column by default
@@ -57,13 +57,13 @@ AchievementList::AchievementList(vgui2::Panel *parent, char const *panelName) : 
 //-----------------------------------------------------------------------------
 // Purpose: Destructor
 //-----------------------------------------------------------------------------
-AchievementList::~AchievementList()
+CAchievementRequirements::~CAchievementRequirements()
 {
 	// free data from table
 	DeleteAllItems();
 }
 
-void AchievementList::SetVerticalBufferPixels(int buffer)
+void CAchievementRequirements::SetVerticalBufferPixels(int buffer)
 {
 	m_iPanelBuffer = buffer;
 	InvalidateLayout();
@@ -72,7 +72,7 @@ void AchievementList::SetVerticalBufferPixels(int buffer)
 //-----------------------------------------------------------------------------
 // Purpose: counts the total vertical pixels
 //-----------------------------------------------------------------------------
-int	AchievementList::ComputeVPixelsNeeded()
+int	CAchievementRequirements::ComputeVPixelsNeeded()
 {
 	int iCurrentItem = 0;
 	int iLargestH = 0;
@@ -120,7 +120,7 @@ int	AchievementList::ComputeVPixelsNeeded()
 //-----------------------------------------------------------------------------
 // Purpose: Returns the panel to use to render a cell
 //-----------------------------------------------------------------------------
-vgui2::Panel *AchievementList::GetCellRenderer(int row)
+vgui2::Panel *CAchievementRequirements::GetCellRenderer(int row)
 {
 	if (!m_SortedItems.IsValidIndex(row))
 		return NULL;
@@ -134,43 +134,19 @@ vgui2::Panel *AchievementList::GetCellRenderer(int row)
 //			data->GetName() is used to uniquely identify an item
 //			data sub items are matched against column header name to be used in the table
 //-----------------------------------------------------------------------------
-int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::Panel *Description, vgui2::Panel *Progress_NUM, vgui2::Panel *Progress, vgui2::Panel *Progress_BG, int progress_achv, int progress_achv_max, vgui2::Panel *AchievedBG, vgui2::Panel *RequiredSteps)
+int CAchievementRequirements::AddItem(bool bObtained, const char *szText)
 {
-	if (AchievedBG)
-		AchievedBG->SetParent(m_pPanelEmbedded);
-
-	if (Progress_BG)
-		Progress_BG->SetParent(m_pPanelEmbedded);
-
-	if (Progress)
-		Progress->SetParent(m_pPanelEmbedded);
-
-	if (Title)
-		Title->SetParent(m_pPanelEmbedded);
-
-	if (Description)
-		Description->SetParent(m_pPanelEmbedded);
-
-	if (Progress_NUM)
-		Progress_NUM->SetParent(m_pPanelEmbedded);
-
-	if (RequiredSteps)
-		RequiredSteps->SetParent(m_pPanelEmbedded);
-
-	Texture->SetParent(m_pPanelEmbedded);
-
 	int itemID = m_DataItems.AddToTail();
 	DATAITEM &newitem = m_DataItems[itemID];
-	newitem.title = Title;
-	newitem.texture = Texture;
-	newitem.desc = Description;
-	newitem.progress_num = Progress_NUM;
-	newitem.progress = Progress;
-	newitem.progress_bg = Progress_BG;
-	newitem.achv_progress = progress_achv;
-	newitem.achv_progress_max = progress_achv_max;
-	newitem.texture_obtained = AchievedBG;
-	newitem.required_steps = RequiredSteps;
+
+	vgui2::Label *pText = new vgui2::Label( m_pPanelEmbedded, "Text", "" );
+	pText->SetColorCodedText( szText );
+	newitem.title = pText;
+
+	vgui2::ImagePanel *pImage = new vgui2::ImagePanel( m_pPanelEmbedded, "Image" );
+	pImage->SetImage( bObtained ? "resource/icon_checked_noborder" : "" );
+	newitem.texture = pImage;
+
 	m_SortedItems.AddToTail(itemID);
 
 	InvalidateLayout();
@@ -180,12 +156,12 @@ int AchievementList::AddItem(vgui2::Panel *Texture, vgui2::Panel *Title, vgui2::
 //-----------------------------------------------------------------------------
 // Purpose: iteration accessor
 //-----------------------------------------------------------------------------
-int	AchievementList::GetItemCount() const
+int	CAchievementRequirements::GetItemCount() const
 {
 	return m_DataItems.Count();
 }
 
-int AchievementList::GetItemIDFromRow(int nRow) const
+int CAchievementRequirements::GetItemIDFromRow(int nRow) const
 {
 	if (nRow < 0 || nRow >= GetItemCount())
 		return m_DataItems.InvalidIndex();
@@ -196,17 +172,17 @@ int AchievementList::GetItemIDFromRow(int nRow) const
 //-----------------------------------------------------------------------------
 // Iteration. Use these until they return InvalidItemID to iterate all the items.
 //-----------------------------------------------------------------------------
-int AchievementList::FirstItem() const
+int CAchievementRequirements::FirstItem() const
 {
 	return m_DataItems.Head();
 }
 
-int AchievementList::NextItem(int nItemID) const
+int CAchievementRequirements::NextItem(int nItemID) const
 {
 	return m_DataItems.Next(nItemID);
 }
 
-int AchievementList::InvalidItemID() const
+int CAchievementRequirements::InvalidItemID() const
 {
 	return m_DataItems.InvalidIndex();
 }
@@ -215,7 +191,7 @@ int AchievementList::InvalidItemID() const
 //-----------------------------------------------------------------------------
 // Purpose: returns label panel for this itemID
 //-----------------------------------------------------------------------------
-vgui2::Panel *AchievementList::GetItemLabel(int itemID)
+vgui2::Panel *CAchievementRequirements::GetItemLabel(int itemID)
 {
 	if (!m_DataItems.IsValidIndex(itemID))
 		return NULL;
@@ -226,7 +202,7 @@ vgui2::Panel *AchievementList::GetItemLabel(int itemID)
 //-----------------------------------------------------------------------------
 // Purpose: returns label panel for this itemID
 //-----------------------------------------------------------------------------
-vgui2::Panel *AchievementList::GetItemPanel(int itemID)
+vgui2::Panel *CAchievementRequirements::GetItemPanel(int itemID)
 {
 	if (!m_DataItems.IsValidIndex(itemID))
 		return NULL;
@@ -237,7 +213,7 @@ vgui2::Panel *AchievementList::GetItemPanel(int itemID)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void AchievementList::RemoveItem(int itemID)
+void CAchievementRequirements::RemoveItem(int itemID)
 {
 	if (!m_DataItems.IsValidIndex(itemID))
 		return;
@@ -250,24 +226,6 @@ void AchievementList::RemoveItem(int itemID)
 	if (item.title)
 		item.title->MarkForDeletion();
 
-	if (item.desc)
-		item.desc->MarkForDeletion();
-
-	if (item.progress_num)
-		item.progress_num->MarkForDeletion();
-
-	if (item.progress)
-		item.progress->MarkForDeletion();
-
-	if (item.progress_bg)
-		item.progress_bg->MarkForDeletion();
-
-	if (item.texture_obtained)
-		item.texture_obtained->MarkForDeletion();
-
-	if (item.required_steps)
-		item.required_steps->MarkForDeletion();
-
 	m_DataItems.Remove(itemID);
 	m_SortedItems.FindAndRemove(itemID);
 
@@ -277,7 +235,7 @@ void AchievementList::RemoveItem(int itemID)
 //-----------------------------------------------------------------------------
 // Purpose: clears and deletes all the memory used by the data items
 //-----------------------------------------------------------------------------
-void AchievementList::DeleteAllItems()
+void CAchievementRequirements::DeleteAllItems()
 {
 	FOR_EACH_LL(m_DataItems, i)
 	{
@@ -286,40 +244,10 @@ void AchievementList::DeleteAllItems()
 			m_DataItems[i].texture->MarkForDeletion();
 			m_DataItems[i].texture = NULL;
 		}
-		if (m_DataItems[i].progress)
-		{
-			m_DataItems[i].progress->MarkForDeletion();
-			m_DataItems[i].progress = NULL;
-		}
-		if (m_DataItems[i].progress_bg)
-		{
-			m_DataItems[i].progress_bg->MarkForDeletion();
-			m_DataItems[i].progress_bg = NULL;
-		}
 		if (m_DataItems[i].title)
 		{
 			m_DataItems[i].title->MarkForDeletion();
 			m_DataItems[i].title = NULL;
-		}
-		if (m_DataItems[i].desc)
-		{
-			m_DataItems[i].desc->MarkForDeletion();
-			m_DataItems[i].desc = NULL;
-		}
-		if (m_DataItems[i].progress_num)
-		{
-			m_DataItems[i].progress_num->MarkForDeletion();
-			m_DataItems[i].progress_num = NULL;
-		}
-		if (m_DataItems[i].texture_obtained)
-		{
-			m_DataItems[i].texture_obtained->MarkForDeletion();
-			m_DataItems[i].texture_obtained = NULL;
-		}
-		if (m_DataItems[i].required_steps)
-		{
-			m_DataItems[i].required_steps->MarkForDeletion();
-			m_DataItems[i].required_steps = NULL;
 		}
 	}
 
@@ -334,7 +262,7 @@ void AchievementList::DeleteAllItems()
 //-----------------------------------------------------------------------------
 // Purpose: clears and deletes all the memory used by the data items
 //-----------------------------------------------------------------------------
-void AchievementList::RemoveAll()
+void CAchievementRequirements::RemoveAll()
 {
 	m_DataItems.RemoveAll();
 	m_SortedItems.RemoveAll();
@@ -347,7 +275,7 @@ void AchievementList::RemoveAll()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void AchievementList::OnSizeChanged(int wide, int tall)
+void CAchievementRequirements::OnSizeChanged(int wide, int tall)
 {
 	BaseClass::OnSizeChanged(wide, tall);
 	InvalidateLayout();
@@ -357,7 +285,7 @@ void AchievementList::OnSizeChanged(int wide, int tall)
 //-----------------------------------------------------------------------------
 // Purpose: relayouts out the panel after any internal changes
 //-----------------------------------------------------------------------------
-void AchievementList::PerformLayout()
+void CAchievementRequirements::PerformLayout()
 {
 	int wide, tall;
 	GetSize(wide, tall);
@@ -414,45 +342,6 @@ void AchievementList::PerformLayout()
 		if (item.title)
 			item.title->SetBounds(xpos + iCurrentColumn - 25, y - 2, 400, 20);
 
-		if (item.desc)
-			item.desc->SetBounds(xpos + iCurrentColumn - 22, y + 5, 490, 35);
-
-		if (item.progress_num)
-			item.progress_num->SetBounds(xpos + iCurrentColumn + 200, y + 30, 150, 12);
-
-		item.texture_obtained->SetBounds(5, y - 2, iColumnWidth + 50, item.texture->GetTall() - 2);
-
-		if ( item.required_steps )
-		{
-			// TODO: Add the steps, and if expanded, increase the item height.
-			// Convert vgui2::Panel > CAchievementRequirements
-			// A list within a fucking list. lmao.
-		}
-
-		// Lets calculate the achievement bar
-		int barWidth_cur = item.achv_progress;
-		int barWidth_max = item.achv_progress_max;
-		int barWidth_pos = 0;
-
-		// Get propper ratio of the bar
-		float ratio = barWidth_cur / (float)barWidth_max;
-		int   realpos = ratio * 475;
-
-		// Make our position bigger!
-		for (int i_pos = 0; i_pos < realpos; i_pos++)
-			barWidth_pos = i_pos;
-
-		if (barWidth_pos < 475)
-			barWidth_pos = barWidth_pos;
-		else
-			barWidth_pos = 475;
-
-		if (item.progress)
-			item.progress->SetBounds(xpos + iCurrentColumn - 25, y + 30, barWidth_pos, 12);
-
-		if (item.progress_bg)
-			item.progress_bg->SetBounds(xpos + iCurrentColumn - 25, y + 30, 475, 12);
-
 		if (iCurrentColumn >= m_iNumColumns - 1)
 		{
 			y += h;
@@ -464,7 +353,7 @@ void AchievementList::PerformLayout()
 //-----------------------------------------------------------------------------
 // Purpose: scheme settings
 //-----------------------------------------------------------------------------
-void AchievementList::ApplySchemeSettings(vgui2::IScheme *pScheme)
+void CAchievementRequirements::ApplySchemeSettings(vgui2::IScheme *pScheme)
 {
 	BaseClass::ApplySchemeSettings(pScheme);
 
@@ -475,7 +364,7 @@ void AchievementList::ApplySchemeSettings(vgui2::IScheme *pScheme)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void AchievementList::OnSliderMoved(int position)
+void CAchievementRequirements::OnSliderMoved(int position)
 {
 	InvalidateLayout();
 	Repaint();
@@ -484,7 +373,7 @@ void AchievementList::OnSliderMoved(int position)
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void AchievementList::MoveScrollBarToTop()
+void CAchievementRequirements::MoveScrollBarToTop()
 {
 	m_vbar->SetValue(0);
 }
@@ -492,7 +381,7 @@ void AchievementList::MoveScrollBarToTop()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void AchievementList::SetFirstColumnWidth(int width)
+void CAchievementRequirements::SetFirstColumnWidth(int width)
 {
 	m_iFirstColumnWidth = width;
 }
@@ -500,17 +389,17 @@ void AchievementList::SetFirstColumnWidth(int width)
 //-----------------------------------------------------------------------------
 // Purpose: data accessor
 //-----------------------------------------------------------------------------
-int AchievementList::GetFirstColumnWidth()
+int CAchievementRequirements::GetFirstColumnWidth()
 {
 	return m_iFirstColumnWidth;
 }
 
-void AchievementList::SetNumColumns(int iNumColumns)
+void CAchievementRequirements::SetNumColumns(int iNumColumns)
 {
 	m_iNumColumns = iNumColumns;
 }
 
-int AchievementList::GetNumColumns(void)
+int CAchievementRequirements::GetNumColumns(void)
 {
 	return m_iNumColumns;
 }
@@ -518,7 +407,7 @@ int AchievementList::GetNumColumns(void)
 //-----------------------------------------------------------------------------
 // Purpose: moves the scrollbar with the mousewheel
 //-----------------------------------------------------------------------------
-void AchievementList::OnMouseWheeled(int delta)
+void CAchievementRequirements::OnMouseWheeled(int delta)
 {
 	int val = m_vbar->GetValue();
 	val -= (delta * DEFAULT_HEIGHT);
@@ -528,7 +417,7 @@ void AchievementList::OnMouseWheeled(int delta)
 //-----------------------------------------------------------------------------
 // Purpose: selection handler
 //-----------------------------------------------------------------------------
-void AchievementList::SetSelectedPanel(Panel *panel)
+void CAchievementRequirements::SetSelectedPanel(Panel *panel)
 {
 	if (panel != m_hSelectedItem)
 	{
@@ -548,7 +437,7 @@ void AchievementList::SetSelectedPanel(Panel *panel)
 //-----------------------------------------------------------------------------
 // Purpose: data accessor
 //-----------------------------------------------------------------------------
-vgui2::Panel *AchievementList::GetSelectedPanel()
+vgui2::Panel *CAchievementRequirements::GetSelectedPanel()
 {
 	return m_hSelectedItem;
 }
@@ -556,7 +445,7 @@ vgui2::Panel *AchievementList::GetSelectedPanel()
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void AchievementList::ScrollToItem(int itemNumber)
+void CAchievementRequirements::ScrollToItem(int itemNumber)
 {
 	if (!m_vbar->IsVisible())
 	{
@@ -582,4 +471,47 @@ void AchievementList::ScrollToItem(int itemNumber)
 
 	m_vbar->SetValue(y);
 	InvalidateLayout();
+}
+
+CAchievementRequirementsHolder::CAchievementRequirementsHolder( vgui2::Panel *parent, char const *panelName )
+    : Panel( parent, panelName )
+{
+	SetBounds(0, 0, 100, 100);
+
+	m_pButton = new vgui2::ButtonImage(this, "PanelListPanelVScroll", "resource/icon_plus", this, "ToggleOption");
+	m_pLabel = new vgui2::Label(this, "PanelListPanelVScroll", "#ZP_UI_Achievements_ShowDetails");
+	m_pList = new CAchievementRequirements(this, "ItemList");
+	m_pList->SetBounds( 0, 0, 43, 20 );
+	m_bShouldExpand = true;
+}
+
+
+void CAchievementRequirementsHolder::AddItem(bool obtained, const char *text)
+{
+
+}
+
+void CAchievementRequirementsHolder::OnCommand(const char *szCommand)
+{
+	if (!Q_stricmp(szCommand, "ToggleOption"))
+		UpdateSize( m_bShouldExpand );
+	else
+		BaseClass::OnCommand( szCommand );
+}
+
+void CAchievementRequirementsHolder::UpdateSize(bool bExpand)
+{
+	if ( bExpand )
+	{
+		m_pButton->SetImage( "resource/icon_minus" );
+		m_pLabel->SetText( "#ZP_UI_Achievements_HideDetails" );
+	}
+	else
+	{
+		m_pButton->SetImage( "resource/icon_plus" );
+		m_pLabel->SetText( "#ZP_UI_Achievements_ShowDetails" );
+	}
+
+	// Toggle the boolean
+	m_bShouldExpand = !m_bShouldExpand;
 }

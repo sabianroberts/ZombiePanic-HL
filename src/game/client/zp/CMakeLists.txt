@@ -12,6 +12,8 @@ add_sources(
 	ui/achievements/AchievementList.h
 	ui/achievements/C_AchievementDialog.cpp
 	ui/achievements/C_AchievementDialog.h
+	ui/achievements/CAchievementRequirements.cpp
+	ui/achievements/CAchievementRequirements.h
 	ui/workshop/CWorkshopDialog.cpp
 	ui/workshop/CWorkshopDialog.h
 	ui/workshop/CWorkshopSubList.cpp

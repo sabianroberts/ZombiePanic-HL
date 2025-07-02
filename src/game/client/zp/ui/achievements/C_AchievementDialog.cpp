@@ -431,11 +431,7 @@ CON_COMMAND(gameui_achievements, "Opens Achievements dialog")
 
 void C_AchievementDialog::OnCommand(const char* pcCommand)
 {
-	if (!Q_stricmp(pcCommand, "set_model"))
-	{
-		OnCommand("Close");
-	}
-	else if ( !Q_stricmp( pcCommand, "hide_achieved" ) )
+	if ( !Q_stricmp( pcCommand, "hide_achieved" ) )
 	{
 		iAchievement = 0;
 		if ( HideAchieved ) HideAchieved = false;
