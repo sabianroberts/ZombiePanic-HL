@@ -16,10 +16,12 @@
 #include <iostream>
 #include <fstream>
 
+#if defined(_DEBUG)
 CON_COMMAND(gameui_cl_open_test_panel, "Opens a test panel for client GameUI")
 {
 	CGameUIViewport::Get()->OpenTestPanel();
 }
+#endif
 
 CGameUIViewport::CGameUIViewport()
     : BaseClass(nullptr, "ClientGameUIViewport")
