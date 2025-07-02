@@ -1167,6 +1167,15 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 	int client = READ_SHORT(); // the player
 	int achievement = READ_SHORT(); // the achivement we got
 
+	if ( !GetSteamAPI() ) return 1;
+	if ( !GetSteamAPI()->SteamUserStats() ) return 1;
+
+	bool bEarned = false;
+	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( achievement ).m_pchAchievementID, &bEarned );
+
+	// Already have it? Skip.
+	if ( bEarned ) return 1;
+
 	// Grab the name of the player
 	wchar_t wszPlayerName[32];
 	char szPlayerName[32];
@@ -1197,8 +1206,7 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 	ChatPrintf( -1, "%s", outout_string );
 
 	// Give the achievement.
-	if ( GetSteamAPI() && GetSteamAPI()->SteamUserStats() )
-		GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( achievement ).m_pchAchievementID );
+	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( achievement ).m_pchAchievementID );
 
 	return 1;
 }
