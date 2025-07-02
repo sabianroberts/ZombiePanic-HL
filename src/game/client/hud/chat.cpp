@@ -1176,6 +1176,20 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 	// Already have it? Skip.
 	if ( bEarned ) return 1;
 
+	// Do we have a stat value?
+	if ( GetAchievementByID( achievement ).m_cStatName )
+	{
+		int32 value;
+		GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( achievement ).m_cStatName, &value );
+
+		// Increase it by one.
+		value++;
+		GetSteamAPI()->SteamUserStats()->SetStat( GetAchievementByID( achievement ).m_cStatName, value );
+
+		// Check if we have enough.
+		if ( value < GetAchievementByID( achievement ).tmp_mvalue ) return 1;
+	}
+
 	// Grab the name of the player
 	wchar_t wszPlayerName[32];
 	char szPlayerName[32];
