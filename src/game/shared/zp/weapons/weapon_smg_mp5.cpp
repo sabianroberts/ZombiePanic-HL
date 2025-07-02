@@ -163,7 +163,8 @@ class CWeaponSMGMP5AmmoClip : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_9mmARclip.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmountLeft = m_iAmmoToGive = AMMO_MP5CLIP_GIVE;
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_MP5 );
+		m_iAmountLeft = m_iAmmoToGive = slot.DefaultAmmo;
 		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
 		strncpy(m_szSound, "items/9mmclip1.wav", 32);
 	}

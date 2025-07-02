@@ -129,7 +129,8 @@ class CShotgunAmmo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL( ENT(pev), "models/w_shotbox.mdl" );
 		CBasePlayerAmmo::Spawn();
-		m_iAmountLeft = m_iAmmoToGive = AMMO_BUCKSHOTBOX_GIVE;
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_SHOTGUN );
+		m_iAmountLeft = m_iAmmoToGive = slot.DefaultAmmo;
 		m_AmmoType = ZPAmmoTypes::AMMO_SHOTGUN;
 		strncpy( m_szSound, "items/9mmclip1.wav", 32 );
 	}

@@ -180,7 +180,8 @@ class C9MMAmmo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_9mmclip.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmountLeft = m_iAmmoToGive = AMMO_GLOCKCLIP_GIVE;
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_SIG );
+		m_iAmountLeft = m_iAmmoToGive = slot.DefaultAmmo;
 		m_AmmoType = ZPAmmoTypes::AMMO_PISTOL;
 		strncpy(m_szSound, "items/9mmclip1.wav", 32);
 	}

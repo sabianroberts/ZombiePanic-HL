@@ -171,7 +171,8 @@ class CWeaponRifleM16AmmoClip : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_556ARclip.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmountLeft = m_iAmmoToGive = AMMO_AR556CLIP_GIVE;
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_556AR );
+		m_iAmountLeft = m_iAmmoToGive = slot.DefaultAmmo;
 		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
 		strncpy(m_szSound, "items/556clip1.wav", 32);
 	}
@@ -190,7 +191,8 @@ class CWeaponRifleM16Chainammo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_556box.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmountLeft = m_iAmmoToGive = AMMO_AR556BOX_GIVE;
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_556AR );
+		m_iAmountLeft = m_iAmmoToGive = slot.DefaultAmmo * 2;
 		m_AmmoType = ZPAmmoTypes::AMMO_RIFLE;
 		strncpy(m_szSound, "items/556clip1.wav", 32);
 	}

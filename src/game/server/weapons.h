@@ -93,39 +93,6 @@ public:
 // the maximum amount of ammo each weapon's clip can hold
 #define WEAPON_NOCLIP -1
 
-//#define CROWBAR_MAX_CLIP		WEAPON_NOCLIP
-#define GLOCK_MAX_CLIP       17
-#define PYTHON_MAX_CLIP      6
-#define MP5_MAX_CLIP         50
-#define MP5_DEFAULT_AMMO     25
-#define AR556_MAX_CLIP         50
-#define AR556_DEFAULT_AMMO     25
-#define SHOTGUN_MAX_CLIP     8
-#define CROSSBOW_MAX_CLIP    5
-#define RPG_MAX_CLIP         1
-#define GAUSS_MAX_CLIP       WEAPON_NOCLIP
-#define EGON_MAX_CLIP        WEAPON_NOCLIP
-#define HORNETGUN_MAX_CLIP   WEAPON_NOCLIP
-#define HANDGRENADE_MAX_CLIP WEAPON_NOCLIP
-#define SATCHEL_MAX_CLIP     WEAPON_NOCLIP
-#define TRIPMINE_MAX_CLIP    WEAPON_NOCLIP
-#define SNARK_MAX_CLIP       WEAPON_NOCLIP
-
-// The amount of ammo given to a player by an ammo item.
-#define AMMO_URANIUMBOX_GIVE   20
-#define AMMO_GLOCKCLIP_GIVE    GLOCK_MAX_CLIP
-#define AMMO_357BOX_GIVE       PYTHON_MAX_CLIP
-#define AMMO_MP5CLIP_GIVE      MP5_MAX_CLIP
-#define AMMO_AR556CLIP_GIVE      AR556_MAX_CLIP
-#define AMMO_CHAINBOX_GIVE     200
-#define AMMO_AR556BOX_GIVE     100
-#define AMMO_M203BOX_GIVE      2
-#define AMMO_BUCKSHOTBOX_GIVE  12
-#define AMMO_CROSSBOWCLIP_GIVE CROSSBOW_MAX_CLIP
-#define AMMO_RPGCLIP_GIVE      RPG_MAX_CLIP
-#define AMMO_URANIUMBOX_GIVE   20
-#define AMMO_SNARKBOX_GIVE     5
-
 // bullet types
 typedef enum
 {

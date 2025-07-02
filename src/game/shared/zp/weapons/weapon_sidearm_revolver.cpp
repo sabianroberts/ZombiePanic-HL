@@ -206,7 +206,8 @@ class CWeaponSideArmRevolverAmmo : public CBasePlayerAmmo
 		Precache();
 		SET_MODEL(ENT(pev), "models/w_357ammobox.mdl");
 		CBasePlayerAmmo::Spawn();
-		m_iAmountLeft = m_iAmmoToGive = AMMO_357BOX_GIVE;
+		WeaponData slot = GetWeaponSlotInfo( ZPWeaponID::WEAPON_PYTHON );
+		m_iAmountLeft = m_iAmmoToGive = slot.DefaultAmmo;
 		m_AmmoType = ZPAmmoTypes::AMMO_MAGNUM;
 		strncpy(m_szSound, "items/9mmclip1.wav", 32);
 	}
