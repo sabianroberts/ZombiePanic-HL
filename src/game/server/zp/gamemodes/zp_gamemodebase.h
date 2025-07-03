@@ -35,6 +35,7 @@ public:
 	// Roundstate
 	void SetRoundState( ZP::RoundState state ) { m_iRoundState = state; }
 	ZP::RoundState GetRoundState() const { return m_iRoundState; }
+	virtual void OnRoundStateThink( ZP::RoundState state ) {};
 
 private:
 	ZP::RoundState m_iRoundState = ZP::RoundState::RoundState_WaitingForPlayers;

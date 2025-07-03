@@ -12,7 +12,6 @@ public:
 
 protected:
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
-	virtual void OnGameModeThink();
 	virtual void GetZombieLifeData( int &current, int &max ) override;
 	virtual void OnZombieLifeUpdated( bool bIncreased ) override;
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor );
@@ -21,6 +20,7 @@ protected:
 	virtual void RestartRound();
 	bool HasNoRemainingZombies() const;
 	void CalculateZombieLives();
+	void OnRoundStateThink( ZP::RoundState state ) override;
 
 	virtual void UpdateZombieLifesForClient();
 	virtual void GiveWeaponsOnRoundStart();

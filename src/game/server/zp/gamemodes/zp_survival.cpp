@@ -35,20 +35,6 @@ void ZPGameMode_Survival::OnHUDInit(CBasePlayer *pPlayer)
 	BaseClass::OnHUDInit(pPlayer);
 }
 
-void ZPGameMode_Survival::OnGameModeThink()
-{
-	BaseClass::OnGameModeThink();
-
-	switch ( GetRoundState() )
-	{
-		case ZP::RoundState_PickVolunteers:
-		{
-		    CalculateZombieLives();
-		}
-	    break;
-	}
-}
-
 void ZPGameMode_Survival::GetZombieLifeData( int &current, int &max )
 {
 	current = m_iZombieLives;
@@ -82,23 +68,7 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 	else if ( iTeam == ZP::TEAM_SURVIVIOR )
 		OnZombieLifeUpdated( true );
 	if ( m_iZombieLives <= 0 )
-	{
-		// Create a body here, so we don't just go "poof"
-		CopyToBodyQue(pPlayer->pev);
-
-		// Set team to player
-		pPlayer->pev->team = ZP::TEAM_OBSERVER;
-
-		// notify everyone's HUD of the team change
-		MESSAGE_BEGIN(MSG_ALL, gmsgTeamInfo);
-		WRITE_BYTE(pPlayer->entindex());
-		WRITE_STRING(pPlayer->pev->iuser1 ? "" : pPlayer->TeamID());
-		MESSAGE_END();
-
-		pPlayer->SendScoreInfo();
-
-		pPlayer->StartObserver();
-	}
+		pPlayer->m_bNoLives = true;
 }
 
 void ZPGameMode_Survival::OnPlayerSpawned( CBasePlayer *pPlayer )
@@ -147,8 +117,7 @@ bool ZPGameMode_Survival::HasNoRemainingZombies() const
 void ZPGameMode_Survival::CalculateZombieLives()
 {
 	// Default value of starter zombies
-	m_iZombieLives = zps_zombielives.GetInt();
-	int iAdd = 0;
+	int iAdd = m_iZombieLives = zps_zombielives.GetInt();
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
@@ -156,6 +125,21 @@ void ZPGameMode_Survival::CalculateZombieLives()
 			iAdd += 2;
 	}
 	m_iZombieLives = (int)clamp( iAdd, 5, 18 );
+	UpdateZombieLifesForClient();
+}
+
+void ZPGameMode_Survival::OnRoundStateThink( ZP::RoundState state )
+{
+	switch ( state )
+	{
+		// Calculate our zombie lives on RoundState_RoundHasBegunPost,
+		// As it's only fired and used once.
+		case ZP::RoundState_RoundHasBegunPost:
+		{
+		    CalculateZombieLives();
+		}
+	    break;
+	}
 }
 
 void ZPGameMode_Survival::UpdateZombieLifesForClient()

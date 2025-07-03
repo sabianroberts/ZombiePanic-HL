@@ -123,6 +123,9 @@ void CBaseGameMode::OnGameModeThink()
 	    break;
 	}
 
+	// Function to fire and used by gamemodes
+	OnRoundStateThink( GetRoundState() );
+
 	// If the round has not yet begun, we do not care about the timer
 	if ( GetRoundState() != ZP::RoundState_RoundHasBegun ) return;
 
