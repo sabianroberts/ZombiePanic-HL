@@ -625,29 +625,42 @@ BOOL CZombiePanicGameRules::IsTeamplay(void)
 
 BOOL CZombiePanicGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pInflictor, CBaseEntity *pAttacker)
 {
-	if (pAttacker && PlayerRelationship(pPlayer, pAttacker) == GR_TEAMMATE)
+	// TEAM_NONE and TEAM_OBSERVER will never be damaged.
+	if ( pPlayer->pev->team <= ZP::TEAM_OBSERVER ) return FALSE;
+
+	// If valid attacker
+	if ( pAttacker )
 	{
-		// my teammate hit me.
-		if ((friendlyfire.value == 0))
+		// We got ourselves, always return true.
+		if ( pAttacker == pPlayer ) return TRUE;
+
+		// If the attack was from an explosive,
+		// and the one who threw it is dead,
+		// don't cause any dmg to other survivors.
+		if ( pInflictor && pInflictor->pev->team == ZP::TEAM_SURVIVIOR )
 		{
-			// However, if the attack was from an explosive, and the one who threw it,
-			// is dead, don't cause any dmg.
-			if ( pInflictor && pInflictor->pev->team == ZP::TEAM_SURVIVIOR )
+			// If this is true, if we are a zombie player, always return true.
+			bool bThrowerIsDeadOrNotSurvivor = !pAttacker->IsAlive();
+			if ( pAttacker->pev->team != ZP::TEAM_SURVIVIOR )
+				bThrowerIsDeadOrNotSurvivor = true;
+			if ( bThrowerIsDeadOrNotSurvivor )
 			{
-				// No longer the same as inflictor? That means they died.
-				if ( pAttacker->pev->team != pInflictor->pev->team )
-					return FALSE;
-				// We aren't survivor, die.
-				else if ( pAttacker->pev->team != pPlayer->pev->team )
-					return TRUE;
+				if ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR ) return FALSE;
+				return TRUE;
 			}
-			// friendly fire is off, and this hit came from someone other than myself, then don't get hurt.
-			if ( (pAttacker != pPlayer) )
+		}
+
+		// Player relationship stuff
+		if ( PlayerRelationship(pPlayer, pAttacker) == GR_TEAMMATE )
+		{
+			// If friendly fire is off, and this hit came from someone other than myself, then don't get hurt.
+			if ((friendlyfire.value == 0))
 				return FALSE;
 		}
 	}
 
-	return BaseClass::FPlayerCanTakeDamage(pPlayer, pInflictor, pAttacker);
+	// True by default.
+	return TRUE;
 }
 
 //=========================================================
