@@ -2,6 +2,8 @@
 #include <vgui_controls/CheckButton.h>
 #include <vgui_controls/Button.h>
 #include <vgui_controls/RichText.h>
+#include <vgui_controls/MessageBox.h>
+#include "gameui/gameui_viewport.h"
 #include "client_vgui.h"
 #include "client_viewport.h"
 #include "team_menu.h"
@@ -51,8 +53,16 @@ void CTeamMenu::OnCommand(const char *pCommand)
 	}
 	else if (!V_stricmp(pCommand, "Spectate"))
 	{
-		gEngfuncs.pfnServerCmd("spectate");
-		ShowPanel(false);
+		if ( gHUD.m_RoundState >= ZP::RoundState_RoundHasBegun )
+		{
+			gEngfuncs.pfnServerCmd("spectate");
+			ShowPanel(false);
+		}
+		else
+		{
+			vgui2::MessageBox *pBox = new vgui2::MessageBox( "#ZP_GameTitle", "#ZP_MessageBox_Error_EarlySpec", this );
+			pBox->ShowWindow( this );
+		}
 	}
 }
 
