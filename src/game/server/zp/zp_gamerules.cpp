@@ -623,19 +623,28 @@ BOOL CZombiePanicGameRules::IsTeamplay(void)
 	return TRUE;
 }
 
-BOOL CZombiePanicGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker)
+BOOL CZombiePanicGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pInflictor, CBaseEntity *pAttacker)
 {
 	if (pAttacker && PlayerRelationship(pPlayer, pAttacker) == GR_TEAMMATE)
 	{
 		// my teammate hit me.
-		if ((friendlyfire.value == 0) && (pAttacker != pPlayer))
+		if ((friendlyfire.value == 0))
 		{
-			// friendly fire is off, and this hit came from someone other than myself,  then don't get hurt
-			return FALSE;
+			// friendly fire is off, and this hit came from someone other than myself, then don't get hurt.
+			if ( (pAttacker != pPlayer) )
+				return FALSE;
+			// However, if the attack was from an explosive, and the one who threw it,
+			// is dead, don't cause any dmg.
+			if ( pInflictor && pInflictor->pev->team == ZP::TEAM_SURVIVIOR )
+			{
+				// No longer the same as inflictor? That means they died.
+				if ( pAttacker->pev->team != pInflictor->pev->team )
+					return FALSE;
+			}
 		}
 	}
 
-	return BaseClass::FPlayerCanTakeDamage(pPlayer, pAttacker);
+	return BaseClass::FPlayerCanTakeDamage(pPlayer, pInflictor, pAttacker);
 }
 
 //=========================================================

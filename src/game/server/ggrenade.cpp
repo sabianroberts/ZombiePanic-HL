@@ -89,6 +89,7 @@ void CGrenade::Explode(TraceResult *pTrace, int bitsDamageType)
 		pevOwner = NULL;
 
 	pev->owner = NULL; // can't traceline attack owner if this is set
+	pev->team = pevOwner ? pevOwner->team : ZP::TEAM_SURVIVIOR;
 
 	RadiusDamage(pev, pevOwner, pev->dmg, CLASS_NONE, bitsDamageType);
 

@@ -101,7 +101,7 @@ public:
 
 	// Client damage rules
 	virtual float FlPlayerFallDamage(CBasePlayer *pPlayer) = 0; // this client just hit the ground after a fall. How much damage?
-	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker) { return TRUE; }; // can this player take damage from this attacker?
+	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pInflictor, CBaseEntity *pAttacker) { return TRUE; }; // can this player take damage from this attacker?
 	virtual BOOL ShouldAutoAim(CBasePlayer *pPlayer, edict_t *target) { return TRUE; }
 
 	// Client spawn/respawn control
@@ -300,7 +300,8 @@ public:
 
 	// Client damage rules
 	virtual float FlPlayerFallDamage(CBasePlayer *pPlayer);
-	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker);
+	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pInflictor, CBaseEntity *pAttacker);
+	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker) { return FPlayerCanTakeDamage( pPlayer, nullptr, pAttacker); }
 
 	// Client spawn/respawn control
 	virtual void PlayerSpawn(CBasePlayer *pPlayer);

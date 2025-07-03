@@ -21,7 +21,7 @@ public:
 	//virtual int ItemShouldRespawn(CItem *pItem) { return FALSE; }
 	virtual void ClientUserInfoChanged(CBasePlayer *pPlayer, char *infobuffer);
 	virtual BOOL IsTeamplay(void);
-	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker);
+	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pInflictor, CBaseEntity *pAttacker);
 	virtual int PlayerRelationship(CBaseEntity *pPlayer, CBaseEntity *pTarget);
 	virtual const char *GetTeamID(CBaseEntity *pEntity);
 	virtual BOOL ShouldAutoAim(CBasePlayer *pPlayer, edict_t *target);
