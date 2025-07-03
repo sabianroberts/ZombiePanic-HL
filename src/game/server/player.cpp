@@ -2057,7 +2057,7 @@ void CBasePlayer::UpdateFatigue()
 	if ( pev->team == ZP::TEAM_ZOMBIE )
 		flValue -= 2.25f;
 	else
-		flValue -= 0.25f;
+		flValue -= 1.35f;
 	if ( flValue <= 0 ) flValue = 0;
 	pev->fuser4 = flValue;
 }
