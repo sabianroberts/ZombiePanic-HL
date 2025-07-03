@@ -630,9 +630,6 @@ BOOL CZombiePanicGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEnti
 		// my teammate hit me.
 		if ((friendlyfire.value == 0))
 		{
-			// friendly fire is off, and this hit came from someone other than myself, then don't get hurt.
-			if ( (pAttacker != pPlayer) )
-				return FALSE;
 			// However, if the attack was from an explosive, and the one who threw it,
 			// is dead, don't cause any dmg.
 			if ( pInflictor && pInflictor->pev->team == ZP::TEAM_SURVIVIOR )
@@ -640,7 +637,13 @@ BOOL CZombiePanicGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEnti
 				// No longer the same as inflictor? That means they died.
 				if ( pAttacker->pev->team != pInflictor->pev->team )
 					return FALSE;
+				// We aren't survivor, die.
+				else if ( pAttacker->pev->team != pPlayer->pev->team )
+					return TRUE;
 			}
+			// friendly fire is off, and this hit came from someone other than myself, then don't get hurt.
+			if ( (pAttacker != pPlayer) )
+				return FALSE;
 		}
 	}
 
