@@ -271,6 +271,8 @@ void CZombiePanicGameRules::ResetRound()
 			// was never set back to FALSE.
 			plr->pev->solid = SOLID_NOT;
 			plr->pev->effects |= EF_NODRAW;
+			// Make sure this is off.
+			plr->m_bNoLives = false;
 		}
 	}
 
@@ -404,6 +406,9 @@ void CZombiePanicGameRules::PlayerSpawn(CBasePlayer *pPlayer)
 		pPlayer->m_flNextAttack = mp_welcomecam_delay.GetFloat();
 
 		pPlayer->StartWelcomeCam();
+
+		// We just joined.
+		pPlayer->m_bNoLives = false;
 		return;
 	}
 
@@ -441,6 +446,14 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	{
 		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER || pPlayer->m_bInWelcomeCam )
 		{
+			// Go no more lives? stop.
+			// This only applies if the player is on TEAM_OBSERVER
+			if ( pPlayer->m_bNoLives ) return TRUE;
+
+			// Stop being spec. Thanks.
+			if ( pPlayer->IsObserver() )
+				pPlayer->StopObserver();
+
 			const char *pVolunteer = CMD_ARGV(1);
 			if ( pVolunteer && pVolunteer[0] )
 			{
