@@ -146,6 +146,7 @@ void CWeaponBaseSingleAction::PrimaryAttack( void )
 bool CWeaponBaseSingleAction::CanPrimaryAttack()
 {
 	if ( PumpIsRequired() ) return false;
+	if ( m_flNextPrimaryAttack > UTIL_WeaponTimeBase() ) return false;
 
 	// don't fire underwater
 	if ( m_pPlayer->pev->waterlevel == 3 )
