@@ -27,10 +27,6 @@ CHudDeathNoticePanel::CHudDeathNoticePanel()
 
 	m_EntryList[0].resize(KILLFEED_COUNT);
 	m_EntryList[1].resize(KILLFEED_COUNT);
-
-	m_pKVData = new KeyValues( "Icons" );
-	if ( !m_pKVData->LoadFromFile( g_pFullFileSystem, "scripts/hud_textures.txt" ) )
-		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to load \"scripts/hud_textures.txt\"!\n" );
 }
 
 void CHudDeathNoticePanel::VidInit()
@@ -166,37 +162,21 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *kille
 	e.iIconWidth[1] = 0;
 
 	// Check our kill icon list
-	KeyValues *pKV = GetKillIcon( killedwith );
-	if ( pKV )
+	CHud::RegisteredIcon sHUDTexture = gHUD.GetRegisteredIcon( killedwith );
+	if ( sHUDTexture.Icon != -1 )
 	{
-		KeyValues *pIconData = GetIconRes( pKV );
-		if ( pIconData )
-		{
-			char buffer[158];
-			Q_snprintf( buffer, sizeof( buffer ), "%s", pIconData->GetString( "Image" ) );
-			e.iIcon = GetRegisteredIcon( buffer );
-			e.iIconWidth[0] = pIconData->GetInt( "Wide" );
-		}
-		else
-			ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find res %s for kill icon \"%s\"!\n", GetIconResText(), killedwith );
+		e.iIcon = sHUDTexture.Icon;
+		e.iIconWidth[0] = sHUDTexture.Wide;
 	}
 	else
 		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find kill icon \"%s\"!\n", killedwith );
 
 	// Icon flag
-	pKV = GetFlagIcon( death_flags );
-	if ( pKV )
+	sHUDTexture = GetFlagIcon( death_flags );
+	if ( sHUDTexture.Icon != -1 )
 	{
-		KeyValues *pIconData = GetIconRes( pKV );
-		if ( pIconData )
-		{
-			char buffer[158];
-			Q_snprintf( buffer, sizeof( buffer ), "%s", pIconData->GetString( "Image" ) );
-			e.iFlag = GetRegisteredIcon( buffer );
-			e.iIconWidth[1] = pIconData->GetInt( "Wide" );
-		}
-		else
-			ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find res %s for flag icon ID \"%i\"!\n", GetIconResText(), death_flags );
+		e.iFlag = sHUDTexture.Icon;
+		e.iIconWidth[1] = sHUDTexture.Wide;
 	}
 	else
 		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find flag icon ID %i!\n", death_flags );
@@ -242,39 +222,13 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *kille
 	}
 }
 
-const char *CHudDeathNoticePanel::GetIconResText() const
+CHud::RegisteredIcon CHudDeathNoticePanel::GetFlagIcon( int flags )
 {
-	const char *szGetHUDRes = nullptr;
-	switch ( gHUD.m_iRes )
-	{
-		default:
-		case 320:
-		case 640: szGetHUDRes = "640"; break;
-		case 1280: szGetHUDRes = "1280"; break;
-		case 2560: szGetHUDRes = "2560"; break;
-	}
-	return szGetHUDRes;
-}
-
-KeyValues *CHudDeathNoticePanel::GetIconRes(KeyValues *pKV)
-{
-	const char *szGetHUDRes = GetIconResText();
-	if ( !szGetHUDRes ) return pKV;
-	return pKV->FindKey( szGetHUDRes );
-}
-
-KeyValues *CHudDeathNoticePanel::GetKillIcon( const char *szText )
-{
-	return m_pKVData->FindKey( szText );
-}
-
-KeyValues *CHudDeathNoticePanel::GetFlagIcon( int flags )
-{
-	if ( ( flags & PLR_DEATH_FLAG_HEADSHOT ) != 0 ) return m_pKVData->FindKey( "d_headshot" );
-	else if ( ( flags & PLR_DEATH_FLAG_GIBBED ) != 0 ) return m_pKVData->FindKey( "d_gibbed" );
-	else if ( ( flags & PLR_DEATH_FLAG_FELL ) != 0 ) return m_pKVData->FindKey( "d_fell" );
-	else if ( ( flags & PLR_DEATH_FLAG_BEYOND_GRAVE ) != 0 ) return m_pKVData->FindKey( "d_grave" );
-	return nullptr;
+	if ( ( flags & PLR_DEATH_FLAG_HEADSHOT ) != 0 ) return gHUD.GetRegisteredIcon( "d_headshot" );
+	else if ( ( flags & PLR_DEATH_FLAG_GIBBED ) != 0 ) return gHUD.GetRegisteredIcon( "d_gibbed" );
+	else if ( ( flags & PLR_DEATH_FLAG_FELL ) != 0 ) return gHUD.GetRegisteredIcon( "d_fell" );
+	else if ( ( flags & PLR_DEATH_FLAG_BEYOND_GRAVE ) != 0 ) return gHUD.GetRegisteredIcon( "d_grave" );
+	return CHud::RegisteredIcon();
 }
 
 void CHudDeathNoticePanel::ApplySettings(KeyValues *inResourceData)
@@ -398,24 +352,6 @@ void CHudDeathNoticePanel::Paint()
 
 		y += m_iRowTall + m_iVMargin;
 	}
-}
-
-int CHudDeathNoticePanel::GetRegisteredIcon( const char *szIcon )
-{
-	for ( size_t i = 0; i < m_RegisteredIcons.size(); i++ )
-	{
-		RegisteredIcon icon = m_RegisteredIcons[i];
-		if ( !Q_strcmp( icon.Texture.c_str(), szIcon ) )
-			return icon.Icon;
-	}
-	int iIcon = vgui2::surface()->CreateNewTextureID( true );
-	vgui2::surface()->DrawSetTextureFile( iIcon, szIcon, true, false );
-
-	RegisteredIcon icon;
-	icon.Icon = iIcon;
-	icon.Texture = szIcon;
-	m_RegisteredIcons.push_back( icon );
-	return iIcon;
 }
 
 int CHudDeathNoticePanel::GetEntryContentWide(const Entry &e)

@@ -264,7 +264,26 @@ public:
 
 	bool m_bUseZombVision = false;
 
+	void RegisterHUDTextures();
+
+	struct RegisteredIcon
+	{
+		V_HSPRITE Icon = -1;
+		std::string Name = "";
+		std::string Texture = "";
+		int Wide = 0;
+		int Tall = 0;
+	};
+
+	RegisteredIcon GetRegisteredIcon( const char *szIcon );
+	RegisteredIcon GetRegisteredTexture( const char *szIcon );
+
 private:
+
+	void RegisterHudTextureFile( const char *szFile );
+
+	std::vector<RegisteredIcon> m_RegisteredIcons;
+
 
 	struct SpriteName
 	{

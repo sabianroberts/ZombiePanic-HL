@@ -431,6 +431,82 @@ void CHud::Init(void)
 	}
 }
 
+void CHud::RegisterHUDTextures()
+{
+	RegisterHudTextureFile( "scripts/hud_textures.txt" );
+	RegisterHudTextureFile( "scripts/hud_weapons.txt" );
+}
+
+CHud::RegisteredIcon CHud::GetRegisteredIcon( const char *szIcon )
+{
+	for ( size_t i = 0; i < m_RegisteredIcons.size(); i++ )
+	{
+		RegisteredIcon icon = m_RegisteredIcons[i];
+		if ( !Q_strcmp( icon.Name.c_str(), szIcon ) )
+			return icon;
+	}
+	return RegisteredIcon();
+}
+
+CHud::RegisteredIcon CHud::GetRegisteredTexture(const char *szIcon)
+{
+	for ( size_t i = 0; i < m_RegisteredIcons.size(); i++ )
+	{
+		RegisteredIcon icon = m_RegisteredIcons[i];
+		if ( !Q_strcmp( icon.Texture.c_str(), szIcon ) )
+			return icon;
+	}
+	return RegisteredIcon();
+}
+
+void CHud::RegisterHudTextureFile( const char *szFile )
+{
+	// Make sure this is always valid
+	if ( !szFile ) return;
+
+	const char *szGetHUDRes = nullptr;
+	switch ( m_iRes )
+	{
+		default:
+		case 320:
+		case 640: szGetHUDRes = "640"; break;
+		case 1280: szGetHUDRes = "1280"; break;
+		case 2560: szGetHUDRes = "2560"; break;
+	}
+	// Don't try anything funny pal.
+	if ( !szGetHUDRes ) return;
+
+	KeyValues *pKVData = new KeyValues( "HudTextures" );
+	if ( pKVData->LoadFromFile( g_pFullFileSystem, szFile ) )
+	{
+		// Go trough all the possible textures.
+		for ( KeyValues *sub = pKVData->GetFirstSubKey(); sub != NULL ; sub = sub->GetNextKey() )
+		{
+			// Make sure it's actually valid
+			KeyValues *pIcon = pKVData->FindKey( sub->GetName() );
+			if ( !pIcon ) continue;
+			// Now, let's make sure the res is valid
+			KeyValues *pIconRes = pIcon->FindKey( szGetHUDRes );
+			if ( !pIconRes ) continue;
+			// Now, let's add the data!
+			RegisteredIcon data;
+			int texture_id = vgui2::surface()->CreateNewTextureID( true );
+			vgui2::surface()->DrawSetTextureFile( texture_id, pIconRes->GetString( "Image" ), true, false );
+			data.Icon = texture_id;
+			data.Name = sub->GetName();
+			data.Texture = pIconRes->GetString( "Image" );
+			data.Wide = pIconRes->GetInt( "Wide" );
+			data.Tall = pIconRes->GetInt( "Tall" );
+			m_RegisteredIcons.push_back( data );
+		}
+	}
+	else
+		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to load \"%s\"!\n", szFile );
+
+	// Delete after use.
+	pKVData->deleteThis();
+}
+
 void CHud::VidInit(void)
 {
 	m_scrinfo.iSize = sizeof(m_scrinfo);
@@ -548,6 +624,8 @@ void CHud::VidInit(void)
 
 	for (CHudElem *i : m_HudList)
 		i->VidInit();
+
+	RegisterHUDTextures();
 }
 
 void CHud::Frame(double time)

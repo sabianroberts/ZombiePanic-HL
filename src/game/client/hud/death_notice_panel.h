@@ -18,10 +18,7 @@ public:
 
 	void AddItem(int killerId, int victimId, const char *killedwith, int death_flags);
 
-	const char *GetIconResText() const;
-	KeyValues *GetIconRes( KeyValues *pKV );
-	KeyValues *GetKillIcon( const char *szText );
-	KeyValues *GetFlagIcon( int flags );
+	CHud::RegisteredIcon GetFlagIcon( int flags );
 
 	void ApplySettings(KeyValues *inResourceData) override;
 	void PaintBackground() override;
@@ -54,18 +51,10 @@ private:
 		int iIconWidth[2];
 	};
 
-	int GetRegisteredIcon( const char *szIcon );
-
 	int m_iDefaultIcon = -1;
 	int m_iIconHeight = 16;
 	int m_nActiveList = 0;
 
-	struct RegisteredIcon
-	{
-		V_HSPRITE Icon;
-		std::string Texture;
-	};
-	std::vector<RegisteredIcon> m_RegisteredIcons;
 	std::vector<Entry> m_EntryList[2];
 	int m_iEntryCount = 0;
 
@@ -90,7 +79,6 @@ private:
 	CPanelAnimationVar(Color, m_ColorNameDeath, "default_name_color_death", "Orange");
 
 	int m_iRowTall = 0;
-	KeyValues *m_pKVData = nullptr;
 
 	int GetEntryContentWide(const Entry &e);
 	int GetColoredTextWide(const wchar_t *str, int len);
