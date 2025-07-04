@@ -342,7 +342,7 @@ void CHudDeathNoticePanel::PaintBackground()
 		if ( entry.iIcon != -1 )
 		{
 			vgui2::surface()->DrawSetTexture( entry.iIcon );
-			vgui2::surface()->DrawSetColor( Color( 255, 255, 255, 255 ) );
+			vgui2::surface()->DrawSetColor( color );
 			vgui2::surface()->DrawTexturedRect( x + iconX, y + iconY, x + iconX + entry.iIconWidth[0], y + iconY + m_iIconHeight );
 		}
 
