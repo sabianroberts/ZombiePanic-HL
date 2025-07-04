@@ -916,9 +916,24 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 {
 	CSound *pSound;
 
+	bool bShouldGib = false;
+	if ((pev->health < -40 && iGib != GIB_NEVER) || iGib == GIB_ALWAYS)
+		bShouldGib = true;
+
 	// Holster weapon immediately, to allow it to cleanup
 	if (m_pActiveItem)
 		m_pActiveItem->Holster();
+
+	// Gibbed?
+	if (bShouldGib)
+		m_iDeathFlags |= PLR_DEATH_FLAG_GIBBED;
+	// Headshot?
+	if (m_LastHitGroup == HITGROUP_HEAD)
+		m_iDeathFlags |= PLR_DEATH_FLAG_HEADSHOT;
+	// Is our attacker valid, and also dead?
+	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
+	if ( pKiller && !pKiller->IsAlive() )
+		m_iDeathFlags |= PLR_DEATH_FLAG_BEYOND_GRAVE;
 
 	g_pGameRules->PlayerKilled(this, pevAttacker, g_pevLastInflictor);
 
@@ -990,7 +1005,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 	// UNDONE: Put this in, but add FFADE_PERMANENT and make fade time 8.8 instead of 4.12
 	// UTIL_ScreenFade( edict(), Vector(128,0,0), 6, 15, 255, FFADE_OUT | FFADE_MODULATE );
 
-	if ((pev->health < -40 && iGib != GIB_NEVER) || iGib == GIB_ALWAYS)
+	if (bShouldGib)
 	{
 		pev->solid = SOLID_NOT;
 		GibMonster(); // This clears pev->model
@@ -2964,7 +2979,10 @@ void CBasePlayer::PostThink()
 				TakeDamage(VARS(eoNullEntity), VARS(eoNullEntity), flFallDamage, DMG_FALL);
 				pev->punchangle.x = 0;
 				if ( bFallingToDeath )
+				{
+					m_iDeathFlags |= PLR_DEATH_FLAG_FELL;
 					GiveAchievement( EAchievements::I_FELL );
+				}
 			}
 		}
 
@@ -3367,6 +3385,7 @@ void CBasePlayer::Spawn(void)
 	m_flStartCharge = gpGlobals->time;
 	m_bConnected = TRUE;
 
+	m_iDeathFlags = 0;
 	m_bInZombieVision = false;
 
 	pev->classname = MAKE_STRING("player");

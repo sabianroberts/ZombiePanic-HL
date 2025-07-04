@@ -165,6 +165,7 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 
 	int killer = READ_BYTE();
 	int victim = READ_BYTE();
+	int death_flag = READ_SHORT();
 
 	char killedwith[MAX_WEAPON_NAME];
 	V_strcpy_safe(killedwith, "d_");
@@ -177,7 +178,7 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 	CHudSpectator::Get()->DeathMessage(victim);
 
 	if (hud_deathnotice_vgui.GetBool() && CHudDeathNoticePanel::Get())
-		CHudDeathNoticePanel::Get()->AddItem(killer, victim, killedwith);
+		CHudDeathNoticePanel::Get()->AddItem(killer, victim, killedwith, death_flag);
 
 	int i;
 	for (i = 0; i < MAX_DEATHNOTICES; i++)
@@ -265,6 +266,7 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 			rgDeathNoticeList[i].iTeamKill = TRUE;
 	}
 
+	// TODO: Change to TGA.
 	// Find the sprite in the list
 	int spr = gHUD.GetSpriteIndex(killedwith);
 
@@ -332,6 +334,18 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 
 			ConsolePrint(killedwith + 2); // skip over the "d_" part
 		}
+
+		if ( ( death_flag & PLR_DEATH_FLAG_BEYOND_GRAVE ) != 0 )
+			ConsolePrint(" from beyond the grave");
+
+		if ( ( death_flag & PLR_DEATH_FLAG_HEADSHOT ) != 0 )
+			ConsolePrint(" in the head");
+
+		if ( ( death_flag & PLR_DEATH_FLAG_FELL ) != 0 )
+			ConsolePrint(" by destroying their knees");
+
+		if ( ( death_flag & PLR_DEATH_FLAG_GIBBED ) != 0 )
+			ConsolePrint(" and becoming a bunch of meat chunks");
 
 		ConsolePrint("\n");
 	}

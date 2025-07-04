@@ -787,6 +787,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	MESSAGE_BEGIN(MSG_ALL, gmsgDeathMsg);
 	WRITE_BYTE(killer_index); // the killer
 	WRITE_BYTE(ENTINDEX(pVictim->edict())); // the victim
+	WRITE_SHORT(pVictim->m_iDeathFlags); // the death flag
 	WRITE_STRING(killer_weapon_name); // what they were killed by (should this be a string?)
 	MESSAGE_END();
 

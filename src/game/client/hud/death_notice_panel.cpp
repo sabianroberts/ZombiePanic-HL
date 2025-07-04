@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <tier1/strtools.h>
+#include <tier1/KeyValues.h>
 #include <vgui/ISurface.h>
 #include "hud.h"
 #include "cl_util.h"
@@ -26,16 +27,33 @@ CHudDeathNoticePanel::CHudDeathNoticePanel()
 
 	m_EntryList[0].resize(KILLFEED_COUNT);
 	m_EntryList[1].resize(KILLFEED_COUNT);
+
+	m_pKVData = new KeyValues( "Icons" );
+	if ( !m_pKVData->LoadFromFile( g_pFullFileSystem, "scripts/hud_textures.txt" ) )
+		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to load \"scripts/hud_textures.txt\"!\n" );
 }
 
 void CHudDeathNoticePanel::VidInit()
 {
-	m_HUD_d_skull = gHUD.GetSpriteIndex("d_skull");
+	if ( m_iDefaultIcon == -1 )
+	{
+		m_iDefaultIcon = vgui2::surface()->CreateNewTextureID( true );
+		vgui2::surface()->DrawSetTextureFile( m_iDefaultIcon, "ui/icons/d_skull", true, false );
+	}
+
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320:
+		case 640: m_iIconHeight = 16; break;
+		case 1280: m_iIconHeight = 32; break;
+		case 2560: m_iIconHeight = 48; break;
+	}
 
 	int cornerWide, cornerTall;
 	GetCornerTextureSize(cornerWide, cornerTall);
 
-	int minRowTall = std::max(cornerTall * 2, gHUD.GetSpriteRect(m_HUD_d_skull).GetHeight());
+	int minRowTall = std::max(cornerTall * 2, m_iIconHeight);
 	m_iRowTall = std::max(m_iRowHeight, minRowTall);
 }
 
@@ -80,7 +98,7 @@ void CHudDeathNoticePanel::Think()
 	}
 }
 
-void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *killedwith)
+void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *killedwith, int death_flags)
 {
 	if (!GetThisPlayerInfo())
 	{
@@ -142,15 +160,46 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *kille
 	float ttl = e.type != EntryType::Other ? hud_deathnotice_time_self.GetFloat() : hud_deathnotice_time.GetFloat();
 	e.flEndTime = gHUD.m_flTime + ttl;
 
-	// Sprite
-	int spriteId = gHUD.GetSpriteIndex(killedwith);
+	e.iFlag = -1;
+	e.iIcon = m_iDefaultIcon;
+	e.iIconWidth[0] = 0;
+	e.iIconWidth[1] = 0;
 
-	if (spriteId == -1)
-		spriteId = m_HUD_d_skull;
+	// Check our kill icon list
+	KeyValues *pKV = GetKillIcon( killedwith );
+	if ( pKV )
+	{
+		KeyValues *pIconData = GetIconRes( pKV );
+		if ( pIconData )
+		{
+			char buffer[158];
+			Q_snprintf( buffer, sizeof( buffer ), "%s", pIconData->GetString( "Image" ) );
+			e.iIcon = GetRegisteredIcon( buffer );
+			e.iIconWidth[0] = pIconData->GetInt( "Wide" );
+		}
+		else
+			ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find res %s for kill icon \"%s\"!\n", GetIconResText(), killedwith );
+	}
+	else
+		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find kill icon \"%s\"!\n", killedwith );
 
-	const wrect_t &rc = gHUD.GetSpriteRect(spriteId);
-	e.nSpriteIdx = spriteId;
-	e.iSpriteWide = rc.right - rc.left;
+	// Icon flag
+	pKV = GetFlagIcon( death_flags );
+	if ( pKV )
+	{
+		KeyValues *pIconData = GetIconRes( pKV );
+		if ( pIconData )
+		{
+			char buffer[158];
+			Q_snprintf( buffer, sizeof( buffer ), "%s", pIconData->GetString( "Image" ) );
+			e.iFlag = GetRegisteredIcon( buffer );
+			e.iIconWidth[1] = pIconData->GetInt( "Wide" );
+		}
+		else
+			ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find res %s for flag icon ID \"%i\"!\n", GetIconResText(), death_flags );
+	}
+	else
+		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find flag icon ID %i!\n", death_flags );
 
 	// Insert into the list
 	Assert(m_iEntryCount <= KILLFEED_COUNT);
@@ -191,6 +240,41 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *kille
 
 		m_nActiveList = !m_nActiveList;
 	}
+}
+
+const char *CHudDeathNoticePanel::GetIconResText() const
+{
+	const char *szGetHUDRes = nullptr;
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320:
+		case 640: szGetHUDRes = "640"; break;
+		case 1280: szGetHUDRes = "1280"; break;
+		case 2560: szGetHUDRes = "2560"; break;
+	}
+	return szGetHUDRes;
+}
+
+KeyValues *CHudDeathNoticePanel::GetIconRes(KeyValues *pKV)
+{
+	const char *szGetHUDRes = GetIconResText();
+	if ( !szGetHUDRes ) return pKV;
+	return pKV->FindKey( szGetHUDRes );
+}
+
+KeyValues *CHudDeathNoticePanel::GetKillIcon( const char *szText )
+{
+	return m_pKVData->FindKey( szText );
+}
+
+KeyValues *CHudDeathNoticePanel::GetFlagIcon( int flags )
+{
+	if ( ( flags & PLR_DEATH_FLAG_HEADSHOT ) != 0 ) return m_pKVData->FindKey( "d_headshot" );
+	else if ( ( flags & PLR_DEATH_FLAG_GIBBED ) != 0 ) return m_pKVData->FindKey( "d_gibbed" );
+	else if ( ( flags & PLR_DEATH_FLAG_FELL ) != 0 ) return m_pKVData->FindKey( "d_fell" );
+	else if ( ( flags & PLR_DEATH_FLAG_BEYOND_GRAVE ) != 0 ) return m_pKVData->FindKey( "d_grave" );
+	return nullptr;
 }
 
 void CHudDeathNoticePanel::ApplySettings(KeyValues *inResourceData)
@@ -235,17 +319,13 @@ void CHudDeathNoticePanel::PaintBackground()
 		int wide = 2 * m_iHPadding + GetEntryContentWide(entry);
 		int x = panelWide - wide;
 
-		// Get sprite info
-		V_HSPRITE hSprite = gHUD.GetSprite(entry.nSpriteIdx);
-		const wrect_t &rc = gHUD.GetSpriteRect(entry.nSpriteIdx);
-
 		// Calculate sprite pos
 		int iconX = m_iHPadding + entry.iKillerWide;
 
 		if (entry.iKillerWide != 0)
 			iconX += m_iIconPadding; // padding on the left only if there is a text
 
-		int iconY = (m_iRowTall - (rc.bottom - rc.top)) / 2;
+		int iconY = (m_iRowTall - m_iIconHeight) / 2;
 
 		// Get sprite color
 		Color color;
@@ -259,8 +339,20 @@ void CHudDeathNoticePanel::PaintBackground()
 		else
 			color = m_ColorIcon;
 
-		CHudRenderer::SpriteSet(hSprite, color.r(), color.g(), color.b());
-		CHudRenderer::SpriteDrawAdditive(0, x + iconX, y + iconY, &rc);
+		if ( entry.iIcon != -1 )
+		{
+			vgui2::surface()->DrawSetTexture( entry.iIcon );
+			vgui2::surface()->DrawSetColor( Color( 255, 255, 255, 255 ) );
+			vgui2::surface()->DrawTexturedRect( x + iconX, y + iconY, x + iconX + entry.iIconWidth[0], y + iconY + m_iIconHeight );
+		}
+
+		if ( entry.iFlag != -1 )
+		{
+			iconX += entry.iIconWidth[0] + 5;
+			vgui2::surface()->DrawSetTexture( entry.iFlag );
+			vgui2::surface()->DrawSetColor( color );
+			vgui2::surface()->DrawTexturedRect( x + iconX, y + iconY, x + iconX + entry.iIconWidth[1], y + iconY + m_iIconHeight );
+		}
 
 		y += m_iRowTall + m_iVMargin;
 	}
@@ -296,7 +388,9 @@ void CHudDeathNoticePanel::Paint()
 		}
 
 		// Skip icon
-		x += entry.iSpriteWide + m_iIconPadding;
+		x += entry.iIconWidth[0] + m_iIconPadding;
+		if ( entry.iIconWidth[1] > 0 )
+			x += entry.iIconWidth[1] + 5;
 
 		// Draw victim name
 		DrawColoredText(x, y + textY, entry.wszVictim, entry.iVictimLen, entry.victimColor);
@@ -306,12 +400,33 @@ void CHudDeathNoticePanel::Paint()
 	}
 }
 
+int CHudDeathNoticePanel::GetRegisteredIcon( const char *szIcon )
+{
+	for ( size_t i = 0; i < m_RegisteredIcons.size(); i++ )
+	{
+		RegisteredIcon icon = m_RegisteredIcons[i];
+		if ( !Q_strcmp( icon.Texture.c_str(), szIcon ) )
+			return icon.Icon;
+	}
+	int iIcon = vgui2::surface()->CreateNewTextureID( true );
+	vgui2::surface()->DrawSetTextureFile( iIcon, szIcon, true, false );
+
+	RegisteredIcon icon;
+	icon.Icon = iIcon;
+	icon.Texture = szIcon;
+	m_RegisteredIcons.push_back( icon );
+	return iIcon;
+}
+
 int CHudDeathNoticePanel::GetEntryContentWide(const Entry &e)
 {
-	int w = e.iKillerWide + m_iIconPadding + e.iSpriteWide + e.iVictimWide;
+	int w = e.iKillerWide + m_iIconPadding + e.iIconWidth[0] + e.iVictimWide;
 
-	if (e.iKillerWide != 0)
+	if ( e.iKillerWide != 0 )
 		w += m_iIconPadding;
+
+	if ( e.iIconWidth[1] > 0 )
+		w += 5 + e.iIconWidth[1];
 
 	return w;
 }

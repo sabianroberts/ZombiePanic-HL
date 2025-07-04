@@ -93,6 +93,12 @@ enum sbar_data
 class CBasePlayer : public CBaseMonster
 {
 public:
+
+	// Was this player's head blown to bits?
+	// Did they get gibbed from a shotgun blast?
+	// Fall to their death?
+	int m_iDeathFlags;
+
 	// Observer camera
 	EHANDLE m_hObserverTarget;
 	float m_flNextObserverInput;
