@@ -99,7 +99,7 @@ public:
 
 	int CountAmmo(int iId);
 
-	V_HSPRITE *GetAmmoPicFromWeapon(int iAmmoId, wrect_t &rect);
+	CHud::RegisteredIcon GetAmmoPicFromWeapon(int iAmmoId);
 };
 
 extern WeaponsResource gWR;
@@ -121,7 +121,8 @@ private:
 		int type;
 		float DisplayTime; // the time at which this item should be removed from the history
 		int iCount;
-		int iId;
+		int iAmmoType;
+		CHud::RegisteredIcon iId;
 	};
 
 	HIST_ITEM rgAmmoHistory[MAX_HISTORY];
@@ -140,7 +141,6 @@ public:
 	int iHistoryGap;
 	int iCurrentHistorySlot;
 
-	void AddToHistory(int iType, int iId, int iCount = 0);
 	void AddToHistory(int iType, const char *szName, int iCount = 0);
 
 	void CheckClearHistory(void);

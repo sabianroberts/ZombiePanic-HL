@@ -50,7 +50,7 @@ void CHudCrosshair::Draw(float flTime)
 	bool shouldDrawZoomed = cl_cross_zoom.GetInt() == 1 || cl_cross_zoom.GetInt() == 2;
 
 	// Draw custom crosshair if enabled
-	if (cl_cross_enable.GetBool() && !(CHudAmmo::Get()->m_fOnTarget && CHudAmmo::Get()->m_pWeapon->hAutoaim) && (!isZoomed || shouldDrawZoomed))
+	if (cl_cross_enable.GetBool() && (!isZoomed || shouldDrawZoomed))
 	{
 		CrosshairSettings settings;
 		settings.color = Color(cl_cross_red.GetInt(), cl_cross_green.GetInt(), cl_cross_blue.GetInt(), 255);

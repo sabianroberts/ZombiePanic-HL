@@ -260,7 +260,7 @@ public:
 		p->iPosition = slot.Position;
 		p->iFlags = slot.Flags;
 		p->iWeight = slot.Weight;
-		p->iId = slot.WeaponID;
+		p->iId = GetWeaponID();
 		p->flFireRate[0] = slot.FireRate[0];
 		p->flFireRate[1] = slot.FireRate[1];
 		p->flWeaponSpread[0] = slot.WeaponSpread[0];

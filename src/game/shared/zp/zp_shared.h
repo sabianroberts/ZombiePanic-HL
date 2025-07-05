@@ -73,6 +73,33 @@ AmmoData GetAmmoByTableIndex( int id );
 AmmoData GetAmmoByAmmoID( int id );
 AmmoData GetAmmoByWeaponID( ZPWeaponID id, bool bPrimary = true );
 
+/// <summary>
+/// The static weapon list
+/// Used by CreateWeaponSlotData and 'give' command.
+/// </summary>
+struct WeaponInfo
+{
+	const char *szWeapon = nullptr;
+	ZPWeaponID WeaponID = WEAPON_NONE;
+	bool Hidden = false;
+};
+WeaponInfo GetWeaponInfo( const char *szClassname );
+WeaponInfo GetWeaponInfo( ZPWeaponID id );
+WeaponInfo GetRandomWeaponInfo();
+
+enum WeaponDataIcons
+{
+	ICON_WEAPON = 0,
+	ICON_WEAPON_SELECTED,
+	ICON_AMMO1,
+	ICON_AMMO2,
+	ICON_CROSSHAIR,
+	ICON_CROSSHAIR_AUTO,
+	ICON_CROSSHAIR_ZOOM,
+	ICON_CROSSHAIR_ZOOMAUTO,
+	MAX_ICONS,
+};
+
 struct WeaponData
 {
 	ZPWeaponID WeaponID;
@@ -80,6 +107,7 @@ struct WeaponData
 	int Position;
 	char Ammo1[16]; // ammo 1 type
 	char Ammo2[16]; // ammo 2 type
+	char Icons[WeaponDataIcons::MAX_ICONS][32]; // HUD Icons
 	int DefaultAmmo;
 	int MaxClip;
 	int Flags;
@@ -94,6 +122,7 @@ struct WeaponData
 /// <param name="WeaponID">The WeaponID we want to look for</param>
 /// <returns>Returns the data from our weapon script file</returns>
 WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID );
+WeaponData GetWeaponSlotInfo( const char *szClassname );
 
 // Player Death flags
 #define PLR_DEATH_FLAG_HEADSHOT			(1 << 0)			// Player now have a permanent headache

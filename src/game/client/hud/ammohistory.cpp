@@ -20,6 +20,9 @@
 #include "cl_util.h"
 #include "parsemsg.h"
 
+#include <vgui/ISurface.h>
+#include "vgui/client_viewport.h"
+
 #include <string.h>
 #include <stdio.h>
 
@@ -45,31 +48,8 @@ struct ITEM_INFO
 	wrect_t rect;
 };
 
-void HistoryResource::AddToHistory(int iType, int iId, int iCount)
-{
-	if (iType == HISTSLOT_AMMO && !iCount)
-		return; // no amount, so don't add
-
-	if ((((AMMO_PICKUP_GAP * iCurrentHistorySlot) + AMMO_PICKUP_PICK_HEIGHT) > AMMO_PICKUP_HEIGHT_MAX) || (iCurrentHistorySlot >= MAX_HISTORY))
-	{ // the pic would have to be drawn too high
-		// so start from the bottom
-		iCurrentHistorySlot = 0;
-	}
-
-	HIST_ITEM *freeslot = &rgAmmoHistory[iCurrentHistorySlot++]; // default to just writing to the first slot
-	HISTORY_DRAW_TIME = hud_drawhistory_time.GetInt();
-
-	freeslot->type = iType;
-	freeslot->iId = iId;
-	freeslot->iCount = iCount;
-	freeslot->DisplayTime = gHUD.m_flTime + HISTORY_DRAW_TIME;
-}
-
 void HistoryResource::AddToHistory(int iType, const char *szName, int iCount)
 {
-	if (iType != HISTSLOT_ITEM)
-		return;
-
 	if ((((AMMO_PICKUP_GAP * iCurrentHistorySlot) + AMMO_PICKUP_PICK_HEIGHT) > AMMO_PICKUP_HEIGHT_MAX) || (iCurrentHistorySlot >= MAX_HISTORY))
 	{ // the pic would have to be drawn too high
 		// so start from the bottom
@@ -80,11 +60,12 @@ void HistoryResource::AddToHistory(int iType, const char *szName, int iCount)
 
 	// I am really unhappy with all the code in this file
 
-	int i = gHUD.GetSpriteIndex(szName);
-	if (i == -1)
+	CHud::RegisteredIcon icon = gHUD.GetRegisteredIcon(szName);
+	if (icon.Icon == -1)
 		return; // unknown sprite name, don't add it to history
 
-	freeslot->iId = i;
+	freeslot->iAmmoType = GetAmmoByName(szName).AmmoType;
+	freeslot->iId = icon;
 	freeslot->type = iType;
 	freeslot->iCount = iCount;
 
@@ -127,7 +108,7 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 			else if (rgAmmoHistory[i].type == HISTSLOT_AMMO)
 			{
 				wrect_t rcPic;
-				V_HSPRITE *spr = gWR.GetAmmoPicFromWeapon(rgAmmoHistory[i].iId, rcPic);
+				CHud::RegisteredIcon spr = gWR.GetAmmoPicFromWeapon(rgAmmoHistory[i].iAmmoType);
 
 				int r, g, b;
 				float a;
@@ -138,13 +119,15 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 				gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
 				ScaleColors(r, g, b, a);
 
-				// Draw the pic
 				int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
-				int xpos = ScreenWidth - rcPic.GetWidth() - SPR_RES_SCALED(4);
-				if (spr && *spr) // weapon isn't loaded yet so just don't draw the pic
-				{ // the dll has to make sure it has sent info the weapons you need
-					SPR_Set(*spr, r, g, b);
-					SPR_DrawAdditive(0, xpos - rcPic.GetWidth() / 2, ypos, &rcPic);
+				int xpos = ScreenWidth - spr.Wide - SPR_RES_SCALED(4);
+
+				// Draw the pic
+				if ( spr.Icon > -1 )
+				{
+					vgui2::surface()->DrawSetTexture( spr.Icon );
+					vgui2::surface()->DrawSetColor( Color( r, g, b, a ) );
+					vgui2::surface()->DrawTexturedRect( xpos - spr.Wide / 2, ypos, xpos - spr.Wide / 2 + spr.Wide, ypos + spr.Tall );
 				}
 
 				// Draw the number
@@ -153,7 +136,8 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 			}
 			else if (rgAmmoHistory[i].type == HISTSLOT_WEAP)
 			{
-				WEAPON *weap = gWR.GetWeapon(rgAmmoHistory[i].iId);
+				WeaponInfo wepinf = GetWeaponInfo( rgAmmoHistory[i].iId.Name.c_str() );
+				WEAPON *weap = gWR.GetWeapon( wepinf.WeaponID );
 
 				if (!weap)
 					return 1; // we don't know about the weapon yet, so don't draw anything
@@ -172,19 +156,21 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 				ScaleColors(r, g, b, a);
 
 				int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
-				int xpos = ScreenWidth - weap->rcInactive.GetWidth() - weaponMarginRight;
-				SPR_Set(weap->hInactive, r, g, b);
-				SPR_DrawAdditive(0, xpos, ypos, &weap->rcInactive);
+				int xpos = ScreenWidth - weap->hInactive.Wide - weaponMarginRight;
+				if ( weap->hInactive.Icon > -1 )
+				{
+					vgui2::surface()->DrawSetTexture( weap->hInactive.Icon );
+					vgui2::surface()->DrawSetColor( Color( r, g, b, a ) );
+					vgui2::surface()->DrawTexturedRect( xpos, ypos, xpos + weap->hInactive.Wide, ypos + weap->hInactive.Tall );
+				}
 			}
 			else if (rgAmmoHistory[i].type == HISTSLOT_ITEM)
 			{
 				int r, g, b;
 				float a;
 
-				if (!rgAmmoHistory[i].iId)
+				if (!rgAmmoHistory[i].iId.Icon)
 					continue; // sprite not loaded
-
-				wrect_t rect = gHUD.GetSpriteRect(rgAmmoHistory[i].iId);
 
 				float scale = (rgAmmoHistory[i].DisplayTime - flTime) * 80;
 				a = min(scale, 255.f) * gHUD.GetHudTransparency();
@@ -192,11 +178,15 @@ int HistoryResource::DrawAmmoHistory(float flTime)
 				gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
 				ScaleColors(r, g, b, a);
 
-				int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
-				int xpos = ScreenWidth - rect.GetWidth() / 2 - itemMarginRight;
+				if ( rgAmmoHistory[i].iId.Icon > -1 )
+				{
+					int ypos = ScreenHeight - (AMMO_HISTORY_YADJUST + AMMO_PICKUP_PICK_HEIGHT + (AMMO_PICKUP_GAP * i));
+					int xpos = ScreenWidth - rgAmmoHistory[i].iId.Wide / 2 - itemMarginRight;
 
-				SPR_Set(gHUD.GetSprite(rgAmmoHistory[i].iId), r, g, b);
-				SPR_DrawAdditive(0, xpos, ypos, &rect);
+					vgui2::surface()->DrawSetTexture( rgAmmoHistory[i].iId.Icon );
+					vgui2::surface()->DrawSetColor( Color( r, g, b, a ) );
+					vgui2::surface()->DrawTexturedRect( xpos, ypos, xpos + rgAmmoHistory[i].iId.Wide, ypos + rgAmmoHistory[i].iId.Tall );
+				}
 			}
 		}
 	}

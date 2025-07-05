@@ -270,17 +270,6 @@ void UTIL_PrecacheOtherWeapon(const char *szClassname)
 		if (((CBasePlayerItem *)pEntity)->GetItemInfo(&II))
 		{
 			CBasePlayerItem::ItemInfoArray[II.iId] = II;
-
-			if (II.pszAmmo1 && *II.pszAmmo1)
-			{
-				AddAmmoNameToAmmoRegistry(II.pszAmmo1);
-			}
-
-			if (II.pszAmmo2 && *II.pszAmmo2)
-			{
-				AddAmmoNameToAmmoRegistry(II.pszAmmo2);
-			}
-
 			memset(&II, 0, sizeof II);
 		}
 	}

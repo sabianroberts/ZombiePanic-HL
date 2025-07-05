@@ -38,22 +38,14 @@ struct WEAPON
 
 	int iCount; // # of itesm in plist
 
-	V_HSPRITE hActive;
-	wrect_t rcActive;
-	V_HSPRITE hInactive;
-	wrect_t rcInactive;
-	V_HSPRITE hAmmo;
-	wrect_t rcAmmo;
-	V_HSPRITE hAmmo2;
-	wrect_t rcAmmo2;
-	V_HSPRITE hCrosshair;
-	wrect_t rcCrosshair;
-	V_HSPRITE hAutoaim;
-	wrect_t rcAutoaim;
-	V_HSPRITE hZoomedCrosshair;
-	wrect_t rcZoomedCrosshair;
-	V_HSPRITE hZoomedAutoaim;
-	wrect_t rcZoomedAutoaim;
+	CHud::RegisteredIcon hActive;
+	CHud::RegisteredIcon hInactive;
+	CHud::RegisteredIcon hAmmo;
+	CHud::RegisteredIcon hAmmo2;
+	CHud::RegisteredIcon hCrosshair;
+	CHud::RegisteredIcon hAutoaim;
+	CHud::RegisteredIcon hZoomedCrosshair;
+	CHud::RegisteredIcon hZoomedAutoaim;
 };
 
 typedef int AMMO;
@@ -75,6 +67,8 @@ public:
 	int MsgFunc_WeapPickup(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_ItemPickup(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_HideWeapon(const char *pszName, int iSize, void *pbuf);
+
+	bool IsIconValid(CHud::RegisteredIcon icon);
 
 	int GetMaxSlot() { return m_iMaxSlot; }
 	void SlotInput(int iSlot);

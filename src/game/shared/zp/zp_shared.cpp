@@ -17,7 +17,7 @@
 
 #include "zp_shared.h"
 
-#define WEAPON_SCRIPT_PATH "scripts/weapon_"
+#define WEAPON_SCRIPT_PATH "scripts/"
 #define WEAPON_SCRIPT_FILE ".txt"
 static std::vector<WeaponData> sWeaponDataList;
 static AmmoData sAmmoDataList[] = {
@@ -35,39 +35,33 @@ static AmmoData sAmmoDataList[] = {
 	{ AMMO_NONE, "", -1, 0.0f }
 };
 
-WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
+static WeaponInfo sWeaponInfoList[] = {
+	// { const char *szWeapon, ZPWeaponID WeaponID, bool Hidden }
+	{ "crowbar", WEAPON_CROWBAR, false },
+	{ "swipe", WEAPON_SWIPE, true },
+	{ "sig", WEAPON_SIG, false },
+	{ "357", WEAPON_PYTHON, false },
+	{ "mp5", WEAPON_MP5, false },
+	{ "556ar", WEAPON_556AR, false },
+	{ "shotgun", WEAPON_SHOTGUN, false },
+	{ "handgrenade", WEAPON_HANDGRENADE, false },
+	{ "satchel", WEAPON_SATCHEL, false },
+};
+
+WeaponData CreateWeaponSlotData( const char *szClassname )
 {
-	const char *szWeaponScriptFile = nullptr;
-	// TODO: Change this to use pev->classname instead later?
-	// example output should be: "scripts/weapon_crowbar.txt"
-	switch ( WeaponID )
-	{
-		case WEAPON_CROWBAR: szWeaponScriptFile = WEAPON_SCRIPT_PATH "crowbar" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_SWIPE: szWeaponScriptFile = WEAPON_SCRIPT_PATH "swipe" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_SIG: szWeaponScriptFile = WEAPON_SCRIPT_PATH "sig" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_PYTHON: szWeaponScriptFile = WEAPON_SCRIPT_PATH "357" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_MP5: szWeaponScriptFile = WEAPON_SCRIPT_PATH "mp5" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_556AR: szWeaponScriptFile = WEAPON_SCRIPT_PATH "556ar" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_SHOTGUN: szWeaponScriptFile = WEAPON_SCRIPT_PATH "shotgun" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_HANDGRENADE: szWeaponScriptFile = WEAPON_SCRIPT_PATH "grenade" WEAPON_SCRIPT_FILE; break;
-		case WEAPON_SATCHEL: szWeaponScriptFile = WEAPON_SCRIPT_PATH "satchel" WEAPON_SCRIPT_FILE; break;
-		default: szWeaponScriptFile = WEAPON_SCRIPT_PATH "example" WEAPON_SCRIPT_FILE; break;
-	}
-	if ( !szWeaponScriptFile ) return WeaponData();
-#if defined( CLIENT_DLL )
-	UTIL_LogPrintf("[CLIENT] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
-#else
-	UTIL_LogPrintf("[SERVER] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
-#endif
+	// TODO: Make sure "weapon_" is included!
+	if ( !szClassname ) return WeaponData();
+	std::string szFile( WEAPON_SCRIPT_PATH + std::string( szClassname ) + WEAPON_SCRIPT_FILE );
 	KeyValues *pWeaponScript = new KeyValues( "WeaponInfo" );
-	if ( !pWeaponScript->LoadFromFile( g_pFullFileSystem, szWeaponScriptFile ) )
+	if ( !pWeaponScript->LoadFromFile( g_pFullFileSystem, szFile.c_str() ) )
 	{
 		pWeaponScript->deleteThis();
 		return WeaponData();
 	}
 
 	WeaponData slot;
-	slot.WeaponID = WeaponID;
+	slot.WeaponID = GetWeaponInfo( szClassname ).WeaponID;
 	slot.Ammo1[0] = 0;
 	slot.Ammo2[0] = 0;
 
@@ -76,6 +70,8 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	slot.FireRate[1] = 0.1f;
 	slot.WeaponSpread[0] = 0.1f;
 	slot.WeaponSpread[1] = 0.1f;
+	for ( int i = 0; i < WeaponDataIcons::MAX_ICONS; i++ )
+		slot.Icons[i][0] = 0;
 
 	slot.Slot = pWeaponScript->GetInt( "Slot", 0 );
 	slot.Position = pWeaponScript->GetInt( "Position", 0 );
@@ -85,7 +81,10 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	{
 		AmmoData ammo = GetAmmoByName( szAmmoType );
 		if ( ammo.MaxCarry != -1 )
+		{
 			UTIL_strcpy( slot.Ammo1, szAmmoType );
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_AMMO1], szAmmoType );
+		}
 	}
 
 	szAmmoType = pWeaponScript->GetString( "AmmoType2", NULL );
@@ -93,7 +92,10 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 	{
 		AmmoData ammo = GetAmmoByName( szAmmoType );
 		if ( ammo.MaxCarry != -1 )
-			UTIL_strcpy(slot.Ammo2, szAmmoType);
+		{
+			UTIL_strcpy( slot.Ammo2, szAmmoType );
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_AMMO2], szAmmoType );
+		}
 	}
 
 	slot.DefaultAmmo = pWeaponScript->GetInt( "DefaultGive", 0 );
@@ -130,16 +132,65 @@ WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
 		slot.WeaponSpread[1] = pSecondaryAttack->GetFloat( "Spread", 0.1f );
 	}
 
+	KeyValues *pWeaponSprites = pWeaponScript->FindKey( "HUD" );
+	if ( pWeaponSprites )
+	{
+		const char *szIcon = pWeaponSprites->GetString( "Weapon", NULL );
+		if ( szIcon && szIcon[0] )
+		{
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_WEAPON], szIcon );
+			char buffer[32];
+			Q_snprintf( buffer, sizeof( buffer ), "%s_s", szIcon );
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_WEAPON_SELECTED], buffer );
+		}
+		szIcon = pWeaponSprites->GetString( "Crosshair", NULL );
+		if ( szIcon && szIcon[0] )
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_CROSSHAIR], szIcon );
+		szIcon = pWeaponSprites->GetString( "CrosshairAuto", NULL );
+		if ( szIcon && szIcon[0] )
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_CROSSHAIR_AUTO], szIcon );
+		szIcon = pWeaponSprites->GetString( "CrosshairZoom", NULL );
+		if ( szIcon && szIcon[0] )
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_CROSSHAIR_ZOOM], szIcon );
+		szIcon = pWeaponSprites->GetString( "CrosshairZoomAuto", NULL );
+		if ( szIcon && szIcon[0] )
+			UTIL_strcpy( slot.Icons[WeaponDataIcons::ICON_CROSSHAIR_ZOOMAUTO], szIcon );
+	}
+
 	pWeaponScript->deleteThis();
 
 #if defined( CLIENT_DLL )
-	UTIL_LogPrintf("[CLIENT] Loaded weapon script \"%s\" [%i]\n", szWeaponScriptFile, slot.WeaponID );
+	UTIL_LogPrintf("[CLIENT] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
 #else
-	UTIL_LogPrintf("[SERVER] Loaded weapon script \"%s\" [%i]\n", szWeaponScriptFile, slot.WeaponID );
+	UTIL_LogPrintf("[SERVER] Loaded weapon script \"%s\" [%i]\n", szFile.c_str(), slot.WeaponID );
 #endif
 
 	sWeaponDataList.push_back( slot );
 	return slot;
+}
+
+WeaponData CreateWeaponSlotData( ZPWeaponID WeaponID )
+{
+	const char *szWeaponScriptFile = nullptr;
+	switch ( WeaponID )
+	{
+		case WEAPON_CROWBAR: szWeaponScriptFile = "weapon_crowbar"; break;
+		case WEAPON_SWIPE: szWeaponScriptFile = "weapon_swipe"; break;
+		case WEAPON_SIG: szWeaponScriptFile = "weapon_sig"; break;
+		case WEAPON_PYTHON: szWeaponScriptFile = "weapon_357"; break;
+		case WEAPON_MP5: szWeaponScriptFile = "weapon_mp5"; break;
+		case WEAPON_556AR: szWeaponScriptFile = "weapon_556ar"; break;
+		case WEAPON_SHOTGUN: szWeaponScriptFile = "weapon_shotgun"; break;
+		case WEAPON_HANDGRENADE: szWeaponScriptFile = "weapon_handgrenade"; break;
+		case WEAPON_SATCHEL: szWeaponScriptFile = "weapon_satchel"; break;
+		default: szWeaponScriptFile = "weapon_example"; break;
+	}
+#if defined( CLIENT_DLL )
+	UTIL_LogPrintf("[CLIENT] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
+#else
+	UTIL_LogPrintf("[SERVER] Loading weapon script \"%s\" [i]\n", szWeaponScriptFile, WeaponID );
+#endif
+	return CreateWeaponSlotData( szWeaponScriptFile );
 }
 
 AmmoData GetAmmoByName( const char *szAmmoType )
@@ -182,6 +233,47 @@ AmmoData GetAmmoByWeaponID(ZPWeaponID id, bool bPrimary)
 	return GetAmmoByName( bPrimary ? slot.Ammo1 : slot.Ammo2 );
 }
 
+WeaponInfo GetWeaponInfo( const char *szClassname )
+{
+	if ( szClassname && szClassname[0] )
+	{
+		// Check if we have "weapon_", if we do, get rid of it.
+		if ( StringHasPrefix( szClassname, "weapon_" ) )
+			szClassname += 7;
+
+		for ( int i = 0; i < ARRAYSIZE( sWeaponInfoList ); i++ )
+		{
+			WeaponInfo weapon = sWeaponInfoList[i];
+			if ( FStrEq( weapon.szWeapon, szClassname ) )
+				return weapon;
+		}
+	}
+	return WeaponInfo();
+}
+
+WeaponInfo GetWeaponInfo( ZPWeaponID id )
+{
+	for ( int i = 0; i < ARRAYSIZE( sWeaponInfoList ); i++ )
+	{
+		WeaponInfo weapon = sWeaponInfoList[i];
+		if ( weapon.WeaponID == id )
+			return weapon;
+	}
+	return WeaponInfo();
+}
+
+WeaponInfo GetRandomWeaponInfo()
+{
+	WeaponInfo weapon = WeaponInfo();
+	do
+	{
+		weapon = sWeaponInfoList[ RandomInt( 0, ARRAYSIZE( sWeaponInfoList ) - 1 ) ];
+	}
+	while ( !weapon.Hidden );
+	// Grab a random item
+	return weapon;
+}
+
 WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID )
 {
 	for ( int i = 0; i < sWeaponDataList.size(); i++ )
@@ -191,6 +283,11 @@ WeaponData GetWeaponSlotInfo( ZPWeaponID WeaponID )
 			return slot;
 	}
 	return CreateWeaponSlotData( WeaponID );
+}
+
+WeaponData GetWeaponSlotInfo( const char *szClassname )
+{
+	return GetWeaponSlotInfo( GetWeaponInfo( szClassname ).WeaponID );
 }
 
 #ifdef SERVER_DLL
