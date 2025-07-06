@@ -240,7 +240,7 @@ void CHalfLifeMultiplay ::Think(void)
 		return;
 	}
 
-	float flTimeLimit = timelimit.value * 60;
+	float flTimeLimit = gametime.value * 60;
 	float flFragLimit = fraglimit.value;
 
 	time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);

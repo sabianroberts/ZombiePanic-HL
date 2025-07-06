@@ -33,7 +33,7 @@ ZP::RoundState ZP::GetCurrentRoundState()
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 
-extern cvar_t timeleft;
+extern cvar_t roundtime;
 extern cvar_t testmode;
 extern cvar_t startdelay;
 extern int gmsgTeamInfo;
@@ -112,6 +112,7 @@ void CBaseGameMode::OnGameModeThink()
 
 		case ZP::RoundState_RoundHasBegunPost:
 	    {
+		    m_flRoundTime = roundtime.value > 0 ? gpGlobals->time + roundtime.value * 60 : -1;
 		    m_flLastZombieCheck = gpGlobals->time + 4.5f;
 			SetRoundState( ZP::RoundState_RoundHasBegun );
 		    MESSAGE_BEGIN(MSG_ALL, gmsgRoundState);
@@ -132,21 +133,11 @@ void CBaseGameMode::OnGameModeThink()
 	// Sorry pal, we don't care if everyone is dead, or the timeleft inf testmode.
 	if ( IsTestModeActive() ) return;
 
-	static int last_time;
-
-	int time_remaining = 0;
-
-	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
-	time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);
-	if ( flTimeLimit != 0 && gpGlobals->time >= flTimeLimit )
-		m_bTimeRanOut = true;
-
-	// Updates once per second
-	if (timeleft.value != last_time)
-		g_engfuncs.pfnCvar_DirectSet(&timeleft, UTIL_VarArgs("%i", time_remaining));
-	last_time = time_remaining;
-
 	CheckZombieAmount();
+
+	// Game time is over, go to intermission
+	if ( m_flRoundTime != -1 && gpGlobals->time >= m_flRoundTime )
+		m_bTimeRanOut = true;
 
 	// If we did not find anyone, then they may be all be dead (or disconnected)
 	if ( !bHasSomeoneAlive )
@@ -179,8 +170,6 @@ void CBaseGameMode::RestartRound()
 	SetWinState( WinState_e::State_None );
 	m_bAllSurvivorsDead = false;
 	m_bTimeRanOut = false;
-	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" );
-	g_engfuncs.pfnCvar_DirectSet( &timeleft, UTIL_VarArgs( "%i", (int)flTimeLimit ) );
 	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
 	WRITE_SHORT( GetRoundState() );
 	MESSAGE_END();

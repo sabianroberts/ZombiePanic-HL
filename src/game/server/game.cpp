@@ -49,7 +49,8 @@ cvar_t testmode = { "sv_testmode", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "   
 // multiplayer server rules
 cvar_t teamplay = { "mp_teamplay", "0", FCVAR_SERVER };
 cvar_t fraglimit = { "mp_fraglimit", "0", 0 };
-cvar_t timelimit = { "mp_timelimit", "0", FCVAR_SERVER };
+cvar_t gametime = { "mp_timelimit", "30", FCVAR_SERVER };
+cvar_t roundtime = { "mp_roundtime", "0", FCVAR_SERVER };
 cvar_t roundlimit = { "mp_roundlimit", "15", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
 cvar_t friendlyfire = { "mp_friendlyfire", "0", FCVAR_SERVER };
 cvar_t ducktap = { "mp_ducktap", "1", FCVAR_SERVER };
@@ -545,7 +546,8 @@ void GameDLLInit(void)
 
 	CVAR_REGISTER(&teamplay);
 	CVAR_REGISTER(&fraglimit);
-	CVAR_REGISTER(&timelimit);
+	CVAR_REGISTER(&gametime);
+	CVAR_REGISTER(&roundtime);
 
 	CVAR_REGISTER(&roundlimit);
 	CVAR_REGISTER(&testmode);

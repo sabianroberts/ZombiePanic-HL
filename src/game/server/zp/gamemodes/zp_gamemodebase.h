@@ -37,6 +37,9 @@ public:
 	ZP::RoundState GetRoundState() const { return m_iRoundState; }
 	virtual void OnRoundStateThink( ZP::RoundState state ) {};
 
+protected:
+	float m_flRoundTime = -1;
+
 private:
 	ZP::RoundState m_iRoundState = ZP::RoundState::RoundState_WaitingForPlayers;
 };

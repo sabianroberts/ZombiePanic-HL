@@ -80,6 +80,7 @@ CZombiePanicGameRules::~CZombiePanicGameRules()
 
 #include "voice_gamemgr.h"
 extern CVoiceGameMgr g_VoiceGameMgr;
+extern cvar_t timeleft;
 
 void CZombiePanicGameRules ::Think(void)
 {
@@ -92,6 +93,24 @@ void CZombiePanicGameRules ::Think(void)
 		BaseClass::Think();
 		return;
 	}
+
+	static int last_time;
+
+	int time_remaining = 0;
+
+	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
+	time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);
+	if ( flTimeLimit != 0 && gpGlobals->time >= flTimeLimit )
+	{
+		GoToIntermission();
+		return;
+	}
+
+	// Updates once per second
+	if (timeleft.value != last_time)
+		g_engfuncs.pfnCvar_DirectSet(&timeleft, UTIL_VarArgs("%i", time_remaining));
+
+	last_time = time_remaining;
 
 	IGameModeBase::WinState_e eWinState = m_pGameMode->GetWinState();
 	if ( eWinState >= IGameModeBase::WinState_e::State_Draw )

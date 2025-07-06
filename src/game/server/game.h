@@ -28,7 +28,8 @@ extern cvar_t spectator_cmd_delay;
 // multiplayer server rules
 extern cvar_t teamplay;
 extern cvar_t fraglimit;
-extern cvar_t timelimit;
+extern cvar_t gametime;
+extern cvar_t roundtime;
 extern cvar_t roundlimit;
 extern cvar_t friendlyfire;
 extern cvar_t ducktap;
