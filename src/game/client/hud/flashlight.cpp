@@ -25,8 +25,12 @@
 #include "cl_util.h"
 #include "parsemsg.h"
 #include "flashlight.h"
+#include "event_api.h"
 
 #define BAT_NAME "sprites/%d_Flashlight.spr"
+
+#define SOUND_ZOMBVISION_ON  "items/zvision_on.wav"
+#define SOUND_ZOMBVISION_OFF "items/zvision_off.wav"
 
 extern globalvars_t *gpGlobals;
 
@@ -86,6 +90,8 @@ int CHudFlashlight::MsgFunc_Flashlight(const char *pszName, int iSize, void *pbu
 	int x = READ_BYTE();
 	m_iBat = x;
 	m_flBat = ((float)x) / 100.0;
+
+	gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, gHUD.m_bUseZombVision ? SOUND_ZOMBVISION_ON : SOUND_ZOMBVISION_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM );
 
 	return 1;
 }

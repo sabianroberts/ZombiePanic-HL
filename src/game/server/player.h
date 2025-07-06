@@ -61,9 +61,6 @@
 #define SOUND_FLASHLIGHT_ON  "items/flashlight1.wav"
 #define SOUND_FLASHLIGHT_OFF "items/flashlight1.wav"
 
-#define SOUND_ZOMBVISION_ON  "items/zvision_on.wav"
-#define SOUND_ZOMBVISION_OFF "items/zvision_off.wav"
-
 typedef enum
 {
 	PLAYER_IDLE,
