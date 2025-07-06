@@ -16,14 +16,14 @@
 extern int gmsgTeamInfo;
 extern void CopyToBodyQue(entvars_t *pev);
 
-ConVar zps_zombielives( "zps_zombielives", "5", FCVAR_SERVER, "Amount of zombie starter lives" );
+ConVar zp_zombielives( "zp_zombielives", "8", FCVAR_SERVER, "Amount of zombie starter lives" );
 
 ZPGameMode_Survival::ZPGameMode_Survival()
 {
 	SetRoundState( ZP::RoundState_WaitingForPlayers );
 	m_bTimeRanOut = false;
 	m_bAllSurvivorsDead = false;
-	m_iZombieLives = zps_zombielives.GetInt();
+	m_iZombieLives = zp_zombielives.GetInt();
 	m_flRoundBeginsIn = 0;
 }
 
@@ -90,7 +90,7 @@ ZPGameMode_Survival::WinState_e ZPGameMode_Survival::GetWinState()
 void ZPGameMode_Survival::RestartRound()
 {
 	m_bTimeRanOut = false;
-	m_iZombieLives = zps_zombielives.GetInt();
+	m_iZombieLives = zp_zombielives.GetInt();
 	BaseClass::RestartRound();
 }
 
@@ -116,16 +116,20 @@ bool ZPGameMode_Survival::HasNoRemainingZombies() const
 
 void ZPGameMode_Survival::CalculateZombieLives()
 {
-	// Default value of starter zombies
-	int iAdd = m_iZombieLives = zps_zombielives.GetInt();
+	int iPlayers = 0;
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 		if ( plr )
-			iAdd += 2;
+			iPlayers += 2;
 	}
-	m_iZombieLives = (int)clamp( iAdd, 5, 18 );
-	UpdateZombieLifesForClient();
+	// More than 8 lives now that we have more players (more than 4)?
+	// Override it
+	if ( iPlayers > m_iZombieLives )
+	{
+		m_iZombieLives = iPlayers;
+		UpdateZombieLifesForClient();
+	}
 }
 
 void ZPGameMode_Survival::OnRoundStateThink( ZP::RoundState state )
