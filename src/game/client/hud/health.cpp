@@ -226,19 +226,23 @@ void CHudHealth::Draw(float flTime)
 		else
 			x = gHUD.DrawHudNumber(x, y, m_iHealth, r, g, b);
 
-		x += HealthWidth / 2;
+		// Don't draw the divider if we are on the zombie team.
+		if ( gEngfuncs.GetLocalPlayer()->curstate.team != ZP::TEAM_ZOMBIE )
+		{
+			x += HealthWidth / 2;
 
-		int iHeight = gHUD.m_iFontHeight;
-		int iWidth = HealthWidth / 10;
+			int iHeight = gHUD.m_iFontHeight;
+			int iWidth = HealthWidth / 10;
 
-		if (!hud_dim.GetBool())
-			a = MIN_ALPHA + ALPHA_POINTS_MAX;
-		else
-			a = MIN_ALPHA;
-		a *= gHUD.GetHudTransparency();
-		gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
+			if (!hud_dim.GetBool())
+				a = MIN_ALPHA + ALPHA_POINTS_MAX;
+			else
+				a = MIN_ALPHA;
+			a *= gHUD.GetHudTransparency();
+			gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
 
-		FillRGBA(x, y, iWidth, iHeight, r, g, b, a);
+			FillRGBA(x, y, iWidth, iHeight, r, g, b, a);
+		}
 	}
 
 	DrawDamage(flTime);

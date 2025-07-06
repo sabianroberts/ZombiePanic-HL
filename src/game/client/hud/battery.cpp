@@ -70,6 +70,10 @@ void CHudBattery::Draw(float flTime)
 	if (gHUD.m_iHideHUDDisplay & HIDEHUD_HEALTH)
 		return;
 
+	// Zombies have no armor, don't draw it.
+	if ( gEngfuncs.GetLocalPlayer()->curstate.team == ZP::TEAM_ZOMBIE )
+		return;
+
 	int r, g, b, x, y;
 	float a;
 	wrect_t rc;
