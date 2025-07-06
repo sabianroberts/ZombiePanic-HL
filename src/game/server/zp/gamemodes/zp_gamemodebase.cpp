@@ -179,6 +179,8 @@ void CBaseGameMode::RestartRound()
 	SetWinState( WinState_e::State_None );
 	m_bAllSurvivorsDead = false;
 	m_bTimeRanOut = false;
+	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" );
+	g_engfuncs.pfnCvar_DirectSet( &timeleft, UTIL_VarArgs( "%i", (int)flTimeLimit ) );
 	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
 	WRITE_SHORT( GetRoundState() );
 	MESSAGE_END();
