@@ -61,6 +61,7 @@ public:
 	int DrawWList(float flTime);
 	void DrawCrosshair();
 	void DrawCrosshair(CHud::RegisteredIcon icon, int x, int y, Color clr);
+	void DrawBackgroundSlot(const Color &clr, int x, int y, CHud::RegisteredIcon icon);
 	int MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_WeaponList(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_AmmoX(const char *pszName, int iSize, void *pbuf);

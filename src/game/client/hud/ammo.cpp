@@ -539,6 +539,11 @@ void CHudAmmo::DrawCrosshair( CHud::RegisteredIcon icon, int x, int y, Color clr
 	vgui2::surface()->DrawTexturedRect( xpos, ypos, xpos + icon.Wide, ypos + icon.Tall );
 }
 
+void CHudAmmo::DrawBackgroundSlot( const Color &clr, int x, int y, CHud::RegisteredIcon icon )
+{
+	gEngfuncs.pfnFillRGBA( x, y, icon.Wide, icon.Tall, clr.r(), clr.g(), clr.b(), 100 );
+}
+
 //
 // WeaponList -- Tells the hud about a new weapon type.
 //
@@ -1069,8 +1074,10 @@ int CHudAmmo::DrawWList(float flTime)
 
 					if ( IsIconValid( p->hActive ) )
 					{
+						Color ItemBG( r, g, b, a );
+						DrawBackgroundSlot( ItemBG, x, y, p->hActive );
 						vgui2::surface()->DrawSetTexture( p->hActive.Icon );
-						vgui2::surface()->DrawSetColor( Color( r, g, b, a ) );
+						vgui2::surface()->DrawSetColor( ItemBG );
 						vgui2::surface()->DrawTexturedRect( x, y, x + p->hActive.Wide, y + p->hActive.Tall );
 					}
 					else
@@ -1107,8 +1114,10 @@ int CHudAmmo::DrawWList(float flTime)
 
 					if ( IsIconValid( p->hInactive ) )
 					{
+						Color ItemBG( r, g, b, a );
+						DrawBackgroundSlot( ItemBG, x, y, p->hInactive );
 						vgui2::surface()->DrawSetTexture( p->hInactive.Icon );
-						vgui2::surface()->DrawSetColor( Color( r, g, b, a ) );
+						vgui2::surface()->DrawSetColor( ItemBG );
 						vgui2::surface()->DrawTexturedRect( x, y, x + p->hInactive.Wide, y + p->hInactive.Tall );
 					}
 					else
