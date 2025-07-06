@@ -403,6 +403,7 @@ public:
 
 	// Give achivement
 	void GiveAchievement( EAchievements eAchivement );
+	void NotifyOfEarnedAchivement( int eAchivement );
 #endif
 
 	//-----------------------------------------------------

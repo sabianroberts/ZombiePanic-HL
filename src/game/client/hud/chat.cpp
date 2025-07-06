@@ -464,6 +464,7 @@ void CHudChat::Init(void)
 
 	HookMessage<&CHudChat::MsgFunc_SayText>("SayText");
 	HookMessage<&CHudChat::MsgFunc_GiveAch>("GiveAch");
+	HookMessage<&CHudChat::MsgFunc_AchEarn>("AchEarn");
 
 	// Hook messagemode and messagemode2
 	cmd_function_t *item = gEngfuncs.GetFirstCmdFunctionHandle();
@@ -1164,7 +1165,6 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ(pbuf, iSize);
 
-	int client = READ_SHORT(); // the player
 	int achievement = READ_SHORT(); // the achivement we got
 
 	if ( !GetSteamAPI() ) return 1;
@@ -1189,6 +1189,22 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 		// Check if we have enough.
 		if ( value < GetAchievementByID( achievement ).tmp_mvalue ) return 1;
 	}
+
+	// Give the achievement.
+	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( achievement ).m_pchAchievementID );
+
+	// Tell the server, that we earned it!
+	gEngfuncs.pfnServerCmd( vgui2::VarArgs( "achearn %i", achievement ) );
+
+	return 1;
+}
+
+int CHudChat::MsgFunc_AchEarn(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+
+	int client = READ_SHORT(); // the player
+	int achievement = READ_SHORT(); // the achivement we got
 
 	// Grab the name of the player
 	wchar_t wszPlayerName[32];
@@ -1218,9 +1234,6 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 
 	// print raw chat text
 	ChatPrintf( -1, "%s", outout_string );
-
-	// Give the achievement.
-	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( achievement ).m_pchAchievementID );
 
 	return 1;
 }

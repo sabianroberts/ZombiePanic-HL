@@ -500,6 +500,13 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			pPlayer->DoPanic();
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "achearn"))
+	{
+		const char *pAchivement = CMD_ARGV(1);
+		if (pAchivement && pAchivement[0])
+			pPlayer->NotifyOfEarnedAchivement( atoi( pAchivement ) );
+		return TRUE;
+	}
 
 	if ( m_pGameMode->IsTestModeActive() )
 	{

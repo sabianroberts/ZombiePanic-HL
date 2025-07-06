@@ -222,6 +222,7 @@ int gmsgFog = 0;
 
 int gmsgObjective = 0;
 int gmsgAchievement = 0;
+int gmsgAchEarned = 0;
 
 const char *const gCustomMessages[] = {
 	"IconInfo",
@@ -300,6 +301,7 @@ void LinkUserMessages(void)
 
 	gmsgObjective = REG_USER_MSG("ObjMsg", -1);
 	gmsgAchievement = REG_USER_MSG("GiveAch", -1);
+	gmsgAchEarned = REG_USER_MSG("AchEarn", -1);
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -2114,6 +2116,13 @@ void CBasePlayer::UpdateHealthRegen()
 void CBasePlayer::GiveAchievement( EAchievements eAchivement )
 {
 	MESSAGE_BEGIN( MSG_ONE, gmsgAchievement, NULL, pev );
+	WRITE_SHORT( eAchivement );
+	MESSAGE_END();
+}
+
+void CBasePlayer::NotifyOfEarnedAchivement( int eAchivement )
+{
+	MESSAGE_BEGIN( MSG_ALL, gmsgAchEarned );
 	WRITE_SHORT( entindex() );
 	WRITE_SHORT( eAchivement );
 	MESSAGE_END();
