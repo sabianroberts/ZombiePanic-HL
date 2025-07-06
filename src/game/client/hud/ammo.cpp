@@ -88,7 +88,7 @@ void WeaponsResource::LoadWeaponSprites(WEAPON *pWeapon)
 	char sz[256];
 	if ( !pWeapon ) return;
 
-	WeaponData &wpnDat = GetWeaponSlotInfo( pWeapon->szName );
+	WeaponData wpnDat = GetWeaponSlotInfo( pWeapon->szName );
 	pWeapon->hInactive = gHUD.GetRegisteredIcon( wpnDat.Icons[ICON_WEAPON] );
 	pWeapon->hActive = gHUD.GetRegisteredIcon( wpnDat.Icons[ICON_WEAPON_SELECTED] );
 	pWeapon->hAmmo = gHUD.GetRegisteredIcon( wpnDat.Icons[ICON_AMMO1] );

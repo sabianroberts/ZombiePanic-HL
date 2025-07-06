@@ -164,7 +164,7 @@ void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
 
 void CFileBrowser::Open( int eFilter, const char *szFolder, const char *szPathID, DialogSelected_t pFunction )
 {
-	Q_snprintf( this->szFolder, sizeof( this->szFolder ), "" );
+	this->szFolder[0] = 0;
 	Q_snprintf( this->szPathID, sizeof( this->szPathID ), "%s", szPathID );
 	bIsFolderOnly = (eFilter == -1) ? true : false;
 	nFilter = eFilter;
