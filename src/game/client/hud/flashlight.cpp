@@ -91,7 +91,9 @@ int CHudFlashlight::MsgFunc_Flashlight(const char *pszName, int iSize, void *pbu
 	m_iBat = x;
 	m_flBat = ((float)x) / 100.0;
 
-	gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, gHUD.m_bUseZombVision ? SOUND_ZOMBVISION_ON : SOUND_ZOMBVISION_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM );
+	// Zombie team only
+	if ( gEngfuncs.GetLocalPlayer()->curstate.team == ZP::TEAM_ZOMBIE )
+		gEngfuncs.pEventAPI->EV_PlaySound( -1, gEngfuncs.GetLocalPlayer()->origin, 0, gHUD.m_bUseZombVision ? SOUND_ZOMBVISION_ON : SOUND_ZOMBVISION_OFF, 1.0, ATTN_NORM, 0, PITCH_NORM );
 
 	return 1;
 }
