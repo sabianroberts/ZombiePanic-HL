@@ -487,7 +487,9 @@ void CHud::RegisterHudTextureFile( const char *szFile )
 			if ( !pIcon ) continue;
 			// Now, let's make sure the res is valid
 			KeyValues *pIconRes = pIcon->FindKey( szGetHUDRes );
-			if ( !pIconRes ) continue;
+			// Don't have a res? Then it's a value for all res.
+			if ( !pIconRes )
+				pIconRes = pIcon;
 			// Now, let's add the data!
 			RegisteredIcon data;
 			int texture_id = vgui2::surface()->CreateNewTextureID( true );

@@ -197,9 +197,6 @@ int CHud::MsgFunc_SetFOV(const char *pszName, int iSize, void *pbuf)
 		m_flMouseSensitivity = IN_GetMouseSensitivity() * ((float)newfov / (float)def_fov) * zoom_sensitivity_ratio.GetFloat();
 	}
 
-	// Update crosshair after zoom change
-	CHudAmmo::Get()->UpdateCrosshair();
-
 	return 1;
 }
 

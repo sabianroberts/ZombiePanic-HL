@@ -569,6 +569,10 @@ void CHudSpectator::Draw(float flTime)
 	if (!g_iUser1)
 		return;
 
+	// Show crosshair only for First Person mode
+	if ( g_iUser1 == OBS_IN_EYE )
+		CHudAmmo::Get()->DrawCrosshair();
+
 	// if user pressed zoom, aplly changes
 	if ((m_zoomDelta != 0.0f) && (g_iUser1 == OBS_MAP_FREE))
 	{
@@ -1806,17 +1810,7 @@ void CHudSpectator::CheckSettings()
 		}
 	}
 	else
-	{
-		// Show crosshair only for First Person mode
-		if (g_iUser1 == OBS_IN_EYE)
-		{
-			CHudAmmo::Get()->UpdateCrosshair();
-		}
-		else
-		{
-			SetCrosshair(0, nullrc, 0, 0, 0);
-		}
-	}
+		SetCrosshair( 0, nullrc, 0, 0, 0 );
 
 	// if we are a real player on server don't allow inset window
 	// in First Person mode since this is our resticted forcecamera mode 2

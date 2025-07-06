@@ -223,11 +223,7 @@ void CHudAmmo::VidInit()
 void CHudAmmo::Think(void)
 {
 	if (gHUD.m_iFOV != m_iLastFOV)
-	{
-		// Update crosshair after zoom change
-		UpdateCrosshair();
 		m_iLastFOV = gHUD.m_iFOV;
-	}
 
 	if (gHUD.m_fPlayerDead)
 		return;
@@ -421,15 +417,10 @@ int CHudAmmo::MsgFunc_HideWeapon(const char *pszName, int iSize, void *pbuf)
 		return 1;
 
 	if (gHUD.m_iHideHUDDisplay & (HIDEHUD_WEAPONS | HIDEHUD_ALL))
-	{
-		static wrect_t nullrc;
 		gpActiveSel = NULL;
-		SetCrosshair(0, nullrc, 0, 0, 0);
-	}
-	else
-	{
-		UpdateCrosshair();
-	}
+
+	static wrect_t nullrc;
+	SetCrosshair(0, nullrc, 0, 0, 0);
 
 	return 1;
 }
@@ -499,7 +490,7 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf)
 	m_pWeapon = pWeapon;
 	g_ActiveAmmoIndex = m_pWeapon->iAmmoType;
 
-	UpdateCrosshair();
+	SetCrosshair( 0, nullrc, 0, 0, 0 );
 
 	m_fFade = FADE_TIME;
 	m_iFlags |= HUD_ACTIVE;
@@ -507,44 +498,45 @@ int CHudAmmo::MsgFunc_CurWeapon(const char *pszName, int iSize, void *pbuf)
 	return 1;
 }
 
-void CHudAmmo::UpdateCrosshair()
+void CHudAmmo::DrawCrosshair()
 {
 	static wrect_t nullrc;
-	if (m_pWeapon == NULL)
+	if ( m_pWeapon == NULL )
 	{
-		SetCrosshair(0, nullrc, 0, 0, 0);
+		SetCrosshair( 0, nullrc, 0, 0, 0 );
 		return;
 	}
-#if 0
-	if (gHUD.m_iFOV >= 90)
-	{ // normal crosshairs
-		if (m_fOnTarget && IsIconValid( m_pWeapon->hAutoaim ))
-			SetCrosshair(m_pWeapon->hAutoaim, m_pWeapon->rcAutoaim, 255, 255, 255);
+	if ( CHudCrosshair::Get()->IsEnabled() ) return;
+
+	int y = ScreenHeight / 2;
+	int x = ScreenWidth / 2;
+	Color COLOR_WHITE( 255, 255, 255, 255 );
+
+	if ( gHUD.m_iFOV >= 90 )
+	{
+		if ( IsIconValid( m_pWeapon->hAutoaim ) && m_fOnTarget )
+			DrawCrosshair( m_pWeapon->hAutoaim, x, y, COLOR_WHITE );
 		else
-		{
-			if (!CHudCrosshair::Get()->IsEnabled())
-				SetCrosshair(m_pWeapon->hCrosshair, m_pWeapon->rcCrosshair, 255, 255, 255);
-			else // Disable crosshair because custom one is enabled
-				SetCrosshair(0, nullrc, 0, 0, 0);
-		}
+			DrawCrosshair( m_pWeapon->hCrosshair, x, y, COLOR_WHITE );
 	}
 	else
-	{ // zoomed crosshairs
-		int crossZoom = cl_cross_zoom.GetInt();
-		if (CHudCrosshair::Get()->IsEnabled() && crossZoom == 1)
-		{
-			// Disable crosshair because custom one is enabled
-			SetCrosshair(0, nullrc, 0, 0, 0);
-		}
+	{
+		if ( m_fOnTarget && IsIconValid( m_pWeapon->hZoomedAutoaim ) )
+			DrawCrosshair( m_pWeapon->hZoomedAutoaim, x, y, COLOR_WHITE );
 		else
-		{
-			if (m_fOnTarget && IsIconValid(m_pWeapon->hZoomedAutoaim))
-				SetCrosshair(m_pWeapon->hZoomedAutoaim, m_pWeapon->rcZoomedAutoaim, 255, 255, 255);
-			else
-				SetCrosshair(m_pWeapon->hZoomedCrosshair, m_pWeapon->rcZoomedCrosshair, 255, 255, 255);
-		}
+			DrawCrosshair( m_pWeapon->hZoomedCrosshair, x, y, COLOR_WHITE );
 	}
-#endif
+}
+
+void CHudAmmo::DrawCrosshair( CHud::RegisteredIcon icon, int x, int y, Color clr )
+{
+	int yOffset = icon.Tall / 2;
+	int xOffset = icon.Wide / 2;
+	int xpos = x - xOffset;
+	int ypos = y - yOffset;
+	vgui2::surface()->DrawSetTexture( icon.Icon );
+	vgui2::surface()->DrawSetColor( clr );
+	vgui2::surface()->DrawTexturedRect( xpos, ypos, xpos + icon.Wide, ypos + icon.Tall );
 }
 
 //
@@ -776,8 +768,8 @@ void CHudAmmo::Draw(float flTime)
 	// Draw Weapon Menu
 	DrawWList(flTime);
 
-	// Draw ammo pickup history
-	gHR.DrawAmmoHistory(flTime);
+	// Draw our crosshair
+	DrawCrosshair();
 
 	if (!(m_iFlags & HUD_ACTIVE))
 		return;
