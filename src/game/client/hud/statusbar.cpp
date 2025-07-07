@@ -190,7 +190,16 @@ void CHudStatusBar::Draw(float fTime)
 		m_bReparseString = FALSE;
 	}
 
-	int Y_START = ScreenHeight - 52;
+	int yText = 52;
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320: yText = 52; break;
+		case 640: yText = 52; break;
+		case 1280: yText = 104; break;
+		case 2560: yText = 156; break;
+	}
+	int Y_START = ScreenHeight - yText;
 
 	// Draw the status bar lines
 	for (int i = 0; i < MAX_STATUSBAR_LINES; i++)
