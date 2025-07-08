@@ -1,15 +1,23 @@
 #ifndef CHUDTIMER_H
 #define CHUDTIMER_H
 
+#include <vgui_controls/Panel.h>
+#include <vgui_controls/Label.h>
 #include "base.h"
 
-class CHudTimer : public CHudElemBase<CHudTimer>
+class CHudTimer : public CHudElemBase<CHudTimer>, public vgui2::Panel
 {
 public:
+	DECLARE_CLASS_SIMPLE(CHudTimer, vgui2::Panel);
+	CHudTimer();
+
+	virtual void ApplySchemeSettings(vgui2::IScheme *pScheme);
+
 	void Init();
 	void VidInit();
 	void Think();
 	void Draw(float flTime);
+	void ClearText();
 
 	int MsgFunc_Timer(const char *pszName, int iSize, void *pbuf);
 
@@ -41,6 +49,17 @@ private:
 	void SyncTimerRemote(unsigned int ip, unsigned short port, float fTime, double latency);
 	void DrawTimerInternal(int time, float ypos, int r, int g, int b, bool redOnLow);
 
+	enum StringToDraw
+	{
+		DRAW_TYPE_TIME,
+		DRAW_TYPE_MAP,
+		DRAW_TYPE_CUSTOM_TIME1,
+		DRAW_TYPE_CUSTOM_TIME2,
+
+		DRAW_TYPE_MAX
+	};
+	void DrawString(StringToDraw type, int y, const char *string, int r, int g, int b);
+
 	float m_flDemoSyncTime;
 	bool m_bDemoSyncTimeValid;
 	float m_flNextSyncTime;
@@ -70,6 +89,10 @@ private:
 	int m_iReceivedSize;
 	int m_iReceivedPackets;
 	int m_iReceivedPacketsCount;
+
+	vgui2::Label *m_pText[DRAW_TYPE_MAX];
+	CPanelAnimationVarAliasType( int, m_iTextSizeTall, "TextTall", "20", "proportional_int" );
+	CPanelAnimationStringVar( 32, m_szText, "Font", "ZPLives" );
 };
 
 #endif

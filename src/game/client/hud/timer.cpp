@@ -19,6 +19,11 @@
 #include "net.h"
 #include "demo.h"
 #include "demo_api.h"
+#include <vgui/ISurface.h>
+#include <vgui/ILocalize.h>
+#include <vgui_controls/Controls.h>
+#include "vgui/client_viewport.h"
+#include "zp/ui/workshop/WorkshopItemList.h"	// vgui2::VarArgs
 
 #define NET_API gEngfuncs.pNetAPI
 
@@ -47,6 +52,31 @@ RulesRequestStatus g_eRulesRequestStatus = SOCKET_NONE;
 NetSocket g_timerSocket = 0; // We will declare socket here to not include winsocks in hud.h
 
 DEFINE_HUD_ELEM(CHudTimer);
+
+CHudTimer::CHudTimer()
+    : vgui2::Panel(NULL, "HudTimer")
+{
+	SetParent( g_pViewport );
+	for ( int i = 0; i < StringToDraw::DRAW_TYPE_MAX; i++ )
+	{
+		m_pText[i] = new vgui2::Label( this, vgui2::VarArgs( "Text%i", i ), "" );
+		m_pText[i]->SetText( "" );
+		m_pText[i]->SetContentAlignment( vgui2::Label::Alignment::a_center );
+	}
+}
+
+void CHudTimer::ApplySchemeSettings(vgui2::IScheme *pScheme)
+{
+	BaseClass::ApplySchemeSettings(pScheme);
+	vgui2::HFont font = pScheme->GetFont( m_szText, IsProportional() );
+	if ( font != vgui2::INVALID_FONT )
+	{
+		for ( int i = 0; i < StringToDraw::DRAW_TYPE_MAX; i++ )
+			m_pText[i]->SetFont( font );
+	}
+
+	SetBgColor( Color(0, 0, 0, 0) );
+}
 
 void CHudTimer::Init()
 {
@@ -553,8 +583,11 @@ void CHudTimer::Draw(float fTime)
 {
 	char text[128];
 
-	if (gHUD.m_iHideHUDDisplay & HIDEHUD_ALL)
+	if ( gHUD.m_iHideHUDDisplay & HIDEHUD_ALL )
+	{
+		ClearText();
 		return;
+	}
 
 	// We will take time from demo stream if playingback
 	float currentTime;
@@ -597,8 +630,7 @@ void CHudTimer::Draw(float fTime)
 		timeinfo = localtime(&rawtime);
 		sprintf(text, "Clock %d:%02d:%02d", (int)timeinfo->tm_hour, (int)timeinfo->tm_min, (int)timeinfo->tm_sec);
 		// Output to screen
-		int width = TextMessageDrawString(ScreenWidth + 1, ypos, text, 0, 0, 0);
-		TextMessageDrawString((ScreenWidth - width) / 2, ypos, text, r, g, b);
+		DrawString( StringToDraw::DRAW_TYPE_TIME, ypos, text, r, g, b );
 		break;
 	}
 
@@ -608,11 +640,10 @@ void CHudTimer::Draw(float fTime)
 	{
 		snprintf(text, sizeof(text), "Nextmap is %s", m_szNextmap);
 		ypos = ScreenHeight * (TIMER_Y + TIMER_Y_NEXT_OFFSET);
-		int width = TextMessageDrawString(ScreenWidth + 1, ypos, text, 0, 0, 0);
 		float a = (timeleft >= 40 || hud_nextmap > 1 ? 255.0 : 255.0 / 3 * ((m_flEndTime - currentTime) + 1 - 37)) * gHUD.GetHudTransparency();
 		gHUD.GetHudColor(HudPart::Common, 0, r, g, b);
 		ScaleColors(r, g, b, a);
-		TextMessageDrawString((ScreenWidth - width) / 2, ypos, text, r, g, b);
+		DrawString( StringToDraw::DRAW_TYPE_MAP, ypos, text, r, g, b );
 	}
 
 	// Draw custom timers
@@ -631,11 +662,15 @@ void CHudTimer::Draw(float fTime)
 			sprintf(text, "Timer %d", (int)timeleft);
 			// Output to screen
 			ypos = ScreenHeight * (TIMER_Y + TIMER_Y_NEXT_OFFSET * (i + 2));
-			int width = TextMessageDrawString(ScreenWidth + 1, ypos, text, 0, 0, 0);
 			float a = 255 * gHUD.GetHudTransparency();
 			r = CUSTOM_TIMER_R, g = CUSTOM_TIMER_G, b = CUSTOM_TIMER_B;
 			ScaleColors(r, g, b, a);
-			TextMessageDrawString((ScreenWidth - width) / 2, ypos, text, r, g, b);
+
+			switch ( i )
+			{
+				case 0: DrawString( StringToDraw::DRAW_TYPE_CUSTOM_TIME1, ypos, text, r, g, b ); break;
+				case 1: DrawString( StringToDraw::DRAW_TYPE_CUSTOM_TIME2, ypos, text, r, g, b ); break;
+			}
 		}
 		else if (m_bCustomTimerNeedSound[i])
 		{
@@ -646,6 +681,12 @@ void CHudTimer::Draw(float fTime)
 			m_bCustomTimerNeedSound[i] = false;
 		}
 	}
+}
+
+void CHudTimer::ClearText()
+{
+	for ( int i = 0; i < StringToDraw::DRAW_TYPE_MAX; i++ )
+		m_pText[i]->SetText( "" );
 }
 
 void CHudTimer::DrawTimerInternal(int time, float ypos, int r, int g, int b, bool redOnLow)
@@ -693,6 +734,13 @@ void CHudTimer::DrawTimerInternal(int time, float ypos, int r, int g, int b, boo
 	}
 
 	// Output to screen
-	int width = TextMessageDrawString(ScreenWidth + 1, ypos, text, 0, 0, 0);
-	TextMessageDrawString((ScreenWidth - width) / 2, ypos, text, r, g, b);
+	DrawString( StringToDraw::DRAW_TYPE_TIME, ypos, text, r, g, b );
+}
+
+void CHudTimer::DrawString( StringToDraw type, int y, const char *string, int r, int g, int b )
+{
+	// Now draw our lives
+	m_pText[type]->SetBounds( 0, y, ScreenWidth, m_iTextSizeTall );
+	m_pText[type]->SetText( string );
+	m_pText[type]->SetFgColor( Color( r, g, b, 255 ) );
 }
