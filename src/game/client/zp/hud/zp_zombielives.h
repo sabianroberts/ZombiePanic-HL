@@ -20,9 +20,35 @@ public:
 	int MsgFunc_ZombieLives(const char *pszName, int iSize, void *pbuf);
 
 private:
+	/*
+		0 - 320
+		1 - 640
+		2 - 1280
+		3 - 2560
+	*/
+
 	CPanelAnimationVarAliasType( int, m_iIconTexture, "IconTexture", "ui/gfx/hud/zombielives", "textureid" );
-	CPanelAnimationVarAliasType( int, m_iIconWide, "IconWide", "20", "proportional_int" );
-	CPanelAnimationVarAliasType( int, m_iIconTall, "IconTall", "20", "proportional_int" );
+
+	// 320
+	CPanelAnimationVarAliasType( int, m_iIconWide_0, "IconWide_0", "20", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iIconTall_0, "IconTall_0", "20", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTextYAdd_0, "TextYAdd_0", "5", "proportional_int" );
+
+	// 640
+	CPanelAnimationVarAliasType( int, m_iIconWide_1, "IconWide_1", "20", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iIconTall_1, "IconTall_1", "20", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTextYAdd_1, "TextYAdd_1", "5", "proportional_int" );
+
+	// 1280
+	CPanelAnimationVarAliasType( int, m_iIconWide_2, "IconWide_2", "40", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iIconTall_2, "IconTall_2", "40", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTextYAdd_2, "TextYAdd_2", "10", "proportional_int" );
+
+	// 2560
+	CPanelAnimationVarAliasType( int, m_iIconWide_3, "IconWide_3", "60", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iIconTall_3, "IconTall_3", "60", "proportional_int" );
+	CPanelAnimationVarAliasType( int, m_iTextYAdd_3, "TextYAdd_3", "15", "proportional_int" );
+
 	CPanelAnimationVarAliasType( int, m_iTextXAdd, "TextXAdd", "5", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextSizeWide, "TextWide", "100", "proportional_int" );
 	CPanelAnimationVarAliasType( int, m_iTextSizeTall, "TextTall", "20", "proportional_int" );

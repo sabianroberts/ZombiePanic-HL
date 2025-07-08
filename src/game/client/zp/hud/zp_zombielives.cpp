@@ -59,16 +59,28 @@ void CHudZombieLives::Paint()
 	int x, y, w, h;
 	GetBounds( x, y, w, h );
 
+	// 0 - Wide
+	// 1 - Tall
+	int imagesize[3];
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320: imagesize[0] = m_iIconWide_0; imagesize[1] = m_iIconTall_0; imagesize[2] = m_iTextYAdd_0; break;
+		case 640: imagesize[0] = m_iIconWide_1; imagesize[1] = m_iIconTall_1; imagesize[2] = m_iTextYAdd_1; break;
+		case 1280: imagesize[0] = m_iIconWide_2; imagesize[1] = m_iIconTall_2; imagesize[2] = m_iTextYAdd_2; break;
+		case 2560: imagesize[0] = m_iIconWide_3; imagesize[1] = m_iIconTall_3; imagesize[2] = m_iTextYAdd_3; break;
+	}
+
 	vgui2::surface()->DrawSetTexture( m_iIconTexture );
 	vgui2::surface()->DrawSetColor( m_clrIcon );
-	vgui2::surface()->DrawTexturedRect( 0, 0, m_iIconWide, m_iIconTall );
+	vgui2::surface()->DrawTexturedRect( 0, 0, imagesize[0], imagesize[1] );
 
 	// Let's move our text to the right a bit
 	// but not too far, or too close.
-	int xPos = m_iIconWide + m_iTextXAdd;
+	int xPos = imagesize[0] + m_iTextXAdd;
 
 	// Now draw our lives
-	m_pLives->SetBounds( xPos, 0, m_iTextSizeWide, m_iTextSizeTall );
+	m_pLives->SetBounds( xPos, imagesize[2], m_iTextSizeWide, m_iTextSizeTall );
 }
 
 int CHudZombieLives::MsgFunc_ZombieLives( const char *pszName, int iSize, void *pbuf )
