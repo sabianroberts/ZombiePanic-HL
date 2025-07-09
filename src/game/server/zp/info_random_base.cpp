@@ -15,6 +15,8 @@ void CRandomItemBase::SpawnItem(void)
 	}
 }
 
+extern void ResetRandomWeaponSpawnList();
+
 void ZP::SpawnWeaponsFromRandomEntities()
 {
 	// First spawn all weapons
