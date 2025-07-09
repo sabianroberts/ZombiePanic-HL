@@ -22,7 +22,7 @@ tryagain:
 	switch ( RANDOM_LONG( 0, 4 ) )
 	{
 		case 0: szItemToSpawn = "ammo_9mmclip"; break;
-		case 1:// szItemToSpawn = "ammo_556box"; break;
+		case 1: szItemToSpawn = "ammo_mp5clip"; break;
 		case 2: szItemToSpawn = "ammo_556AR"; break;
 		case 3: szItemToSpawn = "ammo_buckshot"; break;
 		case 4: szItemToSpawn = "ammo_357"; break;
@@ -47,6 +47,7 @@ bool CRandomItemAmmo::WeaponExistInWorld( const char *szAmmoType ) const
 {
 	const char *szEntToCheck = nullptr;
 	if ( FStrEq( szAmmoType, "ammo_9mmclip" ) ) szEntToCheck = "weapon_sig";
+	else if ( FStrEq( szAmmoType, "ammo_mp5clip" ) ) szEntToCheck = "weapon_mp5";
 	else if ( FStrEq( szAmmoType, "ammo_556AR" ) || FStrEq( szAmmoType, "ammo_556box" ) ) szEntToCheck = "weapon_556ar";
 	else if ( FStrEq( szAmmoType, "ammo_buckshot" ) ) szEntToCheck = "weapon_shotgun";
 	else if ( FStrEq( szAmmoType, "ammo_357" ) ) szEntToCheck = "weapon_357";
