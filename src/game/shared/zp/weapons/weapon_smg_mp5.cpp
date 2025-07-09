@@ -6,13 +6,11 @@ enum
 {
 	MP5_LONGIDLE = 0,
 	MP5_IDLE1,
-	MP5_LAUNCH,
 	MP5_RELOAD,
 	MP5_DEPLOY,
 	MP5_FIRE1,
 	MP5_FIRE2,
-	MP5_FIRE3,
-	MP5_HOLSTER
+	MP5_FIRE3
 };
 
 LINK_ENTITY_TO_CLASS( weapon_mp5, CWeaponSMGMP5 );
@@ -35,8 +33,6 @@ void CWeaponSMGMP5::Precache(void)
 	PRECACHE_MODEL("models/p_mp5.mdl");
 
 	PRECACHE_MODEL("models/shell.mdl"); // brass shellTE_MODEL
-
-	PRECACHE_MODEL("models/grenade.mdl"); // grenade
 
 	PRECACHE_MODEL("models/w_9mmARclip.mdl");
 	PRECACHE_SOUND("items/9mmclip1.wav");
@@ -123,9 +119,8 @@ void CWeaponSMGMP5::PrimaryAttack()
 
 void CWeaponSMGMP5::Reload(void)
 {
-	if (m_pPlayer->ammo_556ar <= 0)
+	if (m_pPlayer->ammo_9mm <= 0)
 		return;
-
 	DefaultReload(MP5_RELOAD, 1.5);
 }
 
