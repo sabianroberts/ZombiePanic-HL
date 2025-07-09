@@ -42,4 +42,7 @@ void ZP::SpawnWeaponsFromRandomEntities()
 		pFind->SpawnItem();
 		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_item" );
 	}
+
+	// Reset after use
+	ResetRandomWeaponSpawnList();
 }
