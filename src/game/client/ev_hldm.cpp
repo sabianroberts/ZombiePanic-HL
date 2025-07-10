@@ -239,6 +239,8 @@ float EV_HLDM_PlayTextureSound(int idx, pmtrace_t *ptr, float *vecSrc, float *ve
 	case CHAR_TEX_FLESH:
 		if (iBulletType == BULLET_PLAYER_CROWBAR)
 			return 0.0; // crowbar already makes this sound
+		if (iBulletType == BULLET_PLAYER_SWIPE)
+			return 0.0; // zombie swipe already makes this sound
 		fvol = 1.0;
 		fvolbar = 0.2;
 		rgsz[0] = "weapons/bullet_hit1.wav";
@@ -682,7 +684,7 @@ void EV_FireM16(event_args_t *args)
 	{
 		// Add muzzle flash to current weapon model
 		EV_MuzzleFlash();
-		gEngfuncs.pEventAPI->EV_WeaponAnimation(MP5_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
+		gEngfuncs.pEventAPI->EV_WeaponAnimation(AR556_FIRE1 + gEngfuncs.pfnRandomLong(0, 2), 2);
 
 		V_PunchAxis(0, gEngfuncs.pfnRandomFloat(-2, 2));
 	}
@@ -762,6 +764,7 @@ void EV_FireMP5(event_args_t *args)
 // The grenade is still launched from the server.
 void EV_FireMP52(event_args_t *args)
 {
+#if 0
 	int idx;
 	Vector origin;
 
@@ -783,6 +786,7 @@ void EV_FireMP52(event_args_t *args)
 		gEngfuncs.pEventAPI->EV_PlaySound(idx, origin, CHAN_WEAPON, "weapons/glauncher2.wav", 1, ATTN_NORM, 0, 94 + gEngfuncs.pfnRandomLong(0, 0xf));
 		break;
 	}
+#endif
 }
 //======================
 //		 MP5 END

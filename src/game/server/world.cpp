@@ -100,6 +100,16 @@ DLL_DECALLIST gDecals[] = {
 	{ "{smscorch3", 0 }, // DECAL_SMALLSCORCH3,	// Small scorch mark
 	{ "{mommablob", 0 }, // DECAL_MOMMABIRTH		// BM Birth spray
 	{ "{mommablob", 0 }, // DECAL_MOMMASPLAT		// BM Mortar spray?? need decal
+	{ "{cbar1", 0 }, // DECAL_CROWBAR1
+	{ "{cbar2", 0 }, // DECAL_CROWBAR2
+	{ "{cbar3", 0 }, // DECAL_CROWBAR3
+	{ "{cbar4", 0 }, // DECAL_CROWBAR4
+	{ "{cbar5", 0 }, // DECAL_CROWBAR5
+	{ "{zswipe1", 0 }, // DECAL_ZOMBIE_SWIPE1
+	{ "{zswipe2", 0 }, // DECAL_ZOMBIE_SWIPE2
+	{ "{zswipe3", 0 }, // DECAL_ZOMBIE_SWIPE3
+	{ "{zswipe4", 0 }, // DECAL_ZOMBIE_SWIPE4
+	{ "{zswipe5", 0 }, // DECAL_ZOMBIE_SWIPE5
 };
 
 /*

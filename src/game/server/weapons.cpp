@@ -139,9 +139,8 @@ void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage)
 
 int DamageDecal(CBaseEntity *pEntity, int bitsDamageType)
 {
-	if (!pEntity)
-		return (DECAL_GUNSHOT1 + RANDOM_LONG(0, 4));
-
+	if ( !pEntity )
+		return ZP::GrabCorrectDecal( bitsDamageType );
 	return pEntity->DamageDecal(bitsDamageType);
 }
 
@@ -177,6 +176,10 @@ void DecalGunshot(TraceResult *pTrace, int iBulletType)
 		case BULLET_PLAYER_CROWBAR:
 			// wall decal
 			UTIL_DecalTrace(pTrace, DamageDecal(pEntity, DMG_CLUB));
+			break;
+		case BULLET_PLAYER_SWIPE:
+			// wall decal
+			UTIL_DecalTrace(pTrace, DamageDecal(pEntity, DMG_SLASH));
 			break;
 		}
 	}

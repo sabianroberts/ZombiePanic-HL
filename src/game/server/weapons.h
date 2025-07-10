@@ -103,6 +103,7 @@ typedef enum
 	BULLET_PLAYER_357, // python
 	BULLET_PLAYER_BUCKSHOT, // shotgun
 	BULLET_PLAYER_CROWBAR, // crowbar swipe
+	BULLET_PLAYER_SWIPE, // zombie swipe
 
 	BULLET_MONSTER_9MM,
 	BULLET_MONSTER_MP5,

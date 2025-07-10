@@ -6,6 +6,8 @@
 
 #if defined(CLIENT_DLL)
 #include "strtools.h"
+#else
+#include "decals.h"
 #endif
 
 #include <tier2/tier2.h>
@@ -323,6 +325,18 @@ void ZP::SpawnStaticSpawns()
 		StaticSpawn slot = sStaticSpawnList[i];
 		CBaseEntity::Create( (char *)slot.Classname, slot.Origin + Vector( 0, 0, 2 ), slot.Angle, nullptr );
 	}
+}
+
+int ZP::GrabCorrectDecal( int iDamageFlag )
+{
+	// We don't use them as bits here, since only a single flag is sent here.
+	switch ( iDamageFlag )
+	{
+		case DMG_CLUB: return DECAL_CROWBAR1 + RANDOM_LONG(0, 4);
+		case DMG_SLASH: return DECAL_ZOMBIE_SWIPE1 + RANDOM_LONG(0, 4);
+	}
+	// Default, if we found nothing.
+	return DECAL_GUNSHOT1 + RANDOM_LONG(0, 4);
 }
 #endif
 

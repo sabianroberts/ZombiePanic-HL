@@ -87,7 +87,7 @@ void CWeaponMeleeSwipe::PrimaryAttack()
 
 void CWeaponMeleeSwipe::Smack()
 {
-	DecalGunshot(&m_trHit, BULLET_PLAYER_CROWBAR);
+	DecalGunshot(&m_trHit, BULLET_PLAYER_SWIPE);
 }
 
 void CWeaponMeleeSwipe::SwingAgain(void)
@@ -174,12 +174,12 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 		if ((m_flNextPrimaryAttack + 1.0f <= UTIL_WeaponTimeBase()) || g_pGameRules->IsMultiplayer())
 		{
 			// first swing does full damage
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSwipe, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSwipe, gpGlobals->v_forward, &tr, DMG_SLASH);
 		}
 		else
 		{
 			// subsequent swings do half
-			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSwipe / 2, gpGlobals->v_forward, &tr, DMG_CLUB);
+			pEntity->TraceAttack(m_pPlayer->pev, gSkillData.plrDmgSwipe / 2, gpGlobals->v_forward, &tr, DMG_SLASH);
 		}
 		ApplyMultiDamage(m_pPlayer->pev, m_pPlayer->pev);
 
@@ -219,7 +219,7 @@ int CWeaponMeleeSwipe::Swing(int fFirst)
 
 		if (fHitWorld)
 		{
-			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_CROWBAR);
+			float fvolbar = TEXTURETYPE_PlaySound(&tr, vecSrc, vecSrc + (vecEnd - vecSrc) * 2, BULLET_PLAYER_SWIPE);
 
 			if (g_pGameRules->IsMultiplayer())
 			{

@@ -137,6 +137,7 @@ namespace ZP
     void ClearStaticSpawnList();
 	void AddToStaticSpawnList( string_t classname, int spawnflags, float flOrigin[3], float flAngle[3] );
 	void SpawnStaticSpawns();
+    int GrabCorrectDecal( int iDamageFlag );
 #endif
 
 	enum RoundState

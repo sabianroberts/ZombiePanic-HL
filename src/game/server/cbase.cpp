@@ -748,7 +748,7 @@ int CBaseEntity ::DamageDecal(int bitsDamageType)
 	if (pev->rendermode != kRenderNormal)
 		return DECAL_BPROOF1;
 
-	return DECAL_GUNSHOT1 + RANDOM_LONG(0, 4);
+	return ZP::GrabCorrectDecal( bitsDamageType );
 }
 
 // NOTE: szName must be a pointer to constant memory, e.g. "monster_class" because the entity
