@@ -313,6 +313,7 @@ void CGameRules::RefreshSkillData(void)
 
 	// player damage adj
 	gSkillData.plrHead = GetSkillCvar("sk_player_head");
+	gSkillData.plrHeadZombie = GetSkillCvar("sk_player_z_head");
 	gSkillData.plrChest = GetSkillCvar("sk_player_chest");
 	gSkillData.plrStomach = GetSkillCvar("sk_player_stomach");
 	gSkillData.plrLeg = GetSkillCvar("sk_player_leg");

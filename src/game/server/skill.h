@@ -135,6 +135,7 @@ struct skilldata_t
 
 	// player damage adj
 	float plrHead;
+	float plrHeadZombie;
 	float plrChest;
 	float plrStomach;
 	float plrLeg;

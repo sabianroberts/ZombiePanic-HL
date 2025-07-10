@@ -481,7 +481,10 @@ void CBasePlayer ::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector ve
 		case HITGROUP_GENERIC:
 			break;
 		case HITGROUP_HEAD:
-			flDamage *= gSkillData.plrHead;
+			if ( pevAttacker->team == ZP::TEAM_ZOMBIE )
+				flDamage *= gSkillData.plrHeadZombie;
+			else
+				flDamage *= gSkillData.plrHead;
 			break;
 		case HITGROUP_CHEST:
 			flDamage *= gSkillData.plrChest;

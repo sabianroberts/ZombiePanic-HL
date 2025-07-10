@@ -465,6 +465,10 @@ cvar_t sk_player_head1 = { "sk_player_head1", "2" };
 cvar_t sk_player_head2 = { "sk_player_head2", "2" };
 cvar_t sk_player_head3 = { "sk_player_head3", "2" };
 
+cvar_t sk_player_z_head1 = { "sk_player_z_head1", "1.2" };
+cvar_t sk_player_z_head2 = { "sk_player_z_head2", "1.2" };
+cvar_t sk_player_z_head3 = { "sk_player_z_head3", "1.2" };
+
 cvar_t sk_player_chest1 = { "sk_player_chest1", "1" };
 cvar_t sk_player_chest2 = { "sk_player_chest2", "1" };
 cvar_t sk_player_chest3 = { "sk_player_chest3", "1" };
@@ -951,6 +955,10 @@ void GameDLLInit(void)
 	CVAR_REGISTER(&sk_player_head1);
 	CVAR_REGISTER(&sk_player_head2);
 	CVAR_REGISTER(&sk_player_head3);
+
+	CVAR_REGISTER(&sk_player_z_head1);
+	CVAR_REGISTER(&sk_player_z_head2);
+	CVAR_REGISTER(&sk_player_z_head3);
 
 	CVAR_REGISTER(&sk_player_chest1);
 	CVAR_REGISTER(&sk_player_chest2);
