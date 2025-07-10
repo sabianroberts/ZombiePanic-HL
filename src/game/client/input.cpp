@@ -538,7 +538,11 @@ void IN_MoverightUp(void)
 }
 void IN_SpeedDown(void) { KeyDown(&in_speed); }
 void IN_SpeedUp(void) { KeyUp(&in_speed); }
-void IN_StrafeDown(void) { KeyDown(&in_strafe); }
+void IN_StrafeDown(void)
+{
+	if ( !HasRoundBegun() ) return;
+	KeyDown(&in_strafe);
+}
 void IN_StrafeUp(void) { KeyUp(&in_strafe); }
 
 // needs capture by hud/vgui also
