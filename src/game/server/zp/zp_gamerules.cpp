@@ -94,13 +94,15 @@ void CZombiePanicGameRules ::Think(void)
 		return;
 	}
 
+	IGameModeBase::WinState_e eWinState = m_pGameMode->GetWinState();
+
 	static int last_time;
 
 	int time_remaining = 0;
 
 	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
 	time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);
-	if ( flTimeLimit != 0 && gpGlobals->time >= flTimeLimit )
+	if ( flTimeLimit != 0 && gpGlobals->time >= flTimeLimit && eWinState >= IGameModeBase::WinState_e::State_Draw )
 	{
 		GoToIntermission();
 		return;
@@ -108,11 +110,14 @@ void CZombiePanicGameRules ::Think(void)
 
 	// Updates once per second
 	if (timeleft.value != last_time)
+	{
+		if ( time_remaining <= 0 )
+			time_remaining = 0;
 		g_engfuncs.pfnCvar_DirectSet(&timeleft, UTIL_VarArgs("%i", time_remaining));
+	}
 
 	last_time = time_remaining;
 
-	IGameModeBase::WinState_e eWinState = m_pGameMode->GetWinState();
 	if ( eWinState >= IGameModeBase::WinState_e::State_Draw )
 	{
 		m_pGameMode->SetRoundState( ZP::RoundState::RoundState_RoundIsOver );
