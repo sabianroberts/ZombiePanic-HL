@@ -114,6 +114,8 @@ void CHudTimer::VidInit()
 	m_bNeedWriteCustomTimer = true;
 	m_bNeedWriteNextmap = true;
 
+	m_szNextmap[0] = 0;
+
 	m_iReceivedSize = 0;
 	if (g_timerSocket != NULL)
 	{
@@ -582,12 +584,10 @@ void CHudTimer::SetNextmap(const char *nextmap)
 void CHudTimer::Draw(float fTime)
 {
 	char text[128];
+	ClearText();
 
 	if ( gHUD.m_iHideHUDDisplay & HIDEHUD_ALL )
-	{
-		ClearText();
 		return;
-	}
 
 	// We will take time from demo stream if playingback
 	float currentTime;
