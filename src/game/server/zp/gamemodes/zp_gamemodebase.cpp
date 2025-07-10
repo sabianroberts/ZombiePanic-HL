@@ -228,7 +228,7 @@ void CBaseGameMode::CheckZombieAmount()
 	}
 }
 
-void CBaseGameMode::GiveWeapons(CBasePlayer *pPlayer)
+void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 {
 	CBaseEntity *pWeaponEntity = NULL;
 	BOOL addDefault = TRUE;
@@ -245,4 +245,37 @@ void CBaseGameMode::GiveWeapons(CBasePlayer *pPlayer)
 		pPlayer->GiveNamedItem( "weapon_sig" );
 		pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
 	}
+}
+
+bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly )
+{
+	const char *authId = GETPLAYERAUTHID( pPlayer->edict() );
+	if ( authId )
+	{
+		for ( size_t i = 0; i < m_LastChoosenZombies.size(); i++ )
+		{
+			std::string szAuthCheck = m_LastChoosenZombies[i];
+			if ( FStrEq( szAuthCheck.c_str(), authId ) )
+				return true;
+		}
+		if ( !bVerifyOnly )
+			m_LastChoosenZombies.push_back( authId );
+	}
+	return false;
+}
+
+void CBaseGameMode::ShouldClearChoosenZombies()
+{
+	// How many players do we have? If everyone was choosen, purge the list.
+	int iAmountNotChoosen = 0;
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr && !WasAlreadyChoosenPreviously( plr, true ) )
+			iAmountNotChoosen++;
+	}
+
+	// There are no left
+	if ( iAmountNotChoosen == 0 )
+		m_LastChoosenZombies.clear();
 }

@@ -37,6 +37,10 @@ public:
 	ZP::RoundState GetRoundState() const { return m_iRoundState; }
 	virtual void OnRoundStateThink( ZP::RoundState state ) {};
 
+	// Was the player already choosen?
+	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false ) = 0;
+	virtual void ShouldClearChoosenZombies() = 0;
+
 protected:
 	float m_flRoundTime = -1;
 
@@ -63,6 +67,14 @@ protected:
 	bool m_bTimeRanOut = false;
 	bool m_bAllSurvivorsDead = false;
 	bool m_bHasPlayersConnected = false;
+
+	bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false );
+	void ShouldClearChoosenZombies();
+
+private:
+	// This is an std::string instead of uint64,
+	// since the AuthString in GoldSrc can be different
+	std::vector<std::string> m_LastChoosenZombies;
 };
 
 namespace ZP

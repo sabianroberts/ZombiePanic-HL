@@ -358,6 +358,9 @@ void CZombiePanicGameRules::PickRandomVolunteer()
 	if ( m_pGameMode->IsTestModeActive() ) return;
 	int iMoreRequired = 0;
 
+	// Check if we should clear it before hand.
+	m_pGameMode->ShouldClearChoosenZombies();
+
 add_one_more_zombie:
 
 	// We have no volunteers, so lets pick some random survivors
@@ -365,8 +368,8 @@ add_one_more_zombie:
 	{
 		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 		{
-			CBaseEntity *plr = UTIL_PlayerByIndex(i);
-			if ( plr && plr->IsAlive() && plr->pev->team == ZP::TEAM_SURVIVIOR )
+			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex(i);
+			if ( plr && plr->IsAlive() && !m_pGameMode->WasAlreadyChoosenPreviously( plr ) && plr->pev->team == ZP::TEAM_SURVIVIOR )
 				m_Volunteers.push_back( i );
 		}
 	}

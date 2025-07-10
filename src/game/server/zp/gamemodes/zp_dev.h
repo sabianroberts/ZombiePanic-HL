@@ -13,10 +13,12 @@ protected:
 	virtual bool IsTestModeActive() const { return false; };
 	virtual void OnHUDInit(CBasePlayer *pPlayer);
 	virtual void OnGameModeThink() {}
-	virtual void RestartRound() { }
+	virtual void RestartRound() {}
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor ) {}
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer ) {}
 	virtual WinState_e GetWinState() { return WinState_e::State_None; }
+	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false ) { return false; }
+	virtual void ShouldClearChoosenZombies() {}
 };
 
 #endif
