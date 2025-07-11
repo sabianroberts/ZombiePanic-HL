@@ -811,6 +811,10 @@ void CBaseTab::UpdateFilterSettings()
 		m_vecServerFilters.AddToTail( MatchMakingKeyValuePair_t( "region", szRegCode ) );		
 	}
 
+	// History only checks for dedicated, not peer-2-peer games.
+	if ( m_eMatchMakingType == eHistoryServer )
+		m_vecServerFilters.AddToTail( MatchMakingKeyValuePair_t( "dedicated", "1" ) );
+
 	// copy filter settings into filter file
 	KeyValues *filter = CGameUIViewport::Get()->GetServerBrowser()->GetFilterSaveData(GetName());
 
