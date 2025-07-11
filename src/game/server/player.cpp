@@ -5461,6 +5461,9 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->m_iDroppedOverride = pAmmoItem->m_iAmountLeft = amount;
 	pAmmoItem->pev->angles.x = 0;
 	pAmmoItem->pev->angles.z = 0;
+
+	// for gpGlobals->v_forward
+	UTIL_MakeVectors(pev->v_angle);
 	if ( pukevel )
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 10 + RandomVector(-200, 200);
 	else

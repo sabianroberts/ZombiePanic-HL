@@ -696,6 +696,7 @@ void CISlave ::ArmBeam(int side)
 	UTIL_MakeAimVectors(pev->angles);
 	Vector vecSrc = pev->origin + gpGlobals->v_up * 36 + gpGlobals->v_right * side * 16 + gpGlobals->v_forward * 32;
 
+	Vector vecDir;
 	for (int i = 0; i < 3; i++)
 	{
 		Vector vecAim = gpGlobals->v_right * side * RANDOM_FLOAT(0, 1) + gpGlobals->v_up * RANDOM_FLOAT(-1, 1);
@@ -705,6 +706,7 @@ void CISlave ::ArmBeam(int side)
 		{
 			tr = tr1;
 			flDist = tr.flFraction;
+			vecDir = vecAim;
 		}
 	}
 
@@ -712,7 +714,7 @@ void CISlave ::ArmBeam(int side)
 	if (flDist == 1.0)
 		return;
 
-	DecalGunshot(&tr, BULLET_PLAYER_CROWBAR);
+	DecalGunshot(&tr, vecDir, BULLET_PLAYER_CROWBAR);
 
 	m_pBeam[m_iBeams] = CBeam::BeamCreate("sprites/lgtning.spr", 30);
 	if (!m_pBeam[m_iBeams])

@@ -144,7 +144,7 @@ int DamageDecal(CBaseEntity *pEntity, int bitsDamageType)
 	return pEntity->DamageDecal(bitsDamageType);
 }
 
-void DecalGunshot(TraceResult *pTrace, int iBulletType)
+void DecalGunshot(TraceResult *pTrace, const Vector &vDir, int iBulletType)
 {
 	// Is the entity valid
 	if (!UTIL_IsValidEntity(pTrace->pHit))
@@ -157,6 +157,7 @@ void DecalGunshot(TraceResult *pTrace, int iBulletType)
 		if (!FNullEnt(pTrace->pHit))
 			pEntity = CBaseEntity::Instance(pTrace->pHit);
 
+		int iDmgDecal = -1;
 		switch (iBulletType)
 		{
 		case BULLET_PLAYER_9MM:
@@ -165,23 +166,20 @@ void DecalGunshot(TraceResult *pTrace, int iBulletType)
 		case BULLET_MONSTER_MP5:
 		case BULLET_PLAYER_BUCKSHOT:
 		case BULLET_PLAYER_357:
-		default:
-			// smoke and decal
-			UTIL_GunshotDecalTrace(pTrace, DamageDecal(pEntity, DMG_BULLET));
-			break;
 		case BULLET_MONSTER_12MM:
-			// smoke and decal
-			UTIL_GunshotDecalTrace(pTrace, DamageDecal(pEntity, DMG_BULLET));
+		default:
+			iDmgDecal = DamageDecal(pEntity, DMG_BULLET);
 			break;
 		case BULLET_PLAYER_CROWBAR:
-			// wall decal
-			UTIL_DecalTrace(pTrace, DamageDecal(pEntity, DMG_CLUB));
+			iDmgDecal = DamageDecal(pEntity, DMG_CLUB);
 			break;
 		case BULLET_PLAYER_SWIPE:
-			// wall decal
-			UTIL_DecalTrace(pTrace, DamageDecal(pEntity, DMG_SLASH));
+			iDmgDecal = DamageDecal(pEntity, DMG_SLASH);
 			break;
 		}
+
+		UTIL_DecalTrace( pTrace, iDmgDecal );
+		ZP::CheckIfBreakableGlass( pTrace, pEntity, vDir, iDmgDecal );
 	}
 }
 

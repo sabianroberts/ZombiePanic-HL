@@ -8,6 +8,7 @@
 #include "strtools.h"
 #else
 #include "decals.h"
+#include "func_break.h"
 #endif
 
 #include <tier2/tier2.h>
@@ -337,6 +338,22 @@ int ZP::GrabCorrectDecal( int iDamageFlag )
 	}
 	// Default, if we found nothing.
 	return DECAL_GUNSHOT1 + RANDOM_LONG(0, 4);
+}
+
+void ZP::CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vDir, int iDamageFlag )
+{
+	// Check if this is a breakable window. If so, add a decal on the other side.
+	CBreakable *pBreakable = dynamic_cast<CBreakable*>( pEnt );
+	if ( pBreakable && pBreakable->m_Material == matGlass )
+	{
+		// Point backwards
+		TraceResult tr;
+		Vector vecSrc = pTrace->vecEndPos + vDir * 10;
+		Vector vecEnd = pTrace->vecEndPos;
+		UTIL_TraceLine( vecSrc, vecEnd, ignore_monsters, nullptr, &tr );
+		if ( tr.flFraction <= 1.0 )
+			UTIL_DecalTrace( &tr, iDamageFlag );
+	}
 }
 #endif
 
