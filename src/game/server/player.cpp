@@ -1458,9 +1458,6 @@ void CBasePlayer::PlayerDeathThink(void)
 		{
 			m_fDeadTime = gpGlobals->time;
 			pev->deadflag = DEAD_RESPAWNABLE;
-			g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
-			if ( m_bNoLives )
-				StartObserver();
 		}
 
 		return;
@@ -1496,8 +1493,13 @@ void CBasePlayer::PlayerDeathThink(void)
 			// make a copy of the dead body for appearances sake
 			CopyToBodyQue(pev);
 		}
+		// Change team now.
+		g_pGameRules->ChangePlayerTeam( this, ZP::Teams[ m_bNoLives ? ZP::TEAM_OBSERVER : ZP::TEAM_ZOMBIE], FALSE, FALSE );
 		// respawn player
-		Spawn();
+		if ( m_bNoLives )
+			StartObserver();
+		else
+			Spawn();
 	}
 	else
 	{ // restart the entire server
@@ -5461,6 +5463,9 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 	pAmmoItem->m_iDroppedOverride = pAmmoItem->m_iAmountLeft = amount;
 	pAmmoItem->pev->angles.x = 0;
 	pAmmoItem->pev->angles.z = 0;
+
+	// for gpGlobals->v_forward
+	UTIL_MakeVectors(pev->v_angle);
 	if ( pukevel )
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 10 + RandomVector(-200, 200);
 	else

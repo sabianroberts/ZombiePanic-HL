@@ -123,7 +123,8 @@ void CWeaponMeleeCrowbar::PrimaryAttack()
 
 void CWeaponMeleeCrowbar::Smack()
 {
-	DecalGunshot(&m_trHit, BULLET_PLAYER_CROWBAR);
+	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
+	DecalGunshot(&m_trHit, gpGlobals->v_forward, BULLET_PLAYER_CROWBAR);
 }
 
 void CWeaponMeleeCrowbar::SwingAgain(void)
@@ -141,7 +142,7 @@ int CWeaponMeleeCrowbar::Swing(int fFirst)
 
 	UTIL_MakeVectors(m_pPlayer->pev->v_angle);
 	Vector vecSrc = m_pPlayer->GetGunPosition();
-	Vector vecEnd = vecSrc + gpGlobals->v_forward * 32;
+	Vector vecEnd = vecSrc + gpGlobals->v_forward * 35;
 
 	UTIL_TraceLine(vecSrc, vecEnd, dont_ignore_monsters, ENT(m_pPlayer->pev), &tr);
 

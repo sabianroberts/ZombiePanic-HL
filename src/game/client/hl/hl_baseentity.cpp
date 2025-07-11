@@ -307,7 +307,7 @@ void ApplyMultiDamage(entvars_t *pevInflictor, entvars_t *pevAttacker) { }
 void AddMultiDamage(entvars_t *pevInflictor, CBaseEntity *pEntity, float flDamage, int bitsDamageType) { }
 void SpawnBlood(Vector vecSpot, int bloodColor, float flDamage) { }
 int DamageDecal(CBaseEntity *pEntity, int bitsDamageType) { return 0; }
-void DecalGunshot(TraceResult *pTrace, int iBulletType) { }
+void DecalGunshot(TraceResult *pTrace, const Vector &vDir, int iBulletType) { }
 void EjectBrass(const Vector &vecOrigin, const Vector &vecVelocity, float rotation, int model, int soundtype) { }
 void AddAmmoNameToAmmoRegistry(const char *szAmmoname) { }
 int CBasePlayerItem::Restore(class CRestore &) { return 1; }

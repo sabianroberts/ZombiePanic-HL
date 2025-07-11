@@ -321,7 +321,7 @@ void EV_HLDM_GunshotDecalTrace(pmtrace_t *pTrace, char *decalName)
 	}
 }
 
-void EV_HLDM_DecalGunshot(pmtrace_t *pTrace, int iBulletType)
+void EV_HLDM_DecalGunshot(pmtrace_t *pTrace, const Vector &vDir, int iBulletType)
 {
 	physent_t *pe;
 
@@ -464,7 +464,7 @@ void EV_HLDM_FireBullets(int idx, float *forward, float *right, float *up, int c
 			case BULLET_PLAYER_9MM:
 
 				EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-				EV_HLDM_DecalGunshot(&tr, iBulletType);
+				EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
 
 				break;
 			case BULLET_PLAYER_MP5:
@@ -472,19 +472,19 @@ void EV_HLDM_FireBullets(int idx, float *forward, float *right, float *up, int c
 				if (!tracer)
 				{
 					EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-					EV_HLDM_DecalGunshot(&tr, iBulletType);
+					EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
 				}
 				break;
 			case BULLET_PLAYER_BUCKSHOT:
 
 				EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-				EV_HLDM_DecalGunshot(&tr, iBulletType);
+				EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
 
 				break;
 			case BULLET_PLAYER_357:
 
 				EV_HLDM_PlayTextureSound(idx, &tr, vecSrc, vecEnd, iBulletType);
-				EV_HLDM_DecalGunshot(&tr, iBulletType);
+				EV_HLDM_DecalGunshot(&tr, forward, iBulletType);
 
 				break;
 			}
@@ -1059,7 +1059,7 @@ void EV_FireGauss(event_args_t *args)
 			else
 			{
 				// tunnel
-				EV_HLDM_DecalGunshot(&tr, BULLET_MONSTER_12MM);
+				EV_HLDM_DecalGunshot(&tr, forward, BULLET_MONSTER_12MM);
 
 				gEngfuncs.pEfxAPI->R_TempSprite(tr.endpos, vec3_origin, 1.0, m_iGlow, kRenderGlow, kRenderFxNoDissipation, flDamage / 255.0, 6.0, FTENT_FADEOUT);
 
@@ -1116,7 +1116,7 @@ void EV_FireGauss(event_args_t *args)
 							//////////////////////////////////// WHAT TO DO HERE
 							// CSoundEnt::InsertSound ( bits_SOUND_COMBAT, pev->origin, NORMAL_EXPLOSION_VOLUME, 3.0 );
 
-							EV_HLDM_DecalGunshot(&beam_tr, BULLET_MONSTER_12MM);
+							EV_HLDM_DecalGunshot(&beam_tr, forward, BULLET_MONSTER_12MM);
 
 							gEngfuncs.pEfxAPI->R_TempSprite(beam_tr.endpos, vec3_origin, 0.1, m_iGlow, kRenderGlow, kRenderFxNoDissipation, flDamage / 255.0, 6.0, FTENT_FADEOUT);
 

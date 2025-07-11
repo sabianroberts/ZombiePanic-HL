@@ -138,6 +138,7 @@ namespace ZP
 	void AddToStaticSpawnList( string_t classname, int spawnflags, float flOrigin[3], float flAngle[3] );
 	void SpawnStaticSpawns();
     int GrabCorrectDecal( int iDamageFlag );
+    void CheckIfBreakableGlass( TraceResult *pTrace, CBaseEntity *pEnt, const Vector &vDir, int iDamageFlag );
 #endif
 
 	enum RoundState

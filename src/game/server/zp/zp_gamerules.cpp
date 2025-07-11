@@ -561,6 +561,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 				pPlayer->StopWelcomeCam();
 			return TRUE;
 		}
+		else if (FStrEq(pcmd, "dev_nolives"))
+		{
+			// Toggle the no lives.
+			pPlayer->m_bNoLives = !pPlayer->m_bNoLives;
+			return TRUE;
+		}
 		else if (FStrEq(pcmd, "test_ammoid"))
 		{
 			for ( int i = 0; i < ZPAmmoTypes::AMMO_MAX; i++ )
