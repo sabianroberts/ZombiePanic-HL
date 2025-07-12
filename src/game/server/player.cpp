@@ -203,6 +203,7 @@ int gmsgItemPickup = 0;
 int gmsgHideWeapon = 0;
 int gmsgSetCurWeap = 0;
 int gmsgSayText = 0;
+int gmsgSayConsole = 0;
 int gmsgTextMsg = 0;
 int gmsgSetFOV = 0;
 int gmsgShowMenu = 0;
@@ -257,6 +258,7 @@ void LinkUserMessages(void)
 	gmsgTrain = REG_USER_MSG("Train", 1);
 	gmsgHudText = REG_USER_MSG("HudText", -1);
 	gmsgSayText = REG_USER_MSG("SayText", -1);
+	gmsgSayConsole = REG_USER_MSG("SayCon", -1);
 	gmsgTextMsg = REG_USER_MSG("TextMsg", -1);
 	gmsgWeaponList = REG_USER_MSG("WeaponList", -1);
 	gmsgResetHUD = REG_USER_MSG("ResetHUD", 1); // called every respawn
