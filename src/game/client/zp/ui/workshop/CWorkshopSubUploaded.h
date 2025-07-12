@@ -26,7 +26,9 @@ public:
 
 protected:
 	void OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCallback, bool bIOFailure );
+	void UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFailed );
 	CCallResult<CWorkshopSubUploaded, SteamUGCQueryCompleted_t> m_SteamCallResultOnSendQueryUGCRequest;
+	CCallResult<CWorkshopSubUploaded, HTTPRequestCompleted_t> m_SteamCallResultOnHTTPRequest;
 
 	UGCQueryHandle_t	handle;
 

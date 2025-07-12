@@ -119,7 +119,7 @@ void CheckWorkingDirectory()
 //! @returns Whether the build is supported.
 static bool CheckForInvalidBuilds(int buildNumber)
 {
-	constexpr char TITLE[] = "BugfixedHL - Unsupported game";
+	constexpr char TITLE[] = "Zombie Panic! - Unsupported game";
 
 	if (buildNumber < ENGINE_BUILD_P48)
 	{
@@ -525,7 +525,7 @@ void HUD_FatalError(const char *fmt, ...)
 	vsnprintf(buf, sizeof(buf), fmt, va);
 	va_end(va);
 
-	GetSDL()->ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "BugfixedHL Fatal Error", buf);
+	GetSDL()->ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Zombie Panic! Fatal Error", buf);
 	std::abort();
 }
 

@@ -23,8 +23,8 @@
 #include "gameui/gameui_viewport.h"
 #include "CWorkshopSubUpload.h"
 
-// PNG > TGA
-#include "zp/lodepng/lodepng.h"
+// DevIL stuff
+#include <IL/il.h>
 
 static CWorkshopSubUpload *pUploader = nullptr;
 
@@ -292,21 +292,22 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 	// -- BEGIN PNG READ
 	if ( pData->FileExtension == ".png" )
 	{
-		std::vector<unsigned char> image; //the raw pixels
-		unsigned width, height;
-		unsigned error = lodepng::decode( image, width, height, pData->FullPath, LCT_RGB, 8 );
-		if ( error )
+		ilInit();
+
+		if ( !ilLoadImage( pData->FullPath.c_str() ) )
 		{
 			CGameUIViewport::Get()->ShowMessageDialog(
 				"#ZP_Workshop",
 				vgui2::VarArgs(
-					"Failed to decode the image!\nError %i: %s\n",
-					error,
-					lodepng_error_text(error)
+					"Failed to load the image!\nError Code: %u\n",
+			        ilGetError()
 				)
 			);
 			return;
 		}
+
+		int width = ilGetInteger( IL_IMAGE_WIDTH );
+		int height = ilGetInteger( IL_IMAGE_HEIGHT );
 
 		if ( width > 640 || height > 360 )
 		{
@@ -322,9 +323,8 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 			);
 			return;
 		}
-		// TODO: Create PNG/JPG > TGA so we can preview it ingame.
-		// vgui2::write_tga is not setup properly, or I'm doin something wrong.
-		// I only get fucky wucky images.
+		ilEnable( IL_FILE_OVERWRITE );
+		ilSaveImage( vgui2::VarArgs( "%s.tga", szFile.c_str() ) );
 	}
 	// -- EDN PNG READ
 

@@ -18,6 +18,9 @@
 #include "CWorkshopSubUploaded.h"
 #include "CWorkshopSubUpload.h"
 
+// DevIL stuff
+//#include <IL/devil_cpp_wrapper.hpp>
+
 CWorkshopSubUploaded::CWorkshopSubUploaded(vgui2::Panel *parent)
     : BaseClass(parent, "WorkshopSubUploaded")
 {
@@ -181,6 +184,20 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 			m_Items.push_back( data );
 
 			AddItem( WorkshopAddon );
+
+			// Load the file, and save to TGA under thumb_<num>.tga
+			char szURL[1024];
+			if ( GetSteamAPI()->SteamUGC()->GetQueryUGCPreviewURL( pDetails->m_hPreviewFile, i, szURL, sizeof( szURL ) ) )
+			{
+				SteamAPICall_t pCall = k_uAPICallInvalid;
+
+				// Download the URL, and save it as a file.
+				HTTPRequestHandle httphandle = GetSteamAPI()->SteamHTTP()->CreateHTTPRequest( EHTTPMethod::k_EHTTPMethodGET, szURL );
+				GetSteamAPI()->SteamHTTP()->SetHTTPRequestHeaderValue( httphandle, "Cache-Control", "no-cache");
+				GetSteamAPI()->SteamHTTP()->SetHTTPRequestContextValue( httphandle, pDetails->m_nPublishedFileId );
+				GetSteamAPI()->SteamHTTP()->SendHTTPRequest( httphandle, &pCall );
+				m_SteamCallResultOnHTTPRequest.Set( pCall, this, &CWorkshopSubUploaded::UpdateHTTPCallback );
+			}
 		}
 
 		// Delete it
@@ -189,6 +206,81 @@ void CWorkshopSubUploaded::OnSendQueryUGCRequest( SteamUGCQueryCompleted_t *pCal
 	}
 
 	GetSteamAPI()->SteamUGC()->ReleaseQueryUGCRequest( handle );
+}
+
+void CWorkshopSubUploaded::UpdateHTTPCallback( HTTPRequestCompleted_t *arg, bool bFailed )
+{
+	ConPrintf( "void CAdminSystem::UpdateCallback()\n" );
+	ConPrintf( "STATUS CODE [%i]\n", arg->m_eStatusCode );
+	uint64 context = arg->m_ulContextValue;
+	if ( bFailed || arg->m_eStatusCode < 200 || arg->m_eStatusCode > 299 )
+	{
+		ConPrintf( "Callback failed.\n" );
+		uint32 size;
+		GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodySize( arg->m_hRequest, &size );
+
+		if ( size > 0 )
+		{
+			uint8* pResponse = new uint8[size + 1];
+			GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodyData( arg->m_hRequest, pResponse, size );
+			pResponse[size] = '\0';
+
+			std::string strResponse((char*)pResponse);
+			ConPrintf(
+				Color( 255, 5, 5, 255 ),
+				"The data hasn't been received. HTTP error (%i) with the response (%s)\n",
+			    arg->m_eStatusCode,
+			    strResponse.c_str()
+			);
+
+			delete[] pResponse;
+		}
+		else if ( !arg->m_bRequestSuccessful )
+			ConPrintf(
+				Color( 255, 5, 5, 255 ),
+				"The data hasn't been received. No response from the server.\n"
+			);
+		else
+			ConPrintf(
+				Color( 255, 5, 5, 255 ),
+				"The data hasn't been received. HTTP error %i\n",
+			    arg->m_eStatusCode
+			);
+	}
+	else if ( context > 0 )
+	{
+		ConPrintf( "WorkshopID Preview [%llu]\n", context );
+		uint32 size;
+		GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodySize( arg->m_hRequest, &size );
+
+		if ( size > 0 )
+		{
+			ConPrintf( "Size Returned: [%i]\n", size );
+			uint8* pResponse = new uint8[size + 1];
+			GetSteamAPI()->SteamHTTP()->GetHTTPResponseBodyData( arg->m_hRequest, pResponse, size );
+			pResponse[size] = '\0';
+
+			// Make sure the folder exist.
+			g_pFullFileSystem->CreateDirHierarchy( "uploads", "WORKSHOP" );
+
+			// Write the file
+			FileHandle_t file_h = g_pFullFileSystem->Open( vgui2::VarArgs( "uploads/thumb_%llu.jpg", context ), "w", "WORKSHOP" );
+
+			// Save the contents to the file
+			g_pFullFileSystem->Write( pResponse, size, file_h );
+
+			// Close the file after use
+			g_pFullFileSystem->Close( file_h );
+
+			// Now convert the fucker to TGA
+			//ilImage Image( vgui2::VarArgs( "zp_workshop/uploads/thumb_%llu.jpg", context ) );
+			//ilEnable( IL_FILE_OVERWRITE );
+			//Image.Save( vgui2::VarArgs( "zp_workshop/uploads/thumb_%llu.tga", context ) );
+
+			delete[] pResponse;
+		}
+	}
+	GetSteamAPI()->SteamHTTP()->ReleaseHTTPRequest( arg->m_hRequest );
 }
 
 CWorkshopSubUploaded::WorkshopItem CWorkshopSubUploaded::GetWorkshopItem( PublishedFileId_t nWorkshopID )
