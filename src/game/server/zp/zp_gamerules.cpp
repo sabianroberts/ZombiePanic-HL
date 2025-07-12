@@ -534,6 +534,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			pPlayer->NotifyOfEarnedAchivement( atoi( pAchivement ) );
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "give"))
+	{
+		int iszItem = ALLOC_STRING( CMD_ARGV(1) ); // Make a copy of the classname
+		OnWeaponGive( pPlayer, STRING(iszItem) );
+		return TRUE;
+	}
 
 	if ( m_pGameMode->IsTestModeActive() )
 	{
@@ -579,6 +585,50 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		}
 	}
 	return BaseClass::ClientCommand(pPlayer, pcmd);
+}
+
+void CZombiePanicGameRules::OnWeaponGive( CBasePlayer *pPlayer, const char *szItem )
+{
+	bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+	if ( !bIsCheatsEnabled ) return;
+
+	bool bValid = false;
+	if ( szItem && szItem[0] )
+		bValid = true;
+
+	if ( !bValid )
+	{
+		std::vector<WeaponInfo> found;
+
+		// Iterate all weapons
+		{
+			for ( size_t i = 0; i < LAST_WEAPON_ID; i++ )
+			{
+				WeaponInfo weapon = GetWeaponInfo( (ZPWeaponID)i );
+				if ( !weapon.szWeapon ) continue;
+				if ( weapon.Hidden ) continue;
+				found.push_back( weapon );
+			}
+		}
+
+		// Sort array
+		qsort(found.data(), found.size(), sizeof(WeaponInfo), [](const void *i, const void *j) -> int
+		{
+			const WeaponInfo *lhs = (const WeaponInfo *)i;
+			const WeaponInfo *rhs = (const WeaponInfo *)j;
+			return strcmp(lhs->szWeapon, rhs->szWeapon);
+		});
+
+		// Display results
+		UTIL_PrintConsole( "Available weapons:\n", pPlayer );
+		for (WeaponInfo& i : found)
+			UTIL_PrintConsole( UTIL_VarArgs( "weapon_%s\n", i.szWeapon ), pPlayer );
+		UTIL_PrintConsole( "--------------------\n", pPlayer );
+		UTIL_PrintConsole( "Usage: give <string>\n", pPlayer );
+		return;
+	}
+
+	pPlayer->GiveNamedItem( szItem );
 }
 
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)

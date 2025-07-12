@@ -49,6 +49,8 @@ public:
 	virtual void PlayerSpawn(CBasePlayer *pPlayer);
 	virtual BOOL ClientCommand(CBasePlayer *pPlayer, const char *pcmd);
 
+	void OnWeaponGive( CBasePlayer *pPlayer, const char *szItem );
+
 private:
 	void SetPlayerModel(CBasePlayer *pPlayer);
 

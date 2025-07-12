@@ -510,6 +510,7 @@ void ClientCommand(edict_t *pEntity)
 		pPlayer->m_flNextFullupdate[0] = pPlayer->m_flNextFullupdate[1];
 		pPlayer->m_flNextFullupdate[1] = gpGlobals->time + FULLUPDATE_INTERVAL;
 	}
+#if defined( HL_CLIENT )
 	else if (FStrEq(pcmd, "give"))
 	{
 		if (g_flWeaponCheat != 0.0)
@@ -518,6 +519,7 @@ void ClientCommand(edict_t *pEntity)
 			pPlayer->GiveNamedItem(STRING(iszItem));
 		}
 	}
+#endif
 	else if (FStrEq(pcmd, "drop"))
 	{
 		// player is dropping an item.
