@@ -17,9 +17,10 @@ CTabHistory::CTabHistory( vgui2::Panel *parent ) :
 	BaseClass( parent, "HistoryGames", eHistoryServer )
 {
 	m_bRefreshOnListReload = false;
-	m_pServerList->AddColumnHeader(9, "LastPlayed", "#ServerBrowser_LastPlayed", 100);
-	m_pServerList->SetSortFunc(9, LastPlayedCompare);
-	m_pServerList->SetSortColumn(9);
+	// Removed, because it causes some players to crash, for some reason.
+	//m_pServerList->AddColumnHeader(9, "LastPlayed", "#ServerBrowser_LastPlayed", 100);
+	//m_pServerList->SetSortFunc(9, LastPlayedCompare);
+	//m_pServerList->SetSortColumn(9);
 
 	if ( !GetSteamAPI() )
 	{
