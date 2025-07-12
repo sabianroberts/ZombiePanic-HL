@@ -24,7 +24,7 @@
 #include "CWorkshopSubUpload.h"
 
 // DevIL stuff
-#include <IL/il.h>
+//#include <IL/il.h>
 
 static CWorkshopSubUpload *pUploader = nullptr;
 
@@ -289,6 +289,7 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 	const size_t found = pData->FileExtension.size();
 	szFile = szFile.substr(0, szFile.size() - found);
 
+	/*
 	// -- BEGIN PNG READ
 	if ( pData->FileExtension == ".png" )
 	{
@@ -327,6 +328,7 @@ void CWorkshopSubUpload::UpdatePreviewImage( DialogData *pData )
 		ilSaveImage( vgui2::VarArgs( "%s.tga", szFile.c_str() ) );
 	}
 	// -- EDN PNG READ
+	*/
 
 	preview_image = pData->FullPath;
 	pAddonImage->SetImage( szFile.c_str() );

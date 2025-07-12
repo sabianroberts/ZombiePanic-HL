@@ -5,7 +5,7 @@ add_subdirectory( nlohmann_json )
 add_subdirectory( pcre )
 add_subdirectory( SDL2 )
 add_subdirectory( semver.c )
-add_subdirectory( DevIL )
+#add_subdirectory( DevIL )
 
 if (WIN32)
     add_subdirectory( windows )

@@ -495,7 +495,7 @@ target_include_directories( client PRIVATE
 	${SOURCE_SDK_INCLUDE_PATHS}
 	${UPDATER_INCLUDE_PATHS}
 	# Image converting, used by Workshop
-	${CMAKE_CURRENT_SOURCE_DIR}/external/DevIL/include
+	#${CMAKE_CURRENT_SOURCE_DIR}/external/DevIL/include
 )
 
 target_compile_definitions( client PRIVATE
@@ -545,9 +545,10 @@ target_link_libraries( client
 	pcre
 	semver
 	nlohmann_json
-	IL
-	ILU
-	ILUT
+	#DevIL
+	#IL
+	#ILU
+	#ILUT
 	${CLIENT_PLAT_LIBS}
 	Threads::Threads
 )
