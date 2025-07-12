@@ -890,7 +890,7 @@ void UTIL_HudMessageAll(const hudtextparms_t &textparms, const char *pMessage)
 	}
 }
 
-extern int gmsgTextMsg, gmsgSayText;
+extern int gmsgTextMsg, gmsgSayText, gmsgSayConsole;
 void UTIL_ClientPrintAll(int msg_dest, const char *msg_name, const char *param1, const char *param2, const char *param3, const char *param4)
 {
 	MESSAGE_BEGIN(MSG_ALL, gmsgTextMsg);
@@ -924,6 +924,16 @@ void ClientPrint(entvars_t *client, int msg_dest, const char *msg_name, const ch
 	if (param4)
 		WRITE_STRING(param4);
 
+	MESSAGE_END();
+}
+
+void UTIL_PrintConsole(const char *pText, CBaseEntity *pEntity)
+{
+	if (!pEntity->IsNetClient())
+		return;
+
+	MESSAGE_BEGIN(MSG_ONE, gmsgSayConsole, NULL, pEntity->edict());
+	WRITE_STRING(pText);
 	MESSAGE_END();
 }
 

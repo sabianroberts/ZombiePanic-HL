@@ -706,6 +706,12 @@ void CClientViewport::MsgFunc_AllowSpec(const char *pszName, int iSize, void *pb
 	m_iAllowSpectators = READ_BYTE();
 }
 
+void CClientViewport::MsgFunc_ConsolePrint(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+	ConPrintf( "%s", READ_STRING() );
+}
+
 //-------------------------------------------------------
 // TeamFortressViewport stubs
 //-------------------------------------------------------

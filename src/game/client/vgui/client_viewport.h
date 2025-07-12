@@ -165,6 +165,7 @@ public:
 	void MsgFunc_TeamInfo(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_Spectator(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_AllowSpec(const char *pszName, int iSize, void *pbuf);
+	void MsgFunc_ConsolePrint(const char *pszName, int iSize, void *pbuf);
 };
 
 inline Color CClientViewport::GetTeamColor(int team)

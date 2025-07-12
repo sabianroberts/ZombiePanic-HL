@@ -339,6 +339,9 @@ void CHud::Init(void)
 	HookViewportMessage<&CClientViewport::MsgFunc_Spectator>("Spectator");
 	HookViewportMessage<&CClientViewport::MsgFunc_AllowSpec>("AllowSpec");
 
+	// Console print
+	HookViewportMessage<&CClientViewport::MsgFunc_ConsolePrint>("SayCon");
+
 	// VGUI Menus
 	HookViewportMessage<&CClientViewport::MsgFunc_VGUIMenu>("VGUIMenu");
 

@@ -377,6 +377,9 @@ extern void ClientPrint(entvars_t *client, int msg_dest, const char *msg_name, c
 extern void UTIL_SayText(const char *pText, CBaseEntity *pEntity);
 extern void UTIL_SayTextAll(const char *pText, CBaseEntity *pEntity);
 
+// Print to the client console
+extern void UTIL_PrintConsole(const char *pText, CBaseEntity *pEntity);
+
 typedef struct hudtextparms_s
 {
 	float x;
