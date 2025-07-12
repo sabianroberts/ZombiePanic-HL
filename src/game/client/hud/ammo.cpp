@@ -991,7 +991,14 @@ int CHudAmmo::DrawWList(float flTime)
 	else
 		iActiveSlot = gpActiveSel->iSlot;
 
-	x = SET_WEAPON_SELECTION_XPOS;
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320:
+		case 640:
+		case 1280: x = SET_WEAPON_SELECTION_XPOS; break;
+		case 2560: x = (SET_WEAPON_SELECTION_XPOS * 2) + 80; break;
+	}
 	y = SET_WEAPON_SELECTION_YPOS;
 
 	// Ensure that there are available choices in the active slot
@@ -1037,7 +1044,14 @@ int CHudAmmo::DrawWList(float flTime)
 		x += iWidth + 5;
 	}
 
-	x = SET_WEAPON_SELECTION_XPOS;
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320:
+		case 640:
+		case 1280: x = SET_WEAPON_SELECTION_XPOS; break;
+		case 2560: x = (SET_WEAPON_SELECTION_XPOS * 2) + 80; break;
+	}
 
 	// Draw all of the buckets
 	for (i = 0; i <= m_iMaxSlot; i++)
