@@ -57,6 +57,81 @@ ConVar cl_viewmodel_hltv("cl_viewmodel_hltv", "0", FCVAR_BHL_ARCHIVE,
     "  15 - disables all listed above");
 extern ConVar cl_righthand;
 
+ConVar player_glow_style("player_glow_style", "0", FCVAR_BHL_ARCHIVE, "ZVision glow state");
+ConVar player_glow1("player_glow1", "0 0 255", FCVAR_BHL_ARCHIVE, "Survivor Team Glow [ZVision]");
+ConVar player_glow2("player_glow2", "255 0 0", FCVAR_BHL_ARCHIVE, "Zombie Team Glow [ZVision]");
+
+static void ParseGlowColor( const int &iTeam, color24 &clr )
+{
+	clr.r = clr.g = clr.b = 255;
+	switch ( player_glow_style.GetInt() )
+	{
+		// Default
+		case 0:
+		{
+			switch ( iTeam )
+			{
+				case ZP::TEAM_SURVIVIOR:
+				{
+					clr.r = 0;
+					clr.g = 255;
+					clr.b = 0;
+				}
+				break;
+				case ZP::TEAM_ZOMBIE:
+				{
+					clr.r = 255;
+					clr.g = 0;
+					clr.b = 0;
+				}
+				break;
+			}
+		}
+		break;
+
+		// Reversed
+		case 1:
+		{
+			switch ( iTeam )
+			{
+				case ZP::TEAM_SURVIVIOR:
+				{
+					clr.r = 255;
+					clr.g = 0;
+					clr.b = 0;
+				}
+				break;
+				case ZP::TEAM_ZOMBIE:
+		        {
+					clr.r = 0;
+					clr.g = 255;
+					clr.b = 0;
+				}
+				break;
+			}
+		}
+		break;
+
+		// Custom
+		case 2:
+		{
+			Color parsed;
+			switch ( iTeam )
+			{
+				case ZP::TEAM_SURVIVIOR: ParseColor( player_glow1.GetString(), parsed ); break;
+				case ZP::TEAM_ZOMBIE: ParseColor( player_glow2.GetString(), parsed ); break;
+			}
+			clr.r = parsed.r();
+		    clr.g = parsed.g();
+		    clr.b = parsed.b();
+		}
+		break;
+
+		// Disabled
+		default: clr.r = clr.g = clr.b = 0; break;
+	}
+}
+
 namespace
 {
 enum ViewmodelHLTV
@@ -1696,24 +1771,7 @@ void CStudioModelRenderer::StudioRenderModel(void)
 		if ( bIsZombie )
 		{
 			color24 glow_color;
-			glow_color.r = glow_color.g = glow_color.b = 255;
-			switch ( m_pCurrentEntity->curstate.team )
-			{
-				case ZP::TEAM_SURVIVIOR:
-				{
-				    glow_color.r = 0;
-				    glow_color.g = 255;
-				    glow_color.b = 0;
-				}
-				break;
-			    case ZP::TEAM_ZOMBIE:
-			    {
-				    glow_color.r = 255;
-				    glow_color.g = 0;
-				    glow_color.b = 0;
-			    }
-			    break;
-			}
+			ParseGlowColor( m_pCurrentEntity->curstate.team, glow_color );
 			m_pCurrentEntity->curstate.rendercolor = glow_color;
 		}
 

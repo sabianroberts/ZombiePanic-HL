@@ -15,8 +15,9 @@ public:
 	virtual void OnApplyChanges();
 
 private:
-	vgui2::Label *m_pColorLabel[4];
-	CCvarColor *m_pColorValue[4];
+	vgui2::Label *m_pColorLabel[6];
+	CCvarColor *m_pColorValue[6];
+	vgui2::ComboBox *m_pGlowDropdown;
 };
 
 #endif

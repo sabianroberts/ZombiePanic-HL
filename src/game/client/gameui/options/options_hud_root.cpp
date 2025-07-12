@@ -7,8 +7,8 @@ CHudSubOptionsRoot::CHudSubOptionsRoot(vgui2::Panel *parent)
 {
 	SetSize(100, 100); // Silence "parent not sized yet" warning
 
-	AddPage((m_pOptions = new CHudSubOptions(this)), "Options");
-	AddPage((m_pColors = new CHudSubOptionsColors(this)), "Colors");
+	AddPage((m_pOptions = new CHudSubOptions(this)), "#ZP_AdvOptions_HUD"); // Was Options
+	AddPage((m_pColors = new CHudSubOptionsColors(this)), "#ZP_AdvOptions_Colors");
 }
 
 void CHudSubOptionsRoot::OnResetData()

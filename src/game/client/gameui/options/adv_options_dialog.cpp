@@ -37,7 +37,7 @@ CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
 	SetTitle("#ZP_Options", true);
 
 	AddPage(new CGeneralSubOptions(this), "#ZP_AdvOptions_General");
-	AddPage(new CHudSubOptionsRoot(this), "#ZP_AdvOptions_HUD");
+	AddPage(new CHudSubOptionsRoot(this), "#ZP_AdvOptions_Misc"); // Was ZP_AdvOptions_HUD
 	AddPage(new CChatSubOptions(this), "#ZP_AdvOptions_Chat");
 	AddPage(new CScoreboardSubOptions(this), "#ZP_AdvOptions_Scores");
 	AddPage(new CCrosshairSubOptions(this), "#ZP_AdvOptions_Cross");
