@@ -216,6 +216,7 @@ public:
 	int iMaxClip(void) { return GetData().MaxClip; }
 	int iWeight(void) { return GetData().Weight; }
 	int iFlags(void) { return GetData().Flags; }
+	int iBullets(void) { return GetData().Bullets; }
 
 	float PrimaryFireRate() { return GetData().FireRate[0]; }
 	float SecondaryFireRate() { return GetData().FireRate[1]; }

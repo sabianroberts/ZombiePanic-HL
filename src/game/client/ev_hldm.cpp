@@ -641,14 +641,9 @@ void EV_FireShotGunSingle(event_args_t *args)
 	EV_GetGunPosition(args, vecSrc, origin);
 	VectorCopy(forward, vecAiming);
 
-	if (gEngfuncs.GetMaxClients() > 1)
-	{
-		EV_HLDM_FireBullets(idx, forward, right, up, 4, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, NULL, 0.08716, 0.04362);
-	}
-	else
-	{
-		EV_HLDM_FireBullets(idx, forward, right, up, 6, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, NULL, 0.08716, 0.08716);
-	}
+	WeaponData data = GetWeaponSlotInfo( WEAPON_SHOTGUN );
+
+	EV_HLDM_FireBullets(idx, forward, right, up, data.Bullets, vecSrc, vecAiming, 2048, BULLET_PLAYER_BUCKSHOT, 0, NULL, data.WeaponSpread[0], data.WeaponSpread[0]);
 }
 //======================
 //	   SHOTGUN END

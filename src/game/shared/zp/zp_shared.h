@@ -110,6 +110,7 @@ struct WeaponData
 	char Icons[WeaponDataIcons::MAX_ICONS][32]; // HUD Icons
 	int DefaultAmmo;
 	int MaxClip;
+	int Bullets = 1;
 	int Flags;
 	float Weight;
 	float WeaponSpread[2]; // 0 - Primary, 1 - Secondary
