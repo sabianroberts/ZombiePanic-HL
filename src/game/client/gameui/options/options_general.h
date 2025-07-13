@@ -41,6 +41,9 @@ private:
 	CCvarCheckButton *m_pMOTD = nullptr;
 	vgui2::Label *m_pMOTDLabel = nullptr;
 
+	CCvarCheckButton *m_pAutoSwitch = nullptr;
+	vgui2::Label *m_pAutoSwitchLabel = nullptr;
+
 	CCvarCheckButton *m_pLogChat = nullptr;
 	CCvarCheckButton *m_pLogOther = nullptr;
 	CCvarCheckButton *m_pAutoDemo = nullptr;

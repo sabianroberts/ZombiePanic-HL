@@ -59,6 +59,14 @@ CSteamAPIContext s_ApiContext;
 CSteamAPIContext *s_APIContext = &s_ApiContext;
 CSteamAPIContext *GetSteamAPI() { return s_APIContext; }
 
+static int s_bAutoPickupState = -1;
+ConVar cl_autopickup( "cl_autopickup", "1", FCVAR_BHL_ARCHIVE );
+static void UpdateAutoSwitchState()
+{
+	s_bAutoPickupState = cl_autopickup.GetInt();
+	gEngfuncs.PlayerInfo_SetValueForKey( "auto_switch", cl_autopickup.GetString() );
+}
+
 /**
  * Checks that game is launched with working directory set to engine path.
  */
@@ -291,6 +299,7 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	PM_ResetUseSlowDownDetection();
 	CResults::Get().Stop();
 	GetClientVoiceMgr()->VidInit();
+	s_bAutoPickupState = -1;
 
 	return 1;
 }
@@ -318,6 +327,7 @@ void CL_DLLEXPORT HUD_Init(void)
 	CSvcMessages::Get().Init();
 	EngFuncs_UpdateHooks();
 	console::HudPostInit();
+	s_bAutoPickupState = -1;
 }
 
 /*
@@ -373,6 +383,7 @@ void CL_DLLEXPORT HUD_Reset(void)
 	//	RecClHudReset();
 
 	gHUD.VidInit();
+	s_bAutoPickupState = -1;
 }
 
 /*
@@ -391,6 +402,9 @@ void CL_DLLEXPORT HUD_Frame(double time)
 	EngFuncs_UpdateHooks();
 	gHUD.Frame(time);
 	GetClientVoiceMgr()->Frame(time);
+
+	if ( s_bAutoPickupState != cl_autopickup.GetInt() )
+		UpdateAutoSwitchState();
 }
 
 /*

@@ -1578,9 +1578,7 @@ void CBasePlayer::StartDeathCam(void)
 void CBasePlayer::StartWelcomeCam(void)
 {
 	if (m_bInWelcomeCam)
-	{
 		return;
-	}
 
 	m_bInWelcomeCam = TRUE;
 
@@ -4137,21 +4135,6 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 
 	switch (iImpulse)
 	{
-	case 76:
-	{
-		if (!giPrecacheGrunt)
-		{
-			giPrecacheGrunt = 1;
-			ALERT(at_console, "You must now restart to use Grunt-o-matic.\n");
-		}
-		else
-		{
-			UTIL_MakeVectors(Vector(0, pev->v_angle.y, 0));
-			Create("monster_human_grunt", pev->origin + gpGlobals->v_forward * 128, pev->angles);
-		}
-		break;
-	}
-
 	case 101:
 		gEvilImpulse101 = TRUE;
 		GiveNamedItem("item_suit");
@@ -4161,25 +4144,14 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("ammo_9mmclip");
 		GiveNamedItem("weapon_shotgun");
 		GiveNamedItem("ammo_buckshot");
-		GiveNamedItem("weapon_9mmAR");
-		GiveNamedItem("ammo_9mmAR");
-		GiveNamedItem("ammo_ARgrenades");
+		GiveNamedItem("weapon_556ar");
+		GiveNamedItem("ammo_556ar");
+		GiveNamedItem("weapon_mp5");
+		GiveNamedItem("ammo_mp5clip");
 		GiveNamedItem("weapon_handgrenade");
 		GiveNamedItem("weapon_tripmine");
-#ifndef OEM_BUILD
 		GiveNamedItem("weapon_357");
 		GiveNamedItem("ammo_357");
-		GiveNamedItem("weapon_crossbow");
-		GiveNamedItem("ammo_crossbow");
-		GiveNamedItem("weapon_egon");
-		GiveNamedItem("weapon_gauss");
-		GiveNamedItem("ammo_gaussclip");
-		GiveNamedItem("weapon_rpg");
-		GiveNamedItem("ammo_rpgclip");
-		GiveNamedItem("weapon_satchel");
-		GiveNamedItem("weapon_snark");
-		GiveNamedItem("weapon_hornetgun");
-#endif
 		gEvilImpulse101 = FALSE;
 		break;
 
@@ -4368,6 +4340,13 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 		// should we switch to this item?
 		if (g_pGameRules->FShouldSwitchWeapon(this, pItem))
 		{
+			//auto_switch check, set by cl_autopickup
+			char *szAutoPickup = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "auto_switch" );
+			if ( szAutoPickup && szAutoPickup[0] )
+			{
+				// If 0, then do not auto switch to the weapon
+				if ( FStrEq( szAutoPickup, "0" ) ) return TRUE;
+			}
 			SwitchWeapon(pItem);
 		}
 
