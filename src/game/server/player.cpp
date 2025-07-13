@@ -1359,16 +1359,6 @@ BOOL CBasePlayer::IsOnLadder(void)
 
 void CBasePlayer::PlayerDeathThink(void)
 {
-	// If round is not ongoing, never think.
-	IGameModeBase *pGameMode = ZP::GetCurrentGameMode();
-	if ( pGameMode && pGameMode->GetRoundState() != ZP::RoundState::RoundState_RoundHasBegun )
-	{
-		pev->team = ZP::TEAM_OBSERVER;
-		Spawn();
-		pev->nextthink = -1;
-		return;
-	}
-
 	float flForward;
 
 	if (FBitSet(pev->flags, FL_ONGROUND))
@@ -5367,6 +5357,9 @@ void CBasePlayer::DropActiveWeapon()
 	string_t weaponname = pWeapon->pev->classname;
 	UTIL_Remove( pWeapon );
 
+	// Make sure the v_forward is from us!
+	UTIL_MakeVectors(pev->angles);
+
 	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + gpGlobals->v_forward * 10, pev->angles, nullptr);
 	if ( !pNewWeapon ) return;
 
@@ -5477,6 +5470,7 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 
 bool CBasePlayer::DropAmmo( int ammoindex, int amount )
 {
+	UTIL_MakeVectors(pev->angles);
 	return DropAmmo( ammoindex, amount, pev->origin + gpGlobals->v_forward * 10, false );
 }
 
@@ -5522,6 +5516,7 @@ void CBasePlayer::DropUnuseableAmmo()
 		int iAmmoIndex = iAmmoThatShouldBeDropped[i];
 		if ( iAmmoIndex == -1 ) continue;
 		if ( m_rgAmmo[ iAmmoIndex ] == 0 ) continue;
+		UTIL_MakeVectors(pev->angles);
 		DropAmmo( iAmmoIndex, m_rgAmmo[ iAmmoIndex ], pev->origin + gpGlobals->v_forward, true );
 		m_rgAmmo[ iAmmoIndex ] = 0;
 	}
