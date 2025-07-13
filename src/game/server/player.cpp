@@ -793,10 +793,16 @@ void CBasePlayer::PackDeadPlayerItems(void)
 			// Check if this is the crowbar, if so, do not pack it!
 			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) ) continue;
 			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) ) continue;
+			CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
+			// You ain't allowed to drop shit.
+			if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) continue;
+			// If throwable, don't pack em up if they are active!
+			ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
+			if ( throwablestate == ThrowableDropState::IS_ACTIVE || throwablestate == ThrowableDropState::DELETE_ITEM_AND_ACTIVE ) continue;
 
 			while (pPlayerItem && iPW < MAX_WEAPONS)
 			{
-				rgpPackWeapons[iPW++] = (CBasePlayerWeapon *)pPlayerItem;
+				rgpPackWeapons[iPW++] = pWeapon;
 				pPlayerItem = pPlayerItem->m_pNext;
 			}
 		}
@@ -3685,6 +3691,8 @@ void CBasePlayer::SelectNextItem(int iItem)
 	// FIX, this needs to queue them up and delay
 	if (m_pActiveItem)
 	{
+		// If throwable and active, get rid of it.
+		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
 		m_pActiveItem->Holster();
 	}
 
@@ -3732,7 +3740,11 @@ void CBasePlayer::SelectItem(const char *pstr)
 
 	// FIX, this needs to queue them up and delay
 	if (m_pActiveItem)
+	{
+		// If throwable and active, get rid of it.
+		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
 		m_pActiveItem->Holster();
+	}
 
 	m_pLastItem = m_pActiveItem;
 	m_pActiveItem = pItem;
@@ -3760,7 +3772,11 @@ void CBasePlayer::SelectLastItem(void)
 
 	// FIX, this needs to queue them up and delay
 	if (m_pActiveItem)
+	{
+		// If throwable and active, get rid of it.
+		IsThrowableAndActive( (CBasePlayerWeapon *)m_pActiveItem, false );
 		m_pActiveItem->Holster();
+	}
 
 	CBasePlayerItem *pTemp = m_pActiveItem;
 	m_pActiveItem = m_pLastItem;
@@ -5348,27 +5364,52 @@ void CBasePlayer::DropActiveWeapon()
 	if ( FStrEq( STRING( m_pActiveItem->pev->classname ), "weapon_crowbar" ) ) return;
 
 	CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_pActiveItem;
-	g_pGameRules->GetNextBestWeapon( this, pWeapon );
+	// You ain't allowed to drop shit.
+	if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return;
 
-	// Remove from the player
-	RemovePlayerItem( pWeapon );
+	// Check if this is an explosive, and if armed, decrease the value if we have ammo for it.
+	// If not, delete and explode.
+	ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
+
+	string_t weaponname = pWeapon->pev->classname;
 	int nClipWeHad1 = pWeapon->m_iClip;
 	int nDefAmmo = pWeapon->m_iDefaultAmmo;
-	string_t weaponname = pWeapon->pev->classname;
-	UTIL_Remove( pWeapon );
+
+	switch ( throwablestate )
+	{
+		case ThrowableDropState::DELETE_ITEM:
+		case ThrowableDropState::DELETE_ITEM_AND_ACTIVE:
+		{
+			g_pGameRules->GetNextBestWeapon( this, pWeapon );
+			// Remove from the player
+			RemovePlayerItem( pWeapon );
+			UTIL_Remove( pWeapon );
+		}
+		break;
+	    default:
+		    pWeapon->Deploy();
+		break;
+	}
+
+	// Don't create a new weapon, we go boom!
+	if ( throwablestate == DELETE_ITEM_AND_ACTIVE ) return;
 
 	// Make sure the v_forward is from us!
 	UTIL_MakeVectors(pev->angles);
+	Vector vecDir = gpGlobals->v_forward;
 
-	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + gpGlobals->v_forward * 10, pev->angles, nullptr);
+	CBasePlayerWeapon *pNewWeapon = (CBasePlayerWeapon *)CBaseEntity::Create((char *)STRING(weaponname), pev->origin + vecDir * 10, pev->angles, nullptr);
 	if ( !pNewWeapon ) return;
 
 	pNewWeapon->DisallowPickupFor( 2.5f );
-	pNewWeapon->m_iDefaultAmmo = nDefAmmo;
-	pNewWeapon->m_iClip = nClipWeHad1;
+	if ( throwablestate == ThrowableDropState::NOT_ACTIVE )
+	{
+		pNewWeapon->m_iDefaultAmmo = nDefAmmo;
+		pNewWeapon->m_iClip = nClipWeHad1;
+	}
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
-	pNewWeapon->pev->velocity = gpGlobals->v_forward * 300 + gpGlobals->v_forward * 100;
+	pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
 }
 
 int CBasePlayer::AmmoIndexToDrop( int ammoindex )
@@ -5447,6 +5488,45 @@ void CBasePlayer::DropSelectedAmmo()
 	if ( ammoDrop == 0 ) return;
 	if ( !DropAmmo( iAmmoType, ammoDrop ) ) return;
 	m_rgAmmo[ iAmmoType ] -= ammoDrop;
+}
+
+CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWeapon *pWeapon, bool bOnDrop )
+{
+	if ( pWeapon->IsThrowable() && pWeapon->m_flStartThrow )
+	{
+		Vector angThrow = pev->v_angle + pev->punchangle;
+		if ( angThrow.x < 0 ) angThrow.x = -10 + angThrow.x * ((90 - 10) / 90.0);
+		else angThrow.x = -10 + angThrow.x * ((90 + 10) / 90.0);
+
+		static float flMultiplier = 6.5f;
+		float flVel = (90 - angThrow.x) * flMultiplier;
+		if ( flVel > 1000 ) flVel = 1000;
+
+		UTIL_MakeVectors( angThrow );
+
+		Vector vecSrc = pev->origin + pev->view_ofs + gpGlobals->v_forward * 16;
+		Vector vecThrow = gpGlobals->v_forward * flVel + pev->velocity;
+
+		// alway explode 3 seconds after the pin was pulled
+		float time = pWeapon->m_flStartThrow - gpGlobals->time + 3.0;
+		if ( time < 0 ) time = 1.0;
+
+		CGrenade::ShootTimed( pev, vecSrc, vecThrow, time );
+
+		// Decrement
+		m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
+		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
+		return ThrowableDropState::IS_ACTIVE;
+	}
+	else
+	{
+		// If not active, make sure we decrement it!
+		if ( pWeapon->IsThrowable() && bOnDrop )
+			m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
+		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
+		return ThrowableDropState::NOT_ACTIVE_THROWABLE;
+	}
+	return ThrowableDropState::NOT_ACTIVE;
 }
 
 bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel )

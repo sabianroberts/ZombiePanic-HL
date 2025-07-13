@@ -87,6 +87,8 @@ enum sbar_data
 #define CHAT_PENALTY        2.0f
 #define FULLUPDATE_INTERVAL 5.0f
 
+class CBasePlayerWeapon;
+
 class CBasePlayer : public CBaseMonster
 {
 public:
@@ -338,6 +340,16 @@ public:
 	float m_flAmmoStartCharge;
 	float m_flPlayAftershock;
 	float m_flNextAmmoBurn; // while charging, when to absorb another unit of player's ammo?
+
+	enum ThrowableDropState
+	{
+		NOT_ACTIVE = 0,
+		NOT_ACTIVE_THROWABLE,
+		IS_ACTIVE,
+		DELETE_ITEM,
+		DELETE_ITEM_AND_ACTIVE,
+	};
+	ThrowableDropState IsThrowableAndActive(CBasePlayerWeapon *pWeapon, bool bOnDrop);
 
 	//Player ID
 	void InitStatusBar(void);

@@ -54,6 +54,7 @@ BOOL CWeaponExplosiveFrag::CanHolster(void)
 
 void CWeaponExplosiveFrag::Holster(int skiplocal /* = 0 */)
 {
+	m_flStartThrow = 0;
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 0.5;
 
 	EMIT_SOUND(ENT(m_pPlayer->pev), CHAN_WEAPON, "common/null.wav", 1.0, ATTN_NORM);

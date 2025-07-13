@@ -12,6 +12,7 @@ class CWeaponExplosiveFrag : public CWeaponBase
 	DECLARE_CLASS_SIMPLE( CWeaponExplosiveFrag, CWeaponBase );
 
 public:
+	bool IsThrowable() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_HANDGRENADE; }
 	void Spawn( void );
 	void Precache( void );
