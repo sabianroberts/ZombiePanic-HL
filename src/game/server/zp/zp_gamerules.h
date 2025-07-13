@@ -18,7 +18,6 @@ public:
 	CZombiePanicGameRules();
 	~CZombiePanicGameRules();
 
-	//virtual int ItemShouldRespawn(CItem *pItem) { return FALSE; }
 	virtual void ClientUserInfoChanged(CBasePlayer *pPlayer, char *infobuffer);
 	virtual BOOL IsTeamplay(void);
 	virtual BOOL FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pInflictor, CBaseEntity *pAttacker);
@@ -29,6 +28,9 @@ public:
 	virtual void InitHUD(CBasePlayer *pl);
 	virtual void DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pevInflictor);
 	virtual const char *GetGameDescription(void) { return "Zombie Panic! v1.1"; } // this is the game name that gets seen in the server browser
+	int WeaponShouldRespawn(CBasePlayerItem *pWeapon) override { return GR_WEAPON_RESPAWN_NO; }
+	int ItemShouldRespawn(CItem *pItem) override { return GR_ITEM_RESPAWN_NO; }
+	int AmmoShouldRespawn(CBasePlayerAmmo *pAmmo) override { return GR_AMMO_RESPAWN_NO; }
 	virtual void UpdateGameMode(CBasePlayer *pPlayer); // the client needs to be informed of the current game mode
 	virtual void PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller, entvars_t *pInflictor);
 	virtual void PlayerThink(CBasePlayer *pPlayer);
