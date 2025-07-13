@@ -5519,10 +5519,10 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
 		return ThrowableDropState::IS_ACTIVE;
 	}
-	else
+	else if ( pWeapon->IsThrowable() )
 	{
 		// If not active, make sure we decrement it!
-		if ( pWeapon->IsThrowable() && bOnDrop )
+		if ( bOnDrop )
 			m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
 		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
 		return ThrowableDropState::NOT_ACTIVE_THROWABLE;
