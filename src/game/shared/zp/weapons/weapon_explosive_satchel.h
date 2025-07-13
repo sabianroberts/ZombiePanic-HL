@@ -12,6 +12,7 @@ class CWeaponExplosiveSatchel : public CWeaponBase
 	DECLARE_CLASS_SIMPLE( CWeaponExplosiveSatchel, CWeaponBase );
 
 public:
+	bool IsThrowable() override { return true; }
 	ZPWeaponID GetWeaponID() override { return WEAPON_SATCHEL; }
 	void Spawn( void );
 	void Precache( void );

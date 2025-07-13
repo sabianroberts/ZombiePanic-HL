@@ -51,13 +51,13 @@ int CWeaponExplosiveSatchel::AddDuplicate(CBasePlayerItem *pOriginal)
 
 		int nSatchelsInPocket = pSatchel->m_pPlayer->m_rgAmmo[pSatchel->PrimaryAmmoIndex()];
 		int nNumSatchels = 0;
-		CBaseEntity *pLiveSatchel = NULL;
+		CThrowableSatchelCharge *pLiveSatchel = NULL;
 
-		while ((pLiveSatchel = UTIL_FindEntityInSphere(pLiveSatchel, pOriginal->m_pPlayer->pev->origin, 4096)) != NULL)
+		while ((pLiveSatchel = (CThrowableSatchelCharge *)UTIL_FindEntityInSphere(pLiveSatchel, pOriginal->m_pPlayer->pev->origin, 4096)) != NULL)
 		{
 			if (FClassnameIs(pLiveSatchel->pev, "monster_satchel"))
 			{
-				if (pLiveSatchel->pev->owner == pOriginal->m_pPlayer->edict())
+				if (pLiveSatchel->pev->owner == pOriginal->m_pPlayer->edict() || pLiveSatchel->GetThrower() == pOriginal->m_pPlayer->entindex())
 				{
 					nNumSatchels++;
 				}
@@ -193,15 +193,15 @@ void CWeaponExplosiveSatchel::SecondaryAttack()
 
 		edict_t *pPlayer = m_pPlayer->edict();
 
-		CBaseEntity *pSatchel = NULL;
+		CThrowableSatchelCharge *pSatchel = NULL;
 
-		while ((pSatchel = UTIL_FindEntityInSphere(pSatchel, m_pPlayer->pev->origin, 4096)) != NULL)
+		while ((pSatchel = (CThrowableSatchelCharge *)UTIL_FindEntityInSphere(pSatchel, m_pPlayer->pev->origin, 4096)) != NULL)
 		{
 			if (FClassnameIs(pSatchel->pev, "monster_satchel"))
 			{
-				if (pSatchel->pev->owner == pPlayer)
+				if (pSatchel->pev->owner == pPlayer || pSatchel->GetThrower() == ENTINDEX(pPlayer))
 				{
-					pSatchel->Use(m_pPlayer, m_pPlayer, USE_ON, 0);
+					pSatchel->Use(m_pPlayer, m_pPlayer, USE_SET, 0);
 				}
 			}
 		}
@@ -223,16 +223,17 @@ void CWeaponExplosiveSatchel::SecondaryAttack()
 
 void CWeaponExplosiveSatchel::Throw(void)
 {
-	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+	if (m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType] > 0)
 	{
 		Vector vecSrc = m_pPlayer->pev->origin;
 
 		Vector vecThrow = gpGlobals->v_forward * 274 + m_pPlayer->pev->velocity;
 
 #ifndef CLIENT_DLL
-		CBaseEntity *pSatchel = Create("monster_satchel", vecSrc, Vector(0, 0, 0), m_pPlayer->edict());
+		CThrowableSatchelCharge *pSatchel = (CThrowableSatchelCharge *)Create("monster_satchel", vecSrc, Vector(0, 0, 0), m_pPlayer->edict());
 		pSatchel->pev->velocity = vecThrow;
 		pSatchel->pev->avelocity.y = 400;
+		pSatchel->DisallowPickupFor( 2.5f );
 
 		m_pPlayer->pev->viewmodel = MAKE_STRING("models/v_satchel_radio.mdl");
 		m_pPlayer->pev->weaponmodel = MAKE_STRING("models/p_satchel_radio.mdl");
@@ -318,7 +319,7 @@ void DeactivateSatchels( CBasePlayer *pOwner )
 
 		if (pSatchel)
 		{
-			if (pSatchel->pev->owner == pOwner->edict())
+			if (pSatchel->pev->owner == pOwner->edict() || pSatchel->GetThrower() == pOwner->entindex())
 			{
 				pSatchel->Deactivate();
 			}

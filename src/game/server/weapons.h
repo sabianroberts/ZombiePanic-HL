@@ -245,6 +245,8 @@ public:
 	virtual int ExtractAmmo(CBasePlayerWeapon *pWeapon); //{ return TRUE; };			// Return TRUE if you can add ammo to yourself when picked up
 	virtual int ExtractClipAmmo(CBasePlayerWeapon *pWeapon); // { return TRUE; };			// Return TRUE if you can add ammo to yourself when picked up
 
+	virtual bool IsThrowable() { return false; }
+
 	virtual int AddWeapon(void)
 	{
 		ExtractAmmo(this);

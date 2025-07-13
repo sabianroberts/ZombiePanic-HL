@@ -24,10 +24,11 @@ void CThrowableSatchelCharge::Spawn(void)
 	UTIL_SetOrigin(pev, pev->origin);
 
 	SetTouch(&CThrowableSatchelCharge::SatchelSlide);
-	SetUse(&CThrowableSatchelCharge::DetonateUse);
+	SetUse(&CThrowableSatchelCharge::SatchelUse);
 	SetThink(&CThrowableSatchelCharge::SatchelThink);
 	pev->nextthink = gpGlobals->time + 0.1;
 
+	pev->team = ZP::TEAM_SURVIVIOR;
 	pev->gravity = 0.5;
 	pev->friction = 0.8;
 
@@ -40,6 +41,27 @@ void CThrowableSatchelCharge::Spawn(void)
 void CThrowableSatchelCharge::SatchelSlide(CBaseEntity *pOther)
 {
 	entvars_t *pevOther = pOther->pev;
+
+	// Allow for pickup! (if we can)
+	if ( m_iThrower != -1 && pOther->IsPlayer() )
+	{
+#ifndef CLIENT_DLL
+		bool bCanBePickedUp = pev->owner ? false : true;
+		CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
+		if ( pOwner && pOwner->pev->team == pev->team )
+			bCanBePickedUp = true;
+		else if ( pOther->edict() == pev->owner )
+			bCanBePickedUp = true;
+		if ( bCanBePickedUp )
+		{
+			CBasePlayer *pPlayer = (CBasePlayer *)pOther;
+			pPlayer->GiveNamedItem( "weapon_satchel" );
+			SetTouch( NULL );
+			SetThink( &CThrowableSatchelCharge::SUB_Remove );
+			return;
+		}
+#endif
+	}
 
 	// don't hit the guy that launched this grenade
 	if (pOther->edict() == pev->owner)
@@ -98,6 +120,29 @@ void CThrowableSatchelCharge ::SatchelThink(void)
 	else
 	{
 		pev->velocity.z -= 8;
+	}
+
+	if ( m_flDisallowPickup != -1 && m_flDisallowPickup - gpGlobals->time <= 0 )
+	{
+		m_flDisallowPickup = -1;
+		m_iThrower = pev->owner ? ENTINDEX( pev->owner ) : 0;
+		pev->owner = nullptr;
+	}
+}
+
+void CThrowableSatchelCharge::SatchelUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+{
+	if ( useType == USE_SET )
+	{
+#ifndef CLIENT_DLL
+		if ( m_iThrower != -1 )
+		{
+			CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
+			pev->owner = pOwner->edict();
+		}
+#endif
+		CGrenade::DetonateUse( pActivator, pCaller, useType, value );
+		return;
 	}
 }
 
