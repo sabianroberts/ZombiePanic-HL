@@ -5377,6 +5377,7 @@ void CBasePlayer::DropActiveWeapon()
 
 	switch ( throwablestate )
 	{
+		case ThrowableDropState::NOT_ACTIVE:
 		case ThrowableDropState::DELETE_ITEM:
 		case ThrowableDropState::DELETE_ITEM_AND_ACTIVE:
 		{
