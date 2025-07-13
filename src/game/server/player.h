@@ -351,6 +351,16 @@ public:
 	};
 	ThrowableDropState IsThrowableAndActive(CBasePlayerWeapon *pWeapon, bool bOnDrop);
 
+	// Kill assist stuff
+	int GetBestKillAssist();
+	void AddToAssistDamage(CBasePlayer *pPlayer, float flDamage);
+	struct KillAssist
+	{
+		int EntIndex;
+		float DamageDealt;
+	};
+	std::vector<KillAssist> m_AssistedDamage;
+
 	//Player ID
 	void InitStatusBar(void);
 	void UpdateStatusBar(void);

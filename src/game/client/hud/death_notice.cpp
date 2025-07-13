@@ -30,6 +30,7 @@ struct DeathNoticeItem
 {
 	char szKiller[MAX_PLAYERNAME_LENGTH * 2];
 	char szVictim[MAX_PLAYERNAME_LENGTH * 2];
+	char szAssist[MAX_PLAYERNAME_LENGTH * 2];
 	int iId; // the index number of the associated sprite
 	int iSuicide;
 	int iTeamKill;
@@ -41,7 +42,6 @@ struct DeathNoticeItem
 	bool bVictimHasColor;
 };
 
-extern ConVar hud_deathnotice_vgui;
 ConVar cl_killsound("cl_killsound", "0", FCVAR_BHL_ARCHIVE, "Play a sound on kill");
 ConVar cl_killsound_path("cl_killsound_path", "buttons/bell1.wav", FCVAR_BHL_ARCHIVE, "Path to a sound on kill");
 ConVar hud_deathnotice_time("hud_deathnotice_time", "6", FCVAR_ARCHIVE | FCVAR_BHL_ARCHIVE, "How long should death notice stay up for");
@@ -77,6 +77,7 @@ void CHudDeathNotice::VidInit()
 
 void CHudDeathNotice::Draw(float flTime)
 {
+#if 0
 	if (hud_deathnotice_vgui.GetBool() && CHudDeathNoticePanel::Get())
 		return;
 
@@ -140,6 +141,7 @@ void CHudDeathNotice::Draw(float flTime)
 			}
 		}
 	}
+#endif
 }
 
 void CHudDeathNotice::Think()
@@ -165,6 +167,7 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 
 	int killer = READ_BYTE();
 	int victim = READ_BYTE();
+	int assist = READ_BYTE();
 	int death_flag = READ_SHORT();
 
 	char killedwith[MAX_WEAPON_NAME];
@@ -177,8 +180,12 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 
 	CHudSpectator::Get()->DeathMessage(victim);
 
+#if 0
 	if (hud_deathnotice_vgui.GetBool() && CHudDeathNoticePanel::Get())
-		CHudDeathNoticePanel::Get()->AddItem(killer, victim, killedwith, death_flag);
+#else
+	if (CHudDeathNoticePanel::Get())
+#endif
+		CHudDeathNoticePanel::Get()->AddItem(killer, victim, assist, killedwith, death_flag);
 
 	int i;
 	for (i = 0; i < MAX_DEATHNOTICES; i++)
@@ -220,6 +227,29 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 		killer_name = "";
 		rgDeathNoticeList[i].szKiller[0] = 0;
 	}
+
+	// Get the Assist's name
+	CPlayerInfo *assistInfo = nullptr;
+	const char *assist_name = nullptr;
+	if (assist != 0 && (assistInfo = GetPlayerInfoSafe(assist)) && (assist != killer))
+	{
+		assist_name = assistInfo->GetDisplayName();
+
+		if (assistInfo->GetTeamNumber() == 0)
+		{
+			rgDeathNoticeList[i].bKillerHasColor = false;
+		}
+		else
+		{
+			rgDeathNoticeList[i].bKillerHasColor = true;
+			gHUD.GetClientColorAsFloat(assist, rgDeathNoticeList[i].KillerColor, NoTeamColor::Orange);
+		}
+
+		strncpy(rgDeathNoticeList[i].szAssist, assist_name, MAX_PLAYERNAME_LENGTH);
+		rgDeathNoticeList[i].szAssist[MAX_PLAYERNAME_LENGTH - 1] = 0;
+	}
+	else
+		rgDeathNoticeList[i].szAssist[0] = 0;
 
 	// Get the Victim's name
 	const char *victim_name = NULL;
@@ -266,7 +296,6 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 			rgDeathNoticeList[i].iTeamKill = TRUE;
 	}
 
-	// TODO: Change to TGA.
 	// Find the sprite in the list
 	int spr = gHUD.GetSpriteIndex(killedwith);
 
@@ -289,6 +318,11 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 	if (rgDeathNoticeList[i].iNonPlayerKill)
 	{
 		ConsolePrint(rgDeathNoticeList[i].szKiller);
+		if ( assist_name && assist_name[0] )
+		{
+			ConsolePrint(" + ");
+			ConsolePrint(rgDeathNoticeList[i].szAssist);
+		}
 		ConsolePrint(" killed a ");
 		ConsolePrint(rgDeathNoticeList[i].szVictim);
 		ConsolePrint("\n");
@@ -312,12 +346,22 @@ int CHudDeathNotice::MsgFunc_DeathMsg(const char *pszName, int iSize, void *pbuf
 		else if (rgDeathNoticeList[i].iTeamKill)
 		{
 			ConsolePrint(rgDeathNoticeList[i].szKiller);
+			if ( assist_name && assist_name[0] )
+			{
+				ConsolePrint(" + ");
+				ConsolePrint(rgDeathNoticeList[i].szAssist);
+			}
 			ConsolePrint(" killed his teammate ");
 			ConsolePrint(rgDeathNoticeList[i].szVictim);
 		}
 		else
 		{
 			ConsolePrint(rgDeathNoticeList[i].szKiller);
+			if ( assist_name && assist_name[0] )
+			{
+				ConsolePrint(" + ");
+				ConsolePrint(rgDeathNoticeList[i].szAssist);
+			}
 			ConsolePrint(" killed ");
 			ConsolePrint(rgDeathNoticeList[i].szVictim);
 		}

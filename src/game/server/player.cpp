@@ -584,6 +584,9 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 		flDamage = flNew;
 	}
 
+	if ( pAttacker->IsPlayer() )
+		AddToAssistDamage( (CBasePlayer *)pAttacker, flDamage );
+
 	// this cast to INT is critical!!! If a player ends up with 0.5 health, the engine will get that
 	// as an int (zero) and think the player is dead! (this will incite a clientside screentilt, etc)
 	fTookDamage = CBaseMonster::TakeDamage(pevInflictor, pevAttacker, (int)flDamage, bitsDamageType);
@@ -3398,6 +3401,9 @@ void CBasePlayer::Spawn(void)
 	m_iDeathFlags = 0;
 	m_bInZombieVision = false;
 
+	// Clear it
+	m_AssistedDamage.clear();
+
 	pev->classname = MAKE_STRING("player");
 	pev->health = GetMaxHealth();
 	pev->armorvalue = 0;
@@ -5507,6 +5513,43 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 		return ThrowableDropState::NOT_ACTIVE_THROWABLE;
 	}
 	return ThrowableDropState::NOT_ACTIVE;
+}
+
+int CBasePlayer::GetBestKillAssist()
+{
+	int iDx = 0;
+	float flDamage = 0.0f;
+	for ( size_t i = 0; i < m_AssistedDamage.size(); i++ )
+	{
+		KillAssist assist = m_AssistedDamage[i];
+		if ( assist.DamageDealt > flDamage )
+		{
+			iDx = assist.EntIndex;
+			flDamage = assist.DamageDealt;
+		}
+	}
+	return iDx;
+}
+
+void CBasePlayer::AddToAssistDamage(CBasePlayer *pPlayer, float flDamage)
+{
+	// Don't add ourselves.
+	if ( pPlayer->entindex() == entindex() ) return;
+
+	int iIdx = ENTINDEX(pPlayer->edict());
+	for ( size_t i = 0; i < m_AssistedDamage.size(); i++ )
+	{
+		KillAssist &assist = m_AssistedDamage[i];
+		if ( assist.EntIndex == iIdx )
+		{
+			assist.DamageDealt += flDamage;
+			return;
+		}
+	}
+	KillAssist killer;
+	killer.EntIndex = iIdx;
+	killer.DamageDealt = flDamage;
+	m_AssistedDamage.push_back( killer );
 }
 
 bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel )

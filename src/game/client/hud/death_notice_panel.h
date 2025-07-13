@@ -16,7 +16,7 @@ public:
 	void InitHudData() override;
 	void Think() override;
 
-	void AddItem(int killerId, int victimId, const char *killedwith, int death_flags);
+	void AddItem(int killerId, int victimId, int assistId, const char *killedwith, int death_flags);
 
 	CHud::RegisteredIcon GetFlagIcon( int flags );
 
@@ -35,13 +35,17 @@ private:
 	struct Entry
 	{
 		wchar_t wszKiller[MAX_PLAYER_NAME + 1] = { 0 };
+		wchar_t wszAssist[MAX_PLAYER_NAME + 1] = { 0 };
 		wchar_t wszVictim[MAX_PLAYER_NAME + 1] = { 0 };
 		float flEndTime = 0;
 		int iKillerLen = 0;
 		int iKillerWide = 0;
+		int iAssistLen = 0;
+		int iAssistWide = 0;
 		int iVictimLen = 0;
 		int iVictimWide = 0;
 		Color killerColor = Color(0, 0, 0, 0);
+		Color assistColor = Color(0, 0, 0, 0);
 		Color victimColor = Color(0, 0, 0, 0);
 		EntryType type = EntryType::Other;
 		bool bIsSuicide = false;

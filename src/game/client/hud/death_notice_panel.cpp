@@ -7,10 +7,11 @@
 #include "hud/death_notice_panel.h"
 #include "vgui/client_viewport.h"
 #include "hud_renderer.h"
+#include "zp/ui/workshop/WorkshopItemList.h"
 
 extern ConVar hud_deathnotice_time;
 ConVar hud_deathnotice_time_self("hud_deathnotice_time_self", "12", FCVAR_BHL_ARCHIVE, "How long should your death notices stay up for");
-ConVar hud_deathnotice_vgui("hud_deathnotice_vgui", "1", FCVAR_BHL_ARCHIVE, "Use VGUI deathnotice panel");
+//ConVar hud_deathnotice_vgui("hud_deathnotice_vgui", "1", FCVAR_BHL_ARCHIVE, "Use VGUI deathnotice panel");
 
 static constexpr int KILLFEED_COUNT = 6;
 static constexpr int SKULL_SPRITE_HEIGHT = 16;
@@ -60,7 +61,7 @@ void CHudDeathNoticePanel::InitHudData()
 
 void CHudDeathNoticePanel::Think()
 {
-	bool shouldBeVisible = hud_deathnotice_vgui.GetBool();
+	bool shouldBeVisible = true;
 
 	if (IsVisible() != shouldBeVisible)
 	{
@@ -94,7 +95,7 @@ void CHudDeathNoticePanel::Think()
 	}
 }
 
-void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *killedwith, int death_flags)
+void CHudDeathNoticePanel::AddItem(int killerId, int victimId, int assistId, const char *killedwith, int death_flags)
 {
 	if (!GetThisPlayerInfo())
 	{
@@ -105,6 +106,9 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *kille
 	Entry e;
 	CPlayerInfo *killer = GetPlayerInfoSafe(killerId);
 	CPlayerInfo *victim = GetPlayerInfoSafe(victimId);
+	CPlayerInfo *assist = nullptr;
+	if ( killerId != assistId )
+		assist = GetPlayerInfoSafe(assistId);
 	int thisPlayerId = GetThisPlayerInfo()->GetIndex();
 
 	// Check for suicide
@@ -139,6 +143,17 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, const char *kille
 		e.iKillerLen--; // L'\0'
 		e.iKillerWide = GetColoredTextWide(e.wszKiller, e.iKillerLen);
 		e.killerColor = gHUD.GetClientColor(killerId, nameColor);
+	}
+
+	// Fill assist info
+	if (assist && !e.bIsSuicide)
+	{
+		bool removeColorCodes = assist->GetTeamNumber() != 0;
+		e.iAssistLen = Q_UTF8ToWString( vgui2::VarArgs( "+ %s", assist->GetDisplayName(removeColorCodes) ), e.wszAssist, sizeof(e.wszAssist), STRINGCONVERT_REPLACE);
+		e.iAssistLen /= sizeof(wchar_t);
+		e.iAssistLen--; // L'\0'
+		e.iAssistWide = GetColoredTextWide(e.wszAssist, e.iAssistLen);
+		e.assistColor = gHUD.GetClientColor(assistId, nameColor);
 	}
 
 	// Fill victim info
@@ -274,9 +289,13 @@ void CHudDeathNoticePanel::PaintBackground()
 		int x = panelWide - wide;
 
 		// Calculate sprite pos
-		int iconX = m_iHPadding + entry.iKillerWide;
+		int iconX = m_iHPadding + entry.iKillerWide + entry.iAssistWide;
 
 		if (entry.iKillerWide != 0)
+			iconX += m_iIconPadding; // padding on the left only if there is a text
+
+		// Do the same for assist, if we have any
+		if (entry.iAssistWide != 0)
 			iconX += m_iIconPadding; // padding on the left only if there is a text
 
 		int iconY = (m_iRowTall - m_iIconHeight) / 2;
@@ -341,6 +360,13 @@ void CHudDeathNoticePanel::Paint()
 			x += entry.iKillerWide + m_iIconPadding;
 		}
 
+		// Draw assist name
+		if (entry.iAssistWide != 0)
+		{
+			DrawColoredText(x, y + textY, entry.wszAssist, entry.iAssistLen, entry.assistColor);
+			x += entry.iAssistWide + m_iIconPadding;
+		}
+
 		// Skip icon
 		x += entry.iIconWidth[0] + m_iIconPadding;
 		if ( entry.iIconWidth[1] > 0 )
@@ -356,9 +382,12 @@ void CHudDeathNoticePanel::Paint()
 
 int CHudDeathNoticePanel::GetEntryContentWide(const Entry &e)
 {
-	int w = e.iKillerWide + m_iIconPadding + e.iIconWidth[0] + e.iVictimWide;
+	int w = e.iKillerWide + e.iAssistWide + m_iIconPadding + e.iIconWidth[0] + e.iVictimWide;
 
 	if ( e.iKillerWide != 0 )
+		w += m_iIconPadding;
+
+	if ( e.iAssistWide != 0 )
 		w += m_iIconPadding;
 
 	if ( e.iIconWidth[1] > 0 )

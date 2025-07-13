@@ -679,6 +679,7 @@ void CZombiePanicGameRules::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller
 				MESSAGE_BEGIN(MSG_ALL, gmsgDeathMsg);
 				WRITE_BYTE(ENTINDEX(ENT(pKiller))); // the killer
 				WRITE_BYTE(ENTINDEX(pVictim->edict())); // the victim
+				WRITE_BYTE(pVictim->GetBestKillAssist()); // the best kill assist
 				WRITE_SHORT(pVictim->m_iDeathFlags); // the death flag
 				WRITE_STRING("teammate"); // flag this as a teammate kill
 				MESSAGE_END();

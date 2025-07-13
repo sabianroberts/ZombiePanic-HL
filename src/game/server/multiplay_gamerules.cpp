@@ -707,6 +707,11 @@ void CHalfLifeMultiplay ::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller,
 		// if a player dies in a deathmatch game and the killer is a client, award the killer some points
 		pKiller->frags += IPointsForKill(peKiller, pVictim);
 
+		// Give points for the assist guy
+		CBasePlayer *pAssist = (CBasePlayer *)UTIL_PlayerByIndex( pVictim->GetBestKillAssist() );
+		if ( pAssist && pAssist->entindex() != peKiller->entindex() )
+			pAssist->pev->frags += IPointsForKill( pAssist, pVictim );
+
 		FireTargets("game_playerkill", ktmp, ktmp, USE_TOGGLE, 0);
 	}
 	else
@@ -787,6 +792,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	MESSAGE_BEGIN(MSG_ALL, gmsgDeathMsg);
 	WRITE_BYTE(killer_index); // the killer
 	WRITE_BYTE(ENTINDEX(pVictim->edict())); // the victim
+	WRITE_BYTE(pVictim->GetBestKillAssist()); // the best kill assist
 	WRITE_SHORT(pVictim->m_iDeathFlags); // the death flag
 	WRITE_STRING(killer_weapon_name); // what they were killed by (should this be a string?)
 	MESSAGE_END();
