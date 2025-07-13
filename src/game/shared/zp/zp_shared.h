@@ -165,8 +165,8 @@ namespace ZP
 	static int ExtraPanicSpeed = 60;
 
 	static int MaxSpeeds[2] = {
-		250,	// Human Max Speed
-		200		// Zombie Max Speed
+		230,	// Human Max Speed
+		180		// Zombie Max Speed
 	};
 
 	static int MaxHealth[2] = {
