@@ -14,7 +14,6 @@
 #define MAX_ZOMBIE_LIVES 99
 
 extern int gmsgTeamInfo;
-extern void CopyToBodyQue(entvars_t *pev);
 
 ConVar zp_zombielives( "zp_zombielives", "8", FCVAR_SERVER, "Amount of zombie starter lives" );
 
@@ -23,7 +22,7 @@ ZPGameMode_Survival::ZPGameMode_Survival()
 	SetRoundState( ZP::RoundState_WaitingForPlayers );
 	m_bTimeRanOut = false;
 	m_bAllSurvivorsDead = false;
-	m_iZombieLives = zp_zombielives.GetInt();
+	m_iZombieLives = (int)clamp( zp_zombielives.GetInt(), 1, 10 );
 	m_flRoundBeginsIn = 0;
 }
 
@@ -121,9 +120,9 @@ void ZPGameMode_Survival::CalculateZombieLives()
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 		if ( plr )
-			iPlayers += 2;
+			iPlayers++;
 	}
-	// More than 8 lives now that we have more players (more than 4)?
+	// More than our starting lives now that we have more players?
 	// Override it
 	if ( iPlayers > m_iZombieLives )
 	{
