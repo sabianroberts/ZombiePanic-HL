@@ -34,6 +34,7 @@ void CThrowableSatchelCharge::Spawn(void)
 	pev->dmg = gSkillData.plrDmgSatchel;
 	// ResetSequenceInfo( );
 	pev->sequence = 1;
+	m_flExplodeRange = 300.0f;
 }
 
 void CThrowableSatchelCharge::SatchelSlide(CBaseEntity *pOther)
