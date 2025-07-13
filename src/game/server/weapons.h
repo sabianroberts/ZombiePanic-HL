@@ -59,6 +59,7 @@ public:
 	virtual void Killed(entvars_t *pevAttacker, int iGib);
 
 	BOOL m_fRegisteredSound; // whether or not this grenade has issued its DANGER sound to the world sound list yet.
+	float m_flExplodeRange = 320.0f;
 };
 
 // constant items
