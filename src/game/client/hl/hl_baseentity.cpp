@@ -215,8 +215,8 @@ BOOL CBaseMonster::GetEnemy(void) { return FALSE; }
 void CBaseMonster::TraceAttack(entvars_t *pevAttacker, float flDamage, Vector vecDir, TraceResult *ptr, int bitsDamageType) { }
 CBaseEntity *CBaseMonster::DropItem(char *pszItemName, const Vector &vecPos, const Vector &vecAng) { return NULL; }
 BOOL CBaseMonster::ShouldFadeOnDeath(void) { return FALSE; }
-void CBaseMonster::RadiusDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType) { }
-void CBaseMonster::RadiusDamage(Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType) { }
+void CBaseMonster::RadiusDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType, float flRange) { }
+void CBaseMonster::RadiusDamage(Vector vecSrc, entvars_t *pevInflictor, entvars_t *pevAttacker, float flDamage, int iClassIgnore, int bitsDamageType, float flRange) { }
 void CBaseMonster::FadeMonster(void) { }
 void CBaseMonster::GibMonster(void) { }
 BOOL CBaseMonster::HasHumanGibs(void) { return FALSE; }
