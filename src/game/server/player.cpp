@@ -3401,6 +3401,9 @@ void CBasePlayer::Spawn(void)
 	m_iDeathFlags = 0;
 	m_bInZombieVision = false;
 
+	// We just spawned, allow auto weapon switch
+	m_bJustSpawned = true;
+
 	// Clear it
 	m_AssistedDamage.clear();
 
@@ -4348,12 +4351,13 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 		{
 			//auto_switch check, set by cl_autopickup
 			char *szAutoPickup = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "auto_switch" );
-			if ( szAutoPickup && szAutoPickup[0] )
+			if ( szAutoPickup && szAutoPickup[0] && !m_bJustSpawned )
 			{
 				// If 0, then do not auto switch to the weapon
 				if ( FStrEq( szAutoPickup, "0" ) ) return TRUE;
 			}
 			SwitchWeapon(pItem);
+			m_bJustSpawned = false;
 		}
 
 		return TRUE;

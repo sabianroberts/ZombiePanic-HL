@@ -394,6 +394,7 @@ public:
 	void WantsToSuicide();
 
 	bool m_bInZombieVision;
+	bool m_bJustSpawned;
 
 #ifdef SERVER_DLL
 private:
