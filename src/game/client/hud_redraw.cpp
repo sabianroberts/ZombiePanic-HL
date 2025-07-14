@@ -43,6 +43,13 @@ ConVar hud_takesshots("hud_takesshots", "0", FCVAR_ARCHIVE, "Whether or not to a
 ConVar default_fov("default_fov", "90", FCVAR_ARCHIVE | FCVAR_BHL_ARCHIVE, "Default horizontal field of view");
 ConVar cl_useslowdown("cl_useslowdown", "2", FCVAR_BHL_ARCHIVE, "Slowdown behavior on +USE. 0 - Old. 1 - New. 2 - Auto-detect.");
 
+static int GetDefaultFOVClamp()
+{
+	int iFOV = default_fov.GetInt();
+	if ( iFOV < 90 ) return 90;
+	return iFOV;
+}
+
 // Think
 void CHud::Think(void)
 {
@@ -65,7 +72,7 @@ void CHud::Think(void)
 	newfov = HUD_GetFOV();
 	if (newfov == 0)
 	{
-		m_iFOV = default_fov.GetInt();
+		m_iFOV = GetDefaultFOVClamp();
 	}
 	else
 	{
@@ -75,7 +82,7 @@ void CHud::Think(void)
 	// the clients fov is actually set in the client data update section of the hud
 
 	// Set a new sensitivity
-	if (m_iFOV == default_fov.GetInt())
+	if (m_iFOV == GetDefaultFOVClamp())
 	{
 		// reset to saved sensitivity
 		m_flMouseSensitivity = 0;
@@ -83,13 +90,13 @@ void CHud::Think(void)
 	else
 	{
 		// set a new sensitivity that is proportional to the change from the FOV default
-		m_flMouseSensitivity = IN_GetMouseSensitivity() * ((float)newfov / (float)default_fov.GetInt()) * zoom_sensitivity_ratio.GetFloat();
+		m_flMouseSensitivity = IN_GetMouseSensitivity() * ((float)newfov / (float)GetDefaultFOVClamp()) * zoom_sensitivity_ratio.GetFloat();
 	}
 
 	// think about default fov
 	if (m_iFOV == 0)
 	{ // only let players adjust up in fov,  and only if they are not overriden by something else
-		m_iFOV = max(default_fov.GetInt(), 90);
+		m_iFOV = max(GetDefaultFOVClamp(), 90);
 	}
 
 	if (gEngfuncs.IsSpectateOnly())
