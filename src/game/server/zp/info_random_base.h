@@ -6,6 +6,14 @@
 
 #include "cbase.h"
 
+struct SpawnList
+{
+	const char *Classname = nullptr;
+	int Limit = 0;
+	int PlayersRequired = 0;
+	bool Full = false;
+};
+
 class CRandomItemBase : public CPointEntity
 {
 	SET_BASECLASS( CPointEntity );
@@ -21,6 +29,7 @@ public:
 	void SpawnItem( void );
 	virtual const char *GetRandomClassname() const = 0;
 	virtual ItemType GetType() const = 0;
+	bool IsLimited( SpawnList item ) const;
 };
 
 namespace ZP

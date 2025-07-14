@@ -15,7 +15,15 @@ void CRandomItemBase::SpawnItem(void)
 	}
 }
 
+bool CRandomItemBase::IsLimited( SpawnList item ) const
+{
+	if ( item.Limit <= 0 ) return false;
+	if ( item.Full ) return true;
+	return false;
+}
+
 extern void ResetRandomWeaponSpawnList();
+extern void ResetRandomAmmoSpawnList();
 
 void ZP::SpawnWeaponsFromRandomEntities()
 {
@@ -45,4 +53,5 @@ void ZP::SpawnWeaponsFromRandomEntities()
 
 	// Reset after use
 	ResetRandomWeaponSpawnList();
+	ResetRandomAmmoSpawnList();
 }

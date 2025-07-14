@@ -4,33 +4,25 @@
 #include "util.h"
 #include "zp/info_random_base.h"
 
-struct SpawnList
-{
-	const char *Weapon = nullptr;
-	int iLimit = 0;
-	bool Full = false;
-};
-
 class CRandomItemWeapon : public CRandomItemBase
 {
 public:
 	virtual const char *GetRandomClassname() const;
-	bool IsWeaponLimited( SpawnList item ) const;
 	ItemType GetType() const { return ItemType::TypeWeapon; }
 };
 LINK_ENTITY_TO_CLASS( info_random_weapon, CRandomItemWeapon );
 
-static std::vector<SpawnList> s_WeaponSpawnList = {
-	{ "weapon_sig", 3, false },
-	{ "weapon_357", 3, false },
-	{ "weapon_556ar", 2, false },
-	{ "weapon_mp5", 3, false },
-	{ "weapon_shotgun", 3, false }
+static std::vector<SpawnList> s_SpawnList = {
+	{ "weapon_sig", 3, 0, false },
+	{ "weapon_357", 3, 2, false },
+	{ "weapon_556ar", 2, 4, false },
+	{ "weapon_mp5", 3, 3, false },
+	{ "weapon_shotgun", 2, 5, false }
 };
 
 const char *CRandomItemWeapon::GetRandomClassname() const
 {
-	std::vector<SpawnList> temp = s_WeaponSpawnList;
+	std::vector<SpawnList> temp = s_SpawnList;
 	int idx = RANDOM_LONG( 0, temp.size() - 1 );
 	SpawnList item = temp[ idx ];
 	do
@@ -45,43 +37,36 @@ const char *CRandomItemWeapon::GetRandomClassname() const
 			item = temp[ idx ];
 			temp.erase( temp.begin() + idx );
 		}
-	} while ( IsWeaponLimited( item ) );
+	} while ( IsLimited( item ) );
 
 	// How many items did we find?
 	int iFound = 0;
 
 	// Now we check how many there are on the map
-	CBaseEntity *pFind = UTIL_FindEntityByClassname( nullptr, item.Weapon );
+	CBaseEntity *pFind = UTIL_FindEntityByClassname( nullptr, item.Classname );
 	while ( pFind )
 	{
 		// Ignore players (if they spawned with X item)
 		if ( !pFind->pev->owner )
 			iFound++;
-		pFind = UTIL_FindEntityByClassname( pFind, item.Weapon );
+		pFind = UTIL_FindEntityByClassname( pFind, item.Classname );
 	}
 
 	// Check how many we got, if it's equal or above, make Full true
-	if ( iFound >= item.iLimit )
+	if ( iFound >= item.Limit )
 	{
-		SpawnList &item = s_WeaponSpawnList[idx];
+		SpawnList &item = s_SpawnList[idx];
 		item.Full = true;
 	}
 
-	return item.Weapon;
-}
-
-bool CRandomItemWeapon::IsWeaponLimited( SpawnList item ) const
-{
-	if ( item.iLimit <= 0 ) return false;
-	if ( item.Full ) return true;
-	return false;
+	return item.Classname;
 }
 
 void ResetRandomWeaponSpawnList()
 {
-	for ( size_t i = 0; i < s_WeaponSpawnList.size(); i++ )
+	for ( size_t i = 0; i < s_SpawnList.size(); i++ )
 	{
-		SpawnList &item = s_WeaponSpawnList[i];
+		SpawnList &item = s_SpawnList[i];
 		item.Full = false;
 	}
 }
