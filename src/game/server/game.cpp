@@ -43,7 +43,7 @@ cvar_t spectator_cmd_delay = { "spectator_cmd_delay", "5" };
 // multiplayer server rules
 cvar_t fragsleft = { "mp_fragsleft", "0", 0 }; // Don't spam console/log files/users with this changing
 cvar_t timeleft = { "mp_timeleft", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
-cvar_t startdelay = { "mp_startdelay", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
+cvar_t startdelay = { "mp_startdelay", "8", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
 cvar_t testmode = { "sv_testmode", "0", FCVAR_SERVER | FCVAR_UNLOGGED }; // "      "
 
 // multiplayer server rules
