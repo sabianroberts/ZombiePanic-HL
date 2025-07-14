@@ -411,7 +411,7 @@ void CHalfLifeMultiplay ::InitHUD(CBasePlayer *pl)
 		const char *name = pl->pev->netname ? STRING(pl->pev->netname) : "";
 		if (name[0] == 0)
 			name = "unconnected";
-		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("+ %s has joined the game\n", name));
+		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("+ %s ^0has joined the game\n", name));
 	}
 
 	// team match?
@@ -516,7 +516,7 @@ void CHalfLifeMultiplay ::ClientDisconnected(edict_t *pClient)
 		const char *name = pPlayer->pev->netname ? STRING(pPlayer->pev->netname) : "";
 		if (name[0] == 0)
 			name = "unconnected";
-		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("- %s has left the game\n", name));
+		UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("- %s ^0has left the game\n", name));
 	}
 
 	FireTargets("game_playerleave", pPlayer, pPlayer, USE_TOGGLE, 0);
@@ -708,7 +708,7 @@ void CHalfLifeMultiplay ::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller,
 		pKiller->frags += IPointsForKill(peKiller, pVictim);
 
 		// Give points for the assist guy
-		CBasePlayer *pAssist = (CBasePlayer *)UTIL_PlayerByIndex( pVictim->GetBestKillAssist() );
+		CBasePlayer *pAssist = (CBasePlayer *)UTIL_PlayerByIndex( pVictim->GetBestKillAssist(ENTINDEX(peKiller->edict())) );
 		if ( pAssist && pAssist->entindex() != peKiller->entindex() )
 			pAssist->pev->frags += IPointsForKill( pAssist, pVictim );
 
@@ -792,7 +792,7 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	MESSAGE_BEGIN(MSG_ALL, gmsgDeathMsg);
 	WRITE_BYTE(killer_index); // the killer
 	WRITE_BYTE(ENTINDEX(pVictim->edict())); // the victim
-	WRITE_BYTE(pVictim->GetBestKillAssist()); // the best kill assist
+	WRITE_BYTE(pVictim->GetBestKillAssist(killer_index)); // the best kill assist
 	WRITE_SHORT(pVictim->m_iDeathFlags); // the death flag
 	WRITE_STRING(killer_weapon_name); // what they were killed by (should this be a string?)
 	MESSAGE_END();
@@ -1956,7 +1956,7 @@ void CMultiplayBusters::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKiller, e
 
 		if (peKiller)
 		{
-			UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("%s has has killed the Buster!\n", STRING((CBasePlayer *)peKiller->pev->netname)));
+			UTIL_ClientPrintAll(HUD_PRINTTALK, UTIL_VarArgs("%s ^0has has killed the Buster!\n", STRING((CBasePlayer *)peKiller->pev->netname)));
 		}
 
 		pVictim->pev->renderfx = kRenderFxNone;
