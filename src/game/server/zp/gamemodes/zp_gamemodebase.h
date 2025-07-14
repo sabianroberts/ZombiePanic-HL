@@ -31,6 +31,7 @@ public:
 	virtual void OnPlayerSpawned(CBasePlayer *pPlayer) = 0;
 	virtual WinState_e GetWinState() = 0;
 	virtual void SetWinState(WinState_e state) { }
+	virtual void GiveWeapons(CBasePlayer *pPlayer) = 0;
 
 	// Roundstate
 	void SetRoundState( ZP::RoundState state ) { m_iRoundState = state; }

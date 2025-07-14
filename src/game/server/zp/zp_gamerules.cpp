@@ -494,6 +494,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			{
 				bLateJoin = false;
 				pPlayer->m_bPunishLateJoiner = true;
+				m_pGameMode->GiveWeapons( pPlayer );
 			}
 			ChangePlayerTeam(pPlayer, ZP::Teams[ bLateJoin ? ZP::TEAM_ZOMBIE : ZP::TEAM_SURVIVIOR], FALSE, FALSE);
 			pPlayer->RemoveAllItems( TRUE );
