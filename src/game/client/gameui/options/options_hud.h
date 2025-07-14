@@ -34,8 +34,6 @@ private:
 	CCvarCheckButton *m_pCenterIdCvar = nullptr;
 	CCvarCheckButton *m_pRainbowCvar = nullptr;
 
-	CCvarCheckButton *m_pDeathnoticeVGui = nullptr;
-
 	CCVarComboBox *m_pTimerBox = nullptr;
 	CCVarComboBox *m_pScaleBox = nullptr;
 

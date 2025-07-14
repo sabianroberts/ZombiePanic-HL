@@ -30,8 +30,6 @@ CHudSubOptions::CHudSubOptions(vgui2::Panel *parent)
 	m_pCenterIdCvar = new CCvarCheckButton(this, "CenterIdCvar", "#ZP_AdvOptions_HUD_CenterId", "hud_centerid");
 	m_pRainbowCvar = new CCvarCheckButton(this, "RainbowCvar", "#ZP_AdvOptions_HUD_Rainbow", "hud_rainbow");
 
-	m_pDeathnoticeVGui = new CCvarCheckButton(this, "DeathnoticeCheckbox", "#ZP_AdvOptions_HUD_Deathnotice", "hud_deathnotice_vgui");
-
 	m_pTimerBox = new CCVarComboBox(this, "TimerBox", "hud_timer");
 	m_pTimerBox->AddItem("#ZP_AdvOptions_Hud_Timer0", "0");
 	m_pTimerBox->AddItem("#ZP_AdvOptions_Hud_Timer1", "1");
@@ -60,7 +58,6 @@ CHudSubOptions::CHudSubOptions(vgui2::Panel *parent)
 	if (!CHudRenderer::Get().IsAvailable())
 	{
 		m_pRenderCheckbox->SetEnabled(false);
-		m_pDeathnoticeVGui->SetEnabled(false);
 	}
 }
 
@@ -78,11 +75,6 @@ void CHudSubOptions::OnResetData()
 	m_pCenterIdCvar->ResetData();
 	m_pRainbowCvar->ResetData();
 
-	if (m_pDeathnoticeVGui->IsEnabled())
-		m_pDeathnoticeVGui->ResetData();
-	else
-		m_pDeathnoticeVGui->SetSelected(false);
-
 	m_pTimerBox->ResetData();
 	m_pScaleBox->ResetData();
 }
@@ -98,9 +90,6 @@ void CHudSubOptions::OnApplyChanges()
 	m_pWeaponSpriteCheckbox->ApplyChanges();
 	m_pCenterIdCvar->ApplyChanges();
 	m_pRainbowCvar->ApplyChanges();
-
-	if (m_pDeathnoticeVGui->IsEnabled())
-		m_pDeathnoticeVGui->ApplyChanges();
 
 	m_pTimerBox->ApplyChanges();
 	m_pScaleBox->ApplyChanges();
