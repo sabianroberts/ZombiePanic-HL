@@ -130,6 +130,8 @@ private:
 	std::map<CSteamID, CAvatarImage *> m_PlayerAvatars;
 	MenuData m_MenuData;
 
+	int m_iGameTimeIconXPos = 0;
+
 	int m_iKillerIndex = 0;
 	float m_flKillerHighlightStart = 0;
 	float m_flLastUpdateTime = 0;

@@ -179,6 +179,7 @@ CScorePanel::CScorePanel()
 
 	m_pGameTimeIcon->SetImage( "ui/icons/score_timer" );
 	m_pGameTimeIcon->SetShouldScaleImage( true );
+	m_iGameTimeIconXPos = m_pGameTimeIcon->GetXPos();
 }
 
 void CScorePanel::UpdateServerName()
@@ -739,11 +740,16 @@ void CScorePanel::UpdateScoresAndCounts()
 	CHud::HUDGameTimerFormat timefrmt;
 	gHUD.GetFormatedTime( CHud::HUDGameTimerType::RoundTime, &timefrmt );
 
+	int xPos = m_iGameTimeIconXPos;
 	if ( timefrmt.Hours > 0 )
+	{
 		snprintf(buf, sizeof(buf), "%i:%02d:%02d", timefrmt.Hours, timefrmt.Minutes, timefrmt.Seconds);
+		xPos -= 10;
+	}
 	else
 		snprintf(buf, sizeof(buf), "%02d:%02d", timefrmt.Minutes, timefrmt.Seconds );
 	m_pGameTime->SetText(buf);
+	m_pGameTimeIcon->SetPos( xPos, m_pGameTimeIcon->GetYPos() );
 }
 
 int CScorePanel::GetNameColumnWidth()
