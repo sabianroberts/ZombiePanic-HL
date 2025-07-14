@@ -153,7 +153,7 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, int assistId, con
 		e.iAssistLen /= sizeof(wchar_t);
 		e.iAssistLen--; // L'\0'
 		e.iAssistWide = GetColoredTextWide(e.wszAssist, e.iAssistLen);
-		e.assistColor = gHUD.GetClientColor(assistId, nameColor);
+		e.assistColor = gHUD.GetClientColor(killerId, nameColor); // always use the killer color
 	}
 
 	// Fill victim info
@@ -193,8 +193,6 @@ void CHudDeathNoticePanel::AddItem(int killerId, int victimId, int assistId, con
 		e.iFlag = sHUDTexture.Icon;
 		e.iIconWidth[1] = sHUDTexture.Wide;
 	}
-	else
-		ConPrintf( Color( 255, 22, 22, 255 ), "Failed to find flag icon ID %i!\n", death_flags );
 
 	// Insert into the list
 	Assert(m_iEntryCount <= KILLFEED_COUNT);
