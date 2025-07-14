@@ -1370,7 +1370,14 @@ void PM_Accelerate(const Vector &wishdir, float wishspeed, float accel)
 	// Adjust velocity.
 	for (i = 0; i < 3; i++)
 	{
-		pmove->velocity[i] += accelspeed * wishdir[i];
+		float SpeedCap = accelspeed * wishdir[i];
+		SpeedCap += pmove->velocity[i];
+
+		// Never go beyond max speed.
+		if (SpeedCap > pmove->maxspeed)
+			SpeedCap = pmove->maxspeed;
+
+		pmove->velocity[i] = SpeedCap;
 	}
 }
 
@@ -1605,6 +1612,10 @@ void PM_Friction(void)
 		drop += control * friction * pmove->frametime;
 	}
 
+	// Never go beyond max speed.
+	if (speed > pmove->maxspeed)
+		speed = pmove->maxspeed;
+
 	// apply water friction
 	//	if (pmove->waterlevel)
 	//		drop += speed * pmove->movevars->waterfriction * waterlevel * pmove->frametime;
@@ -1613,6 +1624,13 @@ void PM_Friction(void)
 	newspeed = speed - drop;
 	if (newspeed < 0)
 		newspeed = 0;
+
+	// Adjust the max speed here, so we don't move too fast.
+	// This will fix the wall hug and strafe exploit
+	float flAdjustedMaxSpeed = pmove->maxspeed - 35;
+	if ( flAdjustedMaxSpeed <= 100 ) flAdjustedMaxSpeed = pmove->maxspeed;
+	if (newspeed > flAdjustedMaxSpeed)
+		newspeed = flAdjustedMaxSpeed;
 
 	// Determine proportion of old speed we are using.
 	newspeed /= speed;
@@ -1657,7 +1675,14 @@ void PM_AirAccelerate(Vector wishdir, float wishspeed, float accel)
 	// Adjust pmove vel.
 	for (i = 0; i < 3; i++)
 	{
-		pmove->velocity[i] += accelspeed * wishdir[i];
+		float SpeedCap = accelspeed * wishdir[i];
+		SpeedCap += pmove->velocity[i];
+
+		// Never go beyond max speed.
+		if (SpeedCap > pmove->maxspeed)
+			SpeedCap = pmove->maxspeed;
+
+		pmove->velocity[i] = SpeedCap;
 	}
 }
 
