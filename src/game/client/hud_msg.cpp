@@ -240,3 +240,12 @@ int CHud::MsgFunc_Fog(const char *pszName, int iSize, void *pbuf)
 
 	return 1;
 }
+
+int CHud::MsgFunc_Timer(const char *pszName, int iSize, void *pbuf)
+{
+	BEGIN_READ(pbuf, iSize);
+
+	m_GameTimer.RoundTimer = READ_FLOAT();
+	m_GameTimer.GameTime = READ_SHORT();
+	return 1;
+}

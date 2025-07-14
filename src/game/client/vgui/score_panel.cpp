@@ -145,6 +145,8 @@ CScorePanel::CScorePanel()
 	m_pServerNameLabel = new vgui2::Label(this, "ServerName", "A Zombie Panic! Server");
 	m_pMapNameLabel = new vgui2::Label(this, "MapName", "Map: zp_clubzombo");
 	m_pPlayerCountLabel = new vgui2::Label(this, "PlayerCount", "1/16");
+	m_pGameTime = new vgui2::Label(this, "GameTime", "0:00");
+	m_pGameTimeIcon = new vgui2::ImagePanel(this, "GameTimeIcon");
 
 	// Player list
 	m_pPlayerList = new vgui2::SectionedListPanel(this, "PlayerList");
@@ -174,6 +176,9 @@ CScorePanel::CScorePanel()
 
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/ScorePanel.res");
 	SetVisible(false);
+
+	m_pGameTimeIcon->SetImage( "ui/icons/score_timer" );
+	m_pGameTimeIcon->SetShouldScaleImage( true );
 }
 
 void CScorePanel::UpdateServerName()
@@ -413,50 +418,11 @@ void CScorePanel::RefreshItems()
 		iTeamCount++;
 	}
 
-#if 0
-	// Sort teams based on the score
-	std::sort(m_SortedTeamIDs.begin(), m_SortedTeamIDs.begin() + iTeamCount, [&](int ilhs, int irhs) {
-		const TeamData &lhs = m_TeamData[ilhs];
-		const TeamData &rhs = m_TeamData[irhs];
-
-		// Compare kills
-		if (lhs.iFrags > rhs.iFrags)
-			return true;
-		else if (lhs.iFrags < rhs.iFrags)
-			return false;
-
-		// Compare deaths if kills are equal
-		if (lhs.iDeaths < rhs.iDeaths)
-			return true;
-		else if (lhs.iDeaths > rhs.iDeaths)
-			return false;
-
-		// Compare idx if everything is equal
-		return ilhs > irhs;
-	});
-
 	// Create header before any other sections
-	CreateSection(HEADER_SECTION_ID);
-
-	// Create sections for teams
-	if (iTeamCount != 1 || m_SortedTeamIDs[0] != 0)
-	{
-		for (int i = 0; i < iTeamCount; i++)
-		{
-			CreateSection(m_SortedTeamIDs[i]);
-		}
-	}
-
-	// Create last section for spectators
-	if (m_TeamData[ZP::TEAM_OBSERVER].iPlayerCount > 0)
-	{
-		CreateSection(ZP::TEAM_OBSERVER);
-	}
-#else
+	CreateSection( HEADER_SECTION_ID );
 	CreateSection( ZP::TEAM_SURVIVIOR );
 	CreateSection( ZP::TEAM_ZOMBIE );
 	CreateSection( ZP::TEAM_OBSERVER );
-#endif
 
 	UpdateAllClients();
 }
@@ -506,12 +472,12 @@ void CScorePanel::CreateSection(int nTeamID)
 	}
 
 	// Frags
-	m_pPlayerList->AddColumnToSection(nTeamID, "frags", nTeamID == HEADER_SECTION_ID ? "#PlayerScore" : "???",
+	m_pPlayerList->AddColumnToSection(nTeamID, "frags", nTeamID == HEADER_SECTION_ID ? "#PlayerScore" : "",
 	    vgui2::SectionedListPanel::COLUMN_BRIGHT,
 	    m_iColumnWidthFrags);
 
 	// Deaths
-	m_pPlayerList->AddColumnToSection(nTeamID, "deaths", nTeamID == HEADER_SECTION_ID ? "#PlayerDeath" : "???",
+	m_pPlayerList->AddColumnToSection(nTeamID, "deaths", nTeamID == HEADER_SECTION_ID ? "#PlayerDeath" : "",
 	    vgui2::SectionedListPanel::COLUMN_BRIGHT,
 	    m_iColumnWidthDeaths);
 
@@ -741,16 +707,6 @@ void CScorePanel::UpdateScoresAndCounts()
 
 		V_snwprintf(wbuf, 128, L"%s (%d/%d)", localizedName, td.iPlayerCount, iPlayerCount);
 		m_pPlayerList->ModifyColumn(nTeamID, "name", wbuf);
-
-		// Team frags
-		snprintf(buf, sizeof(buf), "%d", td.iFrags);
-		g_pVGuiLocalize->ConvertANSIToUnicode(buf, wbuf, sizeof(wbuf));
-		m_pPlayerList->ModifyColumn(nTeamID, "frags", wbuf);
-
-		// Team deaths
-		snprintf(buf, sizeof(buf), "%d", td.iDeaths);
-		g_pVGuiLocalize->ConvertANSIToUnicode(buf, wbuf, sizeof(wbuf));
-		m_pPlayerList->ModifyColumn(nTeamID, "deaths", wbuf);
 	};
 
 	// Update team score and player count
@@ -778,6 +734,16 @@ void CScorePanel::UpdateScoresAndCounts()
 	// Update total player count
 	snprintf(buf, sizeof(buf), "%d/%d", iPlayerCount, gEngfuncs.GetMaxClients());
 	m_pPlayerCountLabel->SetText(buf);
+
+	// Update game timer
+	CHud::HUDGameTimerFormat timefrmt;
+	gHUD.GetFormatedTime( CHud::HUDGameTimerType::RoundTime, &timefrmt );
+
+	if ( timefrmt.Hours > 0 )
+		snprintf(buf, sizeof(buf), "%i:%02d:%02d", timefrmt.Hours, timefrmt.Minutes, timefrmt.Seconds);
+	else
+		snprintf(buf, sizeof(buf), "%02d:%02d", timefrmt.Minutes, timefrmt.Seconds );
+	m_pGameTime->SetText(buf);
 }
 
 int CScorePanel::GetNameColumnWidth()

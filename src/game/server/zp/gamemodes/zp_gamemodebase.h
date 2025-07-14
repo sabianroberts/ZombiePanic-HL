@@ -9,6 +9,7 @@
 
 extern int gmsgZombieLives;
 extern int gmsgRoundState;
+extern int gmsgRoundTime;
 
 class IGameModeBase
 {
@@ -60,7 +61,8 @@ public:
 	virtual void CheckZombieAmount();
 	virtual void GiveWeapons(CBasePlayer *pPlayer);
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor ) {}
-	virtual void OnPlayerSpawned( CBasePlayer *pPlayer ) {}
+	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
+	void UpdateClientTimer();
 
 protected:
 	float m_flRoundBeginsIn;

@@ -120,6 +120,8 @@ void CBaseGameMode::OnGameModeThink()
 		    MESSAGE_END();
 		    GiveWeaponsOnRoundStart();
 		    ZP::SpawnWeaponsFromRandomEntities();
+			// Tell the clients that we have a new round timer!
+			UpdateClientTimer();
 		}
 	    break;
 	}
@@ -249,6 +251,22 @@ void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 		}
 		pPlayer->m_bPunishLateJoiner = false;
 	}
+}
+
+void CBaseGameMode::OnPlayerSpawned( CBasePlayer *pPlayer )
+{
+	// Tell the clients that we have a new round timer!
+	UpdateClientTimer();
+}
+
+void CBaseGameMode::UpdateClientTimer()
+{
+	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
+	int time_remaining = (int)(flTimeLimit ? (flTimeLimit - gpGlobals->time) : 0);
+	MESSAGE_BEGIN( MSG_ALL, gmsgRoundTime );
+	WRITE_FLOAT( m_flRoundTime );
+	WRITE_SHORT( time_remaining );
+	MESSAGE_END();
 }
 
 bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly )

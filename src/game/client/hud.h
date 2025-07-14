@@ -200,6 +200,7 @@ public:
 	int MsgFunc_SetFOV(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_Concuss(const char *pszName, int iSize, void *pbuf);
 	int MsgFunc_Fog(const char *pszName, int iSize, void *pbuf);
+	int MsgFunc_Timer(const char *pszName, int iSize, void *pbuf);
 
 	float GetSensitivity();
 	EBHopCap GetBHopCapState();
@@ -209,6 +210,32 @@ public:
 	 * Runs function next time HUD_Frame is called.
 	 */
 	void CallOnNextFrame(std::function<void()> f);
+
+	struct HUDGameTimer
+	{
+		float RoundTimer	= 0.0f;			// mp_roundtime
+		int GameTime		= 0;			// mp_timelimit
+	};
+
+	// Grabs our Game Timer
+	HUDGameTimer GetTimerDetails() const { return m_GameTimer; }
+
+	struct HUDGameTimerFormat
+	{
+		int MiliSeconds;
+		int Seconds;
+		int Minutes;
+		int Hours;
+	};
+
+	enum HUDGameTimerType
+	{
+		RoundTime = 0,
+		GameTime,
+	};
+
+	// This is used for formating our timer.
+	void GetFormatedTime( HUDGameTimerType type, HUDGameTimerFormat *frmt );
 
 	//-----------------------------------------------------
 	// Colors
@@ -284,6 +311,7 @@ private:
 
 	std::vector<RegisteredIcon> m_RegisteredIcons;
 
+	HUDGameTimer m_GameTimer;
 
 	struct SpriteName
 	{

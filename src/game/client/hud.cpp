@@ -128,6 +128,7 @@ static constexpr HudScaleInfo HUD_SCALE_INFO[] = {
 };
 
 extern cvar_t *cl_lw;
+extern globalvars_t *gpGlobals;
 
 ConVar cl_bhopcap("cl_bhopcap", "2", FCVAR_BHL_ARCHIVE, "Enables/disables bhop speed cap, '2' - detect automatically");
 ConVar hud_color("hud_color", "255 160 0", FCVAR_BHL_ARCHIVE, "Main color of HUD elements");
@@ -297,6 +298,7 @@ void CHud::Init(void)
 	HookHudMessage<&CHud::MsgFunc_Concuss>("Concuss");
 	HookHudMessage<&CHud::MsgFunc_Logo>("Logo");
 	HookHudMessage<&CHud::MsgFunc_Fog>("Fog");
+	HookHudMessage<&CHud::MsgFunc_Timer>("RndTime");
 
 	// TFFree CommandMenu
 	HookCommand("+commandmenu", [] {
@@ -822,6 +824,31 @@ void CHud::CallOnNextFrame(std::function<void()> f)
 {
 	Assert(f);
 	m_NextFrameQueue.push(f);
+}
+
+void CHud::GetFormatedTime( HUDGameTimerType type, HUDGameTimerFormat *frmt )
+{
+	double value = 0.0;
+	switch ( type )
+	{
+		case CHud::RoundTime: value = m_GameTimer.RoundTimer; break;
+		case CHud::GameTime: value = m_GameTimer.GameTime; break;
+	}
+	if ( gpGlobals )
+		value = value - gpGlobals->time;
+	if ( value < 0 ) value = 0;
+
+	// convert to milliseconds
+	frmt->MiliSeconds = static_cast<int>( value * 1000.0 );
+
+	frmt->Hours = frmt->MiliSeconds / (1000 * 60 * 60);
+	frmt->MiliSeconds -= frmt->Hours * (1000 * 60 * 60);
+
+	frmt->Minutes = frmt->MiliSeconds / (1000 * 60);
+	frmt->MiliSeconds -= frmt->Minutes * (1000 * 60);
+
+	frmt->Seconds = frmt->MiliSeconds / 1000;
+	frmt->MiliSeconds -= frmt->Seconds * 1000;
 }
 
 Color CHud::GetHudColor(HudPart hudPart, int value)

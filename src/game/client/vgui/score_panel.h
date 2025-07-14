@@ -118,6 +118,8 @@ private:
 	vgui2::Label *m_pServerNameLabel = nullptr;
 	vgui2::Label *m_pMapNameLabel = nullptr;
 	vgui2::Label *m_pPlayerCountLabel = nullptr;
+	vgui2::Label *m_pGameTime = nullptr;
+	vgui2::ImagePanel *m_pGameTimeIcon = nullptr;
 	vgui2::ImageList *m_pImageList = nullptr;
 	vgui2::Menu *m_pPlayerMenu = nullptr;
 

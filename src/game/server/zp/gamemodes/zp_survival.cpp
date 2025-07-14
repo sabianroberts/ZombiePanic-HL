@@ -77,6 +77,8 @@ void ZPGameMode_Survival::OnPlayerSpawned( CBasePlayer *pPlayer )
 
 	// Always send this to clients!
 	UpdateZombieLifesForClient();
+
+	BaseClass::OnPlayerSpawned( pPlayer );
 }
 
 ZPGameMode_Survival::WinState_e ZPGameMode_Survival::GetWinState()

@@ -224,6 +224,7 @@ int gmsgFog = 0;
 int gmsgObjective = 0;
 int gmsgAchievement = 0;
 int gmsgAchEarned = 0;
+int gmsgRoundTime = 0;
 
 const char *const gCustomMessages[] = {
 	"IconInfo",
@@ -304,6 +305,7 @@ void LinkUserMessages(void)
 	gmsgObjective = REG_USER_MSG("ObjMsg", -1);
 	gmsgAchievement = REG_USER_MSG("GiveAch", -1);
 	gmsgAchEarned = REG_USER_MSG("AchEarn", -1);
+	gmsgRoundTime = REG_USER_MSG("RndTime", -1);
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
