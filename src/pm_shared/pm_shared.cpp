@@ -92,17 +92,18 @@ typedef struct hull_s
 #define CTEXTURESMAX     2048 // max number of textures loaded
 #define CBTEXTURENAMEMAX 13 // only load first n chars of name
 
-#define CHAR_TEX_CONCRETE 'C' // texture types
-#define CHAR_TEX_METAL    'M'
-#define CHAR_TEX_DIRT     'D'
-#define CHAR_TEX_VENT     'V'
-#define CHAR_TEX_GRATE    'G'
-#define CHAR_TEX_TILE     'T'
-#define CHAR_TEX_SLOSH    'S'
-#define CHAR_TEX_WOOD     'W'
-#define CHAR_TEX_COMPUTER 'P'
-#define CHAR_TEX_GLASS    'Y'
-#define CHAR_TEX_FLESH    'F'
+#define CHAR_TEX_CONCRETE		'C' // texture types
+#define CHAR_TEX_METAL			'M'
+#define CHAR_TEX_DIRT			'D'
+#define CHAR_TEX_VENT			'V'
+#define CHAR_TEX_GRATE			'G'
+#define CHAR_TEX_TILE			'T'
+#define CHAR_TEX_SLOSH			'S'
+#define CHAR_TEX_WOOD			'W'
+#define CHAR_TEX_COMPUTER		'P'
+#define CHAR_TEX_GLASS			'Y'
+#define CHAR_TEX_FLESH			'F'
+#define CHAR_TEX_CARPET			'E'
 
 enum PlayerFootstepSoundTable
 {
@@ -119,6 +120,7 @@ enum PlayerFootstepSoundTable
 	STEP_COMPUTER,
 	STEP_GLASS,
 	STEP_FLESH,
+	STEP_CARPET,
 };
 
 #define PLAYER_FATAL_FALL_SPEED      1024 // approx 60 feet
@@ -367,7 +369,7 @@ void PM_InitTextureTypes()
 
 	filePos = 0;
 	// for each line in the file...
-	while (pmove->memfgets(pMemFile, fileSize, &filePos, buffer, 511) != NULL && (gcTextures < CTEXTURESMAX))
+	while (pmove->memfgets(pMemFile, fileSize, &filePos, buffer, 2047) != NULL && (gcTextures < CTEXTURESMAX))
 	{
 		// skip whitespace
 		i = 0;
@@ -740,6 +742,25 @@ void PM_PlayStepSound(int step, float fvol)
 			break;
 		}
 		break;
+	case STEP_CARPET:
+		switch (irand)
+		{
+		// right foot
+		case 0:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_carpet1.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		case 1:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_carpet3.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		// left foot
+		case 2:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_carpet2.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		case 3:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_carpet4.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		}
+		break;
 	}
 }
 
@@ -770,6 +791,8 @@ int PM_MapTextureTypeStepType(char chTextureType)
 		return STEP_COMPUTER;
 	case CHAR_TEX_FLESH:
 		return STEP_FLESH;
+	case CHAR_TEX_CARPET:
+		return STEP_CARPET;
 	}
 }
 
