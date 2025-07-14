@@ -72,9 +72,6 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 
 void ZPGameMode_Survival::OnPlayerSpawned( CBasePlayer *pPlayer )
 {
-	// TODO: Check if we spawned as a volunteer
-	// m_iZombieLives++
-
 	// Always send this to clients!
 	UpdateZombieLifesForClient();
 
