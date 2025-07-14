@@ -1446,21 +1446,16 @@ void CBasePlayer::PlayerDeathThink(void)
 	pev->effects &= ~EF_BRIGHTLIGHT;
 #endif
 
-	BOOL fAnyButtonDown = (m_afButtonPressed & ~IN_SCORE);
 	m_afButtonLast = pev->button;
 
 	// wait for all buttons released
 	if (pev->deadflag == DEAD_DEAD)
 	{
-		if (fAnyButtonDown)
-			return;
-
 		if (g_pGameRules->FPlayerCanRespawn(this))
 		{
 			m_fDeadTime = gpGlobals->time;
 			pev->deadflag = DEAD_RESPAWNABLE;
 		}
-
 		return;
 	}
 
@@ -1477,9 +1472,8 @@ void CBasePlayer::PlayerDeathThink(void)
 	if (pev->iuser1)
 		return;
 
-	// wait for any button down,  or mp_forcerespawn is set and the respawn time is up
-	if (!fAnyButtonDown
-	    && !(g_pGameRules->IsMultiplayer() && forcerespawn.value > 0 && (gpGlobals->time > (m_fDeadTime + 5))))
+	// wait for the time to be up
+	if ( (gpGlobals->time > (m_fDeadTime + 5)) )
 		return;
 
 	pev->button = 0;
