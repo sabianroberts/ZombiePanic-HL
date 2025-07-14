@@ -64,6 +64,7 @@ private:
 	IGameModeBase *m_pGameMode;
 	std::vector<int> m_Volunteers;
 	float m_flRoundRestartDelay;
+	float m_flRoundJustBegun;
 	int m_iRounds;
 };
 

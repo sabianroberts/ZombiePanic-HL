@@ -427,6 +427,9 @@ public:
 	// Give achivement
 	void GiveAchievement( EAchievements eAchivement );
 	void NotifyOfEarnedAchivement( int eAchivement );
+
+	// Punish the late joiner.
+	bool m_bPunishLateJoiner = false;
 #endif
 
 	//-----------------------------------------------------

@@ -781,6 +781,7 @@ private:
 	int m_weaponCount[MAX_EQUIP];
 };
 
+LINK_ENTITY_TO_CLASS(game_player_equip_punish, CGamePlayerEquip);
 LINK_ENTITY_TO_CLASS(game_player_equip, CGamePlayerEquip);
 
 void CGamePlayerEquip::KeyValue(KeyValueData *pkvd)

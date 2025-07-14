@@ -233,17 +233,21 @@ void CBaseGameMode::GiveWeapons( CBasePlayer *pPlayer )
 	CBaseEntity *pWeaponEntity = NULL;
 	BOOL addDefault = TRUE;
 
-	while (pWeaponEntity = UTIL_FindEntityByClassname(pWeaponEntity, "game_player_equip"))
+	while (pWeaponEntity = UTIL_FindEntityByClassname(pWeaponEntity, pPlayer->m_bPunishLateJoiner ? "game_player_equip_punish" : "game_player_equip" ))
 	{
 		pWeaponEntity->Touch( pPlayer );
 		addDefault = FALSE;
 	}
 
-	if (addDefault)
+	if ( addDefault )
 	{
 		pPlayer->GiveNamedItem( "weapon_crowbar" );
-		pPlayer->GiveNamedItem( "weapon_sig" );
-		pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
+		if ( !pPlayer->m_bPunishLateJoiner )
+		{
+			pPlayer->GiveNamedItem( "weapon_sig" );
+			pPlayer->GiveAmmo( 14, ZPAmmoTypes::AMMO_PISTOL );
+		}
+		pPlayer->m_bPunishLateJoiner = false;
 	}
 }
 
@@ -254,12 +258,18 @@ bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVer
 	{
 		for ( size_t i = 0; i < m_LastChoosenZombies.size(); i++ )
 		{
-			std::string szAuthCheck = m_LastChoosenZombies[i];
-			if ( FStrEq( szAuthCheck.c_str(), authId ) )
+			LastChoosenZombie choosen = m_LastChoosenZombies[i];
+			if ( FStrEq( choosen.AuthID.c_str(), authId ) )
+			{
 				return true;
+			}
 		}
 		if ( !bVerifyOnly )
-			m_LastChoosenZombies.push_back( authId );
+		{
+			LastChoosenZombie choosen;
+			choosen.AuthID = authId;
+			m_LastChoosenZombies.push_back( choosen );
+		}
 	}
 	return false;
 }

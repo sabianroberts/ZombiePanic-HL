@@ -59,6 +59,7 @@ CZombiePanicGameRules::CZombiePanicGameRules()
 	m_DisableDeathPenalty = FALSE;
 	m_bHasPickedVolunteer = false;
 	m_flRoundRestartDelay = -1;
+	m_flRoundJustBegun = -1;
 	m_Volunteers.clear();
 
 	m_iRounds = 1;
@@ -354,17 +355,18 @@ void CZombiePanicGameRules::ResetVolunteers()
 {
 	m_bHasPickedVolunteer = false;
 	m_Volunteers.clear();
+	// Check if we should clear it before hand.
+	m_pGameMode->ShouldClearChoosenZombies();
 }
 
 void CZombiePanicGameRules::PickRandomVolunteer()
 {
 	if ( m_bHasPickedVolunteer ) return;
 	m_bHasPickedVolunteer = true;
+	// Punish players who join late
+	m_flRoundJustBegun = gpGlobals->time + 60;
 	if ( m_pGameMode->IsTestModeActive() ) return;
 	int iMoreRequired = 0;
-
-	// Check if we should clear it before hand.
-	m_pGameMode->ShouldClearChoosenZombies();
 
 add_one_more_zombie:
 
@@ -488,7 +490,11 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 					m_Volunteers.push_back( pPlayer->entindex() );
 			}
 			bool bLateJoin = ( m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundHasBegun ) ? true : false;
-
+			if ( bLateJoin && m_flRoundJustBegun - gpGlobals->time > 0 )
+			{
+				bLateJoin = false;
+				pPlayer->m_bPunishLateJoiner = true;
+			}
 			ChangePlayerTeam(pPlayer, ZP::Teams[ bLateJoin ? ZP::TEAM_ZOMBIE : ZP::TEAM_SURVIVIOR], FALSE, FALSE);
 			pPlayer->RemoveAllItems( TRUE );
 			pPlayer->StopWelcomeCam();

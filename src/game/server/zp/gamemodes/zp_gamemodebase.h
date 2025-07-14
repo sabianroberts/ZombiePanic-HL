@@ -72,9 +72,13 @@ protected:
 	void ShouldClearChoosenZombies();
 
 private:
-	// This is an std::string instead of uint64,
-	// since the AuthString in GoldSrc can be different
-	std::vector<std::string> m_LastChoosenZombies;
+	struct LastChoosenZombie
+	{
+		// This is an std::string instead of uint64,
+		// since the AuthString in GoldSrc can be different
+		std::string AuthID;
+	};
+	std::vector<LastChoosenZombie> m_LastChoosenZombies;
 };
 
 namespace ZP
