@@ -43,14 +43,14 @@ void CThrowableSatchelCharge::SatchelSlide(CBaseEntity *pOther)
 	entvars_t *pevOther = pOther->pev;
 
 	// Allow for pickup! (if we can)
-	if ( m_iThrower != -1 && pOther->IsPlayer() )
+	if ( m_iThrower != -1 && pOther->IsPlayer() && pOther->pev->team == ZP::TEAM_SURVIVIOR )
 	{
 #ifndef CLIENT_DLL
-		bool bCanBePickedUp = pev->owner ? false : true;
 		CBasePlayer *pOwner = (CBasePlayer *)UTIL_PlayerByIndex( m_iThrower );
-		if ( pOwner && pOwner->pev->team == pev->team )
+		bool bCanBePickedUp = pOwner ? false : true;
+		if ( pOwner && pOwner->pev->team != pev->team )
 			bCanBePickedUp = true;
-		else if ( pOther->edict() == pev->owner )
+		else if ( pOther->edict() == pOwner->edict() )
 			bCanBePickedUp = true;
 		if ( bCanBePickedUp )
 		{
