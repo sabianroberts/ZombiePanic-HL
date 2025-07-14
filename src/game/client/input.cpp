@@ -72,8 +72,10 @@ cvar_t *cl_anglespeedkey;
 cvar_t *cl_vsmoothing;
 cvar_t *cl_jumptype;
 
+#if defined( AUTO_JUMP )
 ConVar cl_autojump("cl_autojump", "0", FCVAR_BHL_ARCHIVE, "Jump automatically when ground is hit");
 ConVar cl_autojump_priority("cl_autojump_priority", "0", FCVAR_BHL_ARCHIVE, "Autojump takes priority over ducktap");
+#endif
 
 // ZOMBIE PANIC - START
 float GetMaxPossibleSpeed( ZPPlayerMovementDirection_t dir )
@@ -149,6 +151,7 @@ kblist_t *g_kbkeys = NULL;
 
 namespace autofuncs
 {
+#if defined(AUTO_JUMP)
 static void HandleAutojump(usercmd_t *cmd)
 {
 	static bool s_bJumpWasDownLastFrame = false;
@@ -176,6 +179,7 @@ static void HandleAutojump(usercmd_t *cmd)
 
 	s_bJumpWasDownLastFrame = ((cmd->buttons & IN_JUMP) != 0);
 }
+#endif
 
 static void HandleDucktap(usercmd_t *cmd)
 {
@@ -841,18 +845,22 @@ void CL_DLLEXPORT CL_CreateMove(float frametime, struct usercmd_s *cmd, int acti
 	//
 	cmd->buttons = CL_ButtonBits(1);
 
+#if defined(AUTO_JUMP)
 	if (cl_autojump_priority.GetBool())
 		autofuncs::HandleAutojump(cmd);
+#endif
 
 	if (in_ducktap.state & 1)
 	{
 		cmd->buttons |= IN_DUCK;
 		autofuncs::HandleDucktap(cmd); // Ducktap takes priority over autojump
 	}
+#if defined(AUTO_JUMP)
 	else if (!cl_autojump_priority.GetBool())
 	{
 		autofuncs::HandleAutojump(cmd);
 	}
+#endif
 
 	// Using joystick?
 	if (in_joystick->value)
@@ -917,7 +925,12 @@ int CL_ButtonBits(int bResetState)
 
 	if (in_jump.state & 3)
 	{
-		if (cl_jumptype->value == 0.0 || g_iUser1 || cl_autojump.GetBool()) // Simple jump in spectator
+		if (cl_jumptype->value == 0.0
+		    || g_iUser1
+#if defined( AUTO_JUMP )
+			|| cl_autojump.GetBool()
+#endif
+			) // Simple jump in spectator
 		{
 			bits |= IN_JUMP;
 		}
@@ -1134,8 +1147,10 @@ void InitInput(void)
 	gEngfuncs.pfnAddCommand("-use", IN_UseUp);
 	gEngfuncs.pfnAddCommand("+jump", IN_JumpDown);
 	gEngfuncs.pfnAddCommand("-jump", IN_JumpUp);
+#if defined( HL1 )
 	gEngfuncs.pfnAddCommand("+ljump", IN_LongJumpDown);
 	gEngfuncs.pfnAddCommand("-ljump", IN_LongJumpUp);
+#endif
 	gEngfuncs.pfnAddCommand("impulse", IN_Impulse);
 	gEngfuncs.pfnAddCommand("+klook", IN_KLookDown);
 	gEngfuncs.pfnAddCommand("-klook", IN_KLookUp);
