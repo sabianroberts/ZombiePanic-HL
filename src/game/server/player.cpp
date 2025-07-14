@@ -1828,15 +1828,18 @@ void CBasePlayer::Jump()
 	Vector MyVelocity = pev->velocity;
 
 	// If we are a zombie, decrease our jump speed & max speed
+	// Makes bhopping harder.
 	if ( pev->team == ZP::TEAM_ZOMBIE )
-		pev->fuser4 += 35.0f;
+		pev->fuser4 += 85.0f;
 	else
-		pev->fuser4 += 28.0f;
+		pev->fuser4 += 48.0f;
 
-	// If you're standing on a conveyor, add it's velocity to yours (for momentum)
 	entvars_t *pevGround = VARS(pev->groundentity);
+#if defined( HL1 )
+	// If you're standing on a conveyor, add it's velocity to yours (for momentum)
 	if (pevGround && (pevGround->flags & FL_CONVEYOR))
 		MyVelocity += pev->basevelocity;
+#endif
 
 	// JoshA: CS behaviour does this for tracktrain + train as well,
 	// but let's just do this for func_vehicle to avoid breaking existing content.
