@@ -25,6 +25,7 @@ private:
 	CCvarCheckButton *m_pShowAvatars = nullptr;
 	CCvarCheckButton *m_pShowSteamId = nullptr;
 	CCvarCheckButton *m_pShowPacketLoss = nullptr;
+	CCvarCheckButton *m_pShowDeaths = nullptr;
 
 	vgui2::Label *m_pMouseLabel = nullptr;
 	vgui2::ComboBox *m_pMouseBox = nullptr;

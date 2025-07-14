@@ -146,6 +146,7 @@ private:
 	CPanelAnimationVarAliasType(int, m_iColumnWidthName, "column_name", "170", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthSteamID, "column_steamid", "148", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthFrags, "column_frags", "60", "proportional_int");
+	CPanelAnimationVarAliasType(int, m_iColumnWidthFragsNoDeaths, "column_fragsonly", "120", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthDeaths, "column_deaths", "60", "proportional_int");
 	CPanelAnimationVarAliasType(int, m_iColumnWidthPing, "column_ping", "80", "proportional_int");
 

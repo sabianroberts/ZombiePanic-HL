@@ -15,6 +15,7 @@ CScoreboardSubOptions::CScoreboardSubOptions(vgui2::Panel *parent)
 	m_pShowAvatars = new CCvarCheckButton(this, "ShowAvatars", "#ZP_AdvOptions_Scores_ShowAvatars", "hud_scoreboard_showavatars");
 	m_pShowSteamId = new CCvarCheckButton(this, "ShowSteamId", "#ZP_AdvOptions_Scores_ShowSteamId", "hud_scoreboard_showsteamid");
 	m_pShowPacketLoss = new CCvarCheckButton(this, "ShowPacketLoss", "#ZP_AdvOptions_Scores_ShowLoss", "hud_scoreboard_showloss");
+	m_pShowDeaths = new CCvarCheckButton(this, "ShowDeaths", "#ZP_AdvOptions_Scores_ShowDeaths", "hud_scoreboard_deaths");
 
 	m_pMouseLabel = new vgui2::Label(this, "MouseLabel", "#ZP_AdvOptions_Scores_Mouse");
 	m_pMouseBox = new vgui2::ComboBox(this, "MouseBox", 3, false);
@@ -39,6 +40,7 @@ void CScoreboardSubOptions::OnResetData()
 	m_pShowSteamId->ResetData();
 	m_pShowPacketLoss->ResetData();
 	m_pShowInHud->ResetData();
+	m_pShowDeaths->ResetData();
 
 	int type = gEngfuncs.pfnGetCvarFloat("hud_scoreboard_mousebtn");
 	type = clamp(type, 0, 2);
@@ -55,6 +57,7 @@ void CScoreboardSubOptions::OnApplyChanges()
 	m_pShowSteamId->ApplyChanges();
 	m_pShowPacketLoss->ApplyChanges();
 	m_pShowInHud->ApplyChanges();
+	m_pShowDeaths->ApplyChanges();
 	ApplyMouse();
 	ApplySize();
 }

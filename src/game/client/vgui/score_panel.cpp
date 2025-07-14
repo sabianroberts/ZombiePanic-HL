@@ -27,6 +27,7 @@ ConVar hud_scoreboard_mousebtn("hud_scoreboard_mousebtn", "1", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showavatars("hud_scoreboard_showavatars", "1", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showloss("hud_scoreboard_showloss", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_showsteamid("hud_scoreboard_showsteamid", "0", FCVAR_ARCHIVE);
+ConVar hud_scoreboard_deaths("hud_scoreboard_deaths", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_size("hud_scoreboard_size", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_spacing_normal("hud_scoreboard_spacing_normal", "0", FCVAR_ARCHIVE);
 ConVar hud_scoreboard_spacing_compact("hud_scoreboard_spacing_compact", "0", FCVAR_ARCHIVE);
@@ -468,19 +469,22 @@ void CScorePanel::CreateSection(int nTeamID)
 	if (hud_scoreboard_showsteamid.GetBool())
 	{
 		m_pPlayerList->AddColumnToSection(nTeamID, "steamid", nTeamID == HEADER_SECTION_ID ? "#ZP_Scores_ColSteamID" : "",
-		    vgui2::SectionedListPanel::COLUMN_BRIGHT,
-		    m_iColumnWidthSteamID);
+			vgui2::SectionedListPanel::COLUMN_BRIGHT,
+			m_iColumnWidthSteamID);
 	}
 
 	// Frags
 	m_pPlayerList->AddColumnToSection(nTeamID, "frags", nTeamID == HEADER_SECTION_ID ? "#PlayerScore" : "",
-	    vgui2::SectionedListPanel::COLUMN_BRIGHT,
-	    m_iColumnWidthFrags);
+		vgui2::SectionedListPanel::COLUMN_BRIGHT,
+	    hud_scoreboard_deaths.GetBool() ? m_iColumnWidthFrags : m_iColumnWidthFragsNoDeaths);
 
 	// Deaths
-	m_pPlayerList->AddColumnToSection(nTeamID, "deaths", nTeamID == HEADER_SECTION_ID ? "#PlayerDeath" : "",
-	    vgui2::SectionedListPanel::COLUMN_BRIGHT,
-	    m_iColumnWidthDeaths);
+	if (hud_scoreboard_deaths.GetBool())
+	{
+		m_pPlayerList->AddColumnToSection(nTeamID, "deaths", nTeamID == HEADER_SECTION_ID ? "#PlayerDeath" : "",
+			vgui2::SectionedListPanel::COLUMN_BRIGHT,
+			m_iColumnWidthDeaths);
+	}
 
 	// Ping
 	const char *pingLabel;
