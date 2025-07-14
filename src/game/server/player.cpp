@@ -3110,7 +3110,7 @@ pt_end:
 }
 
 // checks if the spot is clear of players
-static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot)
+static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot, bool bIgnoreTrace)
 {
 	CBaseEntity *ent = NULL;
 
@@ -3124,16 +3124,28 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 		return SpawnPointValidity::NonValid;
 	}
 
-	while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 800)) != NULL)
+	if ( bIgnoreTrace )
 	{
-		// if ent is a client, don't spawn on 'em (if not on the same team)
-		if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
+		while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, HalfPlayerHeight * 4)) != NULL)
 		{
-			// Do a simple line tracer, just to make sure we don't find someone looking at us or w/e.
-			TraceResult tr;
-			UTIL_TraceLine( pSpot->Center(), ent->Center(), dont_ignore_monsters, pSpot->edict(), &tr );
-			if ( tr.flFraction != 1.0 && tr.pHit == ent->edict() )
+			// if ent is a client, don't spawn on 'em
+			if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
 				return SpawnPointValidity::HasPlayers;
+		}
+	}
+	else
+	{
+		while ((ent = UTIL_FindEntityInSphere(ent, pSpot->pev->origin, 800)) != NULL)
+		{
+			// if ent is a client, don't spawn on 'em (if not on the same team)
+			if (ent->IsPlayer() && ent != pPlayer && ent->pev->team != pPlayer->pev->team)
+			{
+				// Do a simple line tracer, just to make sure we don't find someone looking at us or w/e.
+				TraceResult tr;
+				UTIL_TraceLine( pSpot->Center(), ent->Center(), dont_ignore_monsters, pSpot->edict(), &tr );
+				if ( tr.flFraction != 1.0 && tr.pHit == ent->edict() )
+					return SpawnPointValidity::HasPlayers;
+			}
 		}
 	}
 
@@ -3257,6 +3269,91 @@ static void ClearSpawn(CBaseEntity *pSpot, edict_t *player)
 	}
 }
 
+static CBaseEntity *EntSelectSpawnPointZPFallback(CBaseEntity *pPlayer, const char *szSpawnLocation)
+{
+	CBaseEntity *pSpot;
+
+	int nNumRandomSpawnsToTry = 10;
+
+	// choose a spawn point
+	if (NULL == g_pLastSpawn)
+	{
+		int nNumSpawnPoints = 0;
+		CBaseEntity *pEnt = UTIL_FindEntityByClassname(NULL, szSpawnLocation);
+		while (NULL != pEnt)
+		{
+			nNumSpawnPoints++;
+			pEnt = UTIL_FindEntityByClassname(pEnt, szSpawnLocation);
+		}
+		nNumRandomSpawnsToTry = nNumSpawnPoints;
+	}
+
+	pSpot = g_pLastSpawn;
+	// Randomize the start spot
+	for (int i = RANDOM_LONG(1, nNumRandomSpawnsToTry - 1); i > 0; i--)
+		pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation);
+	if (FNullEnt(pSpot)) // skip over the null point
+		pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation);
+
+	CBaseEntity *pFirstSpot = pSpot;
+	{
+		// try to find team spawn
+		CBaseEntity *pFirstSpot = pSpot;
+
+		do
+		{
+			if (pSpot)
+			{
+				// check if pSpot is valid
+				if (IsSpawnPointValid(pPlayer, pSpot, false) == SpawnPointValidity::Valid &&
+					g_pGameRules->GetTeamIndex(pPlayer->TeamID()) != pSpot->pev->team)
+				{
+					if (pSpot->pev->origin == Vector(0, 0, 0))
+					{
+						pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation);
+						continue;
+					}
+
+					// if so, go to pSpot
+					return pSpot;
+				}
+			}
+			// increment pSpot
+			pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation);
+		} while (pSpot != pFirstSpot); // loop if we're not back to the start
+	}
+
+	do
+	{
+		if (pSpot)
+		{
+			// check if pSpot is valid
+			if (IsSpawnPointValid(pPlayer, pSpot, false) == SpawnPointValidity::Valid)
+			{
+				if (pSpot->pev->origin == Vector(0, 0, 0))
+				{
+					pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation);
+					continue;
+				}
+
+				// if so, go to pSpot
+				return pSpot;
+			}
+		}
+		// increment pSpot
+		pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation);
+	} while (pSpot != pFirstSpot); // loop if we're not back to the start
+
+	// we haven't found a place to spawn yet,  so kill any guy at the first spawn point and spawn there
+	if (!FNullEnt(pSpot))
+	{
+		ClearSpawn(pSpot, pPlayer->edict());
+		return pSpot;
+	}
+
+	return nullptr;
+}
+
 static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 {
 	constexpr int MAX_SPOTS = 100;
@@ -3282,11 +3379,26 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 	{
 		spotInfos[spotsCount].pSpot = pSpot;
 		spotInfos[spotsCount].flItemsWeight = CountEntitesInSphere(pSpot->pev->origin);
-		spotInfos[spotsCount].nValidity = IsSpawnPointValid(pPlayer, pSpot);
+		spotInfos[spotsCount].nValidity = IsSpawnPointValid(pPlayer, pSpot, false);
 		spotsCount++;
 
 		if (spotsCount == MAX_SPOTS)
 			break;
+	}
+
+	if (spotsCount == 0)
+	{
+		// Not using team spawns or not found any
+		while ((pSpot = UTIL_FindEntityByClassname(pSpot, szSpawnLocation)))
+		{
+			spotInfos[spotsCount].pSpot = pSpot;
+			spotInfos[spotsCount].flItemsWeight = CountEntitesInSphere(pSpot->pev->origin);
+			spotInfos[spotsCount].nValidity = IsSpawnPointValid(pPlayer, pSpot, true);
+			spotsCount++;
+
+			if (spotsCount == MAX_SPOTS)
+				break;
+		}
 	}
 
 	// Sort them
@@ -3297,6 +3409,11 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 		limit = spotsCount;
 	else if (limit > 10 && (rand() % 3) != 0)
 		limit = 10;
+
+	// Still zero? Something must be wrong with the map,
+	// or we are missing spawn locations.
+	if ( limit == 0 )
+		return EntSelectSpawnPointZPFallback( pPlayer, szSpawnLocation );
 
 	int take = rand() % limit;
 
