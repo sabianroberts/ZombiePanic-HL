@@ -27,7 +27,7 @@ static AmmoData sAmmoDataList[] = {
 	/* { ZPAmmoTypes AmmoType, const char *AmmoName, int MaxCarry, float WeightPerBullet } */
 	{ AMMO_PISTOL, "9mm", 150, 0.21f },
 	{ AMMO_MAGNUM, "357", 30, 0.65f },
-	{ AMMO_SHOTGUN, "buckshot", 80, 1.25f },
+	{ AMMO_SHOTGUN, "buckshot", 24, 1.35f },
 	{ AMMO_RIFLE, "556ar", 150, 0.35f },
 
 	{ AMMO_GRENADE, "Hand Grenade", 3, 0.1f },
