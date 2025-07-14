@@ -89,7 +89,7 @@ typedef struct hull_s
 #define VEC_VIEW           28
 #define STOP_EPSILON       0.1
 
-#define CTEXTURESMAX     512 // max number of textures loaded
+#define CTEXTURESMAX     2048 // max number of textures loaded
 #define CBTEXTURENAMEMAX 13 // only load first n chars of name
 
 #define CHAR_TEX_CONCRETE 'C' // texture types
@@ -325,7 +325,7 @@ void PM_SwapTextures(int i, int j)
 
 void PM_SortTextures(void)
 {
-	// Bubble sort, yuck, but this only occurs at startup and it's only 512 elements...
+	// Bubble sort, yuck, but this only occurs at startup and it's only 2048 elements...
 	//
 	int i, j;
 
@@ -345,7 +345,7 @@ void PM_SortTextures(void)
 
 void PM_InitTextureTypes()
 {
-	char buffer[512];
+	char buffer[2048];
 	int i, j;
 	byte *pMemFile;
 	int fileSize, filePos;
@@ -358,7 +358,7 @@ void PM_InitTextureTypes()
 	memset(grgchTextureType, 0, CTEXTURESMAX);
 
 	gcTextures = 0;
-	memset(buffer, 0, 512);
+	memset(buffer, 0, 2048);
 
 	fileSize = pmove->COM_FileSize("sound/materials.txt");
 	pMemFile = pmove->COM_LoadFile("sound/materials.txt", 5, NULL);
