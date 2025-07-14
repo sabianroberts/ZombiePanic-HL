@@ -903,6 +903,31 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/pl_ladder3.wav");
 	PRECACHE_SOUND("player/pl_ladder4.wav");
 
+	PRECACHE_SOUND("player/pl_wood1.wav"); // walk on wood
+	PRECACHE_SOUND("player/pl_wood2.wav");
+	PRECACHE_SOUND("player/pl_wood3.wav");
+	PRECACHE_SOUND("player/pl_wood4.wav");
+
+	PRECACHE_SOUND("player/pl_glass1.wav"); // walk on glass
+	PRECACHE_SOUND("player/pl_glass2.wav");
+	PRECACHE_SOUND("player/pl_glass3.wav");
+	PRECACHE_SOUND("player/pl_glass4.wav");
+
+	PRECACHE_SOUND("player/pl_computer1.wav"); // walk on computer
+	PRECACHE_SOUND("player/pl_computer2.wav");
+	PRECACHE_SOUND("player/pl_computer3.wav");
+	PRECACHE_SOUND("player/pl_computer4.wav");
+
+	PRECACHE_SOUND("player/pl_flesh1.wav"); // walk on flesh
+	PRECACHE_SOUND("player/pl_flesh2.wav");
+	PRECACHE_SOUND("player/pl_flesh3.wav");
+	PRECACHE_SOUND("player/pl_flesh4.wav");
+
+	PRECACHE_SOUND("player/pl_carpet1.wav"); // walk on carpet
+	PRECACHE_SOUND("player/pl_carpet2.wav");
+	PRECACHE_SOUND("player/pl_carpet3.wav");
+	PRECACHE_SOUND("player/pl_carpet4.wav");
+
 	PRECACHE_SOUND("player/pl_wade1.wav"); // wade in water
 	PRECACHE_SOUND("player/pl_wade2.wav");
 	PRECACHE_SOUND("player/pl_wade3.wav");
