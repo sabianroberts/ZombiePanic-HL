@@ -39,6 +39,7 @@ const char *CRandomItemAmmo::GetRandomClassname() const
 			temp.erase( temp.begin() + idx );
 		}
 	} while ( !WeaponExistInWorld( item ) );
+	if ( !item.Classname ) return nullptr;
 
 	// How many items did we find?
 	int iFound = 0;
@@ -65,6 +66,7 @@ const char *CRandomItemAmmo::GetRandomClassname() const
 
 bool CRandomItemAmmo::WeaponExistInWorld( SpawnList item ) const
 {
+	if ( !item.Classname ) return true;
 	const char *szEntToCheck = nullptr;
 	if ( FStrEq( item.Classname, "ammo_9mmclip" ) ) szEntToCheck = "weapon_sig";
 	else if ( FStrEq( item.Classname, "ammo_mp5clip" ) ) szEntToCheck = "weapon_mp5";

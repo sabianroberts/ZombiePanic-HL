@@ -2,6 +2,7 @@
 
 #include "extdll.h"
 #include "util.h"
+#include "player.h"
 #include "zp/info_random_base.h"
 
 void CRandomItemBase::SpawnItem(void)
@@ -15,8 +16,20 @@ void CRandomItemBase::SpawnItem(void)
 	}
 }
 
+static int s_iCurrentPlayerAmount = 0;
+static void CheckCurrentPlayers()
+{
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+		if ( plr && plr->IsConnected() )
+			s_iCurrentPlayerAmount++;
+	}
+}
+
 bool CRandomItemBase::IsLimited( SpawnList item ) const
 {
+	if ( item.PlayersRequired > s_iCurrentPlayerAmount ) return true;
 	if ( item.Limit <= 0 ) return false;
 	if ( item.Full ) return true;
 	return false;
@@ -27,6 +40,9 @@ extern void ResetRandomAmmoSpawnList();
 
 void ZP::SpawnWeaponsFromRandomEntities()
 {
+	// Check all players first
+	CheckCurrentPlayers();
+
 	// First spawn all weapons
 	CRandomItemBase *pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_weapon" );
 	while ( pFind )
@@ -54,4 +70,5 @@ void ZP::SpawnWeaponsFromRandomEntities()
 	// Reset after use
 	ResetRandomWeaponSpawnList();
 	ResetRandomAmmoSpawnList();
+	s_iCurrentPlayerAmount = 0;
 }
