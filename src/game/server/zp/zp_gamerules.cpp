@@ -494,11 +494,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 			{
 				bLateJoin = false;
 				pPlayer->m_bPunishLateJoiner = true;
-				m_pGameMode->GiveWeapons( pPlayer );
 			}
 			ChangePlayerTeam(pPlayer, ZP::Teams[ bLateJoin ? ZP::TEAM_ZOMBIE : ZP::TEAM_SURVIVIOR], FALSE, FALSE);
 			pPlayer->RemoveAllItems( TRUE );
 			pPlayer->StopWelcomeCam();
+			if ( pPlayer->m_bPunishLateJoiner )
+				m_pGameMode->GiveWeapons( pPlayer );
 			if ( m_pGameMode->GetRoundState() < ZP::RoundState::RoundState_RoundHasBegun )
 				pPlayer->m_iHideHUD = HIDEHUD_WEAPONS | HIDEHUD_HEALTH | HIDEHUD_FLASHLIGHT;
 		}
