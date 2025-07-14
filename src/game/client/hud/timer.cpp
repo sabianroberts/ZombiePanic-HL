@@ -610,7 +610,7 @@ void CHudTimer::Draw(float fTime)
 	ScaleColors(r, g, b, a);
 
 	// Draw timer
-	float timeleft = m_flSynced ? (int)(m_flEndTime - currentTime) + 1 : (int)(m_flEndTime - m_flEffectiveTime);
+	float timeleft = m_flSynced ? (int)(gHUD.GetTimerDetails().GameTime - currentTime) + 1 : (int)(gHUD.GetTimerDetails().GameTime - m_flEffectiveTime);
 	int hud_timer = (int)m_pCvarHudTimer->value;
 	int ypos = ScreenHeight * TIMER_Y;
 	switch (hud_timer)
