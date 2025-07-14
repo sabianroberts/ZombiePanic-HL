@@ -109,6 +109,7 @@ struct WeaponData
 	char Ammo2[16]; // ammo 2 type
 	char Icons[WeaponDataIcons::MAX_ICONS][32]; // HUD Icons
 	int DefaultAmmo;
+	int AmmoBox; // How much should the ammo item give?
 	int MaxClip;
 	int Bullets = 1;
 	int Flags;

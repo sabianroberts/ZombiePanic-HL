@@ -101,8 +101,9 @@ WeaponData CreateWeaponSlotData( const char *szClassname )
 		}
 	}
 
-	slot.DefaultAmmo = pWeaponScript->GetInt( "DefaultGive", 0 );
-	slot.MaxClip = pWeaponScript->GetInt( "MaxClip", 0 );
+	slot.DefaultAmmo = pWeaponScript->GetInt( "DefaultGive", 7 );
+	slot.AmmoBox = pWeaponScript->GetInt( "AmmoBox", 7 );
+	slot.MaxClip = pWeaponScript->GetInt( "MaxClip", 7 );
 	slot.Bullets = pWeaponScript->GetInt( "Bullets", 1 );
 	slot.Flags = 0;
 
