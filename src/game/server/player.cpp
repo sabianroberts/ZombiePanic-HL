@@ -5515,13 +5515,14 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 	return ThrowableDropState::NOT_ACTIVE;
 }
 
-int CBasePlayer::GetBestKillAssist()
+int CBasePlayer::GetBestKillAssist(int iAttacker)
 {
 	int iDx = 0;
 	float flDamage = 0.0f;
 	for ( size_t i = 0; i < m_AssistedDamage.size(); i++ )
 	{
 		KillAssist assist = m_AssistedDamage[i];
+		if ( assist.EntIndex == iAttacker ) continue;
 		if ( assist.DamageDealt > flDamage )
 		{
 			iDx = assist.EntIndex;

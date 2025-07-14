@@ -352,7 +352,7 @@ public:
 	ThrowableDropState IsThrowableAndActive(CBasePlayerWeapon *pWeapon, bool bOnDrop);
 
 	// Kill assist stuff
-	int GetBestKillAssist();
+	int GetBestKillAssist(int iAttacker);
 	void AddToAssistDamage(CBasePlayer *pPlayer, float flDamage);
 	struct KillAssist
 	{
