@@ -48,9 +48,7 @@ const char *CRandomItemAmmo::GetRandomClassname() const
 	CBaseEntity *pFind = UTIL_FindEntityByClassname( nullptr, item.Classname );
 	while ( pFind )
 	{
-		// Ignore players (if they spawned with X item)
-		if ( !pFind->pev->owner )
-			iFound++;
+		iFound++;
 		pFind = UTIL_FindEntityByClassname( pFind, item.Classname );
 	}
 

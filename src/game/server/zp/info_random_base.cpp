@@ -32,7 +32,7 @@ void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
 {
 	bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
 	if ( !bIsCheatsEnabled ) return;
-	UTIL_PrintConsole( "Items Spawned this round:\n", pPlayer );
+	UTIL_PrintConsole( "Items spawned this round:\n", pPlayer );
 	for (DebugSpawnList &i : s_SpawnedItems)
 		UTIL_PrintConsole( UTIL_VarArgs( "%s [%i]\n", i.Classname.c_str(), i.Amount ), pPlayer );
 	UTIL_PrintConsole( "--------------------\n", pPlayer );
