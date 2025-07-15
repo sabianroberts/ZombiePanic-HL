@@ -19,7 +19,7 @@ static void OnItemCreated( const char *szClassname )
 		if ( FStrEq( item.Classname.c_str(), szClassname ) )
 		{
 			item.Amount++;
-			break;
+			return;
 		}
 	}
 	DebugSpawnList item;
