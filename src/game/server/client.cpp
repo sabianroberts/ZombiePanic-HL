@@ -240,6 +240,7 @@ void ClientKill(edict_t *pEntity)
 	}
 
 	pPlayer->m_flSuicideTimer = gpGlobals->time + 5.0f;
+	ClientPrint(pev, HUD_PRINTCONSOLE, UTIL_VarArgs("So you have choosen death...\n"));
 }
 
 /*
