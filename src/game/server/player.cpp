@@ -5463,6 +5463,9 @@ void CBasePlayer::DropActiveWeapon()
 	pNewWeapon->pev->angles.x = 0;
 	pNewWeapon->pev->angles.z = 0;
 	pNewWeapon->pev->velocity = vecDir * 300 + vecDir * 100;
+
+	// Play drop sound
+	EMIT_SOUND(ENT(pNewWeapon->pev), CHAN_VOICE, "player/pl_drop_weapon.wav", 1, ATTN_NORM);
 }
 
 int CBasePlayer::AmmoIndexToDrop( int ammoindex )
