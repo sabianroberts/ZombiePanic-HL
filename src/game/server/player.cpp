@@ -1854,9 +1854,9 @@ void CBasePlayer::Jump()
 	// If we are a zombie, decrease our jump speed & max speed
 	// Makes bhopping harder.
 	if ( pev->team == ZP::TEAM_ZOMBIE )
-		pev->fuser4 += 85.0f;
+		pev->fuser4 += 55.0f;
 	else
-		pev->fuser4 += 48.0f;
+		pev->fuser4 += 38.0f;
 
 	entvars_t *pevGround = VARS(pev->groundentity);
 #if defined( HL1 )
