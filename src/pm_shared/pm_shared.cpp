@@ -1397,7 +1397,7 @@ void PM_Accelerate(const Vector &wishdir, float wishspeed, float accel)
 		SpeedCap += pmove->velocity[i];
 
 		// Never go beyond max speed.
-		if (SpeedCap > pmove->maxspeed)
+		if (SpeedCap > pmove->maxspeed && i < 2)
 			SpeedCap = pmove->maxspeed;
 
 		pmove->velocity[i] = SpeedCap;
@@ -1648,6 +1648,9 @@ void PM_Friction(void)
 	if (newspeed < 0)
 		newspeed = 0;
 
+	// For jumping
+	float newspeed_z = newspeed;
+
 	// Adjust the max speed here, so we don't move too fast.
 	// This will fix the wall hug and strafe exploit
 	float flAdjustedMaxSpeed = pmove->maxspeed - 35;
@@ -1657,11 +1660,12 @@ void PM_Friction(void)
 
 	// Determine proportion of old speed we are using.
 	newspeed /= speed;
+	newspeed_z /= speed;
 
 	// Adjust velocity according to proportion.
 	newvel[0] = vel[0] * newspeed;
 	newvel[1] = vel[1] * newspeed;
-	newvel[2] = vel[2] * newspeed;
+	newvel[2] = vel[2] * newspeed_z; // Jumping does not get clamped.
 
 	VectorCopy(newvel, pmove->velocity);
 }
@@ -1702,7 +1706,7 @@ void PM_AirAccelerate(Vector wishdir, float wishspeed, float accel)
 		SpeedCap += pmove->velocity[i];
 
 		// Never go beyond max speed.
-		if (SpeedCap > pmove->maxspeed)
+		if (SpeedCap > pmove->maxspeed && i < 2)
 			SpeedCap = pmove->maxspeed;
 
 		pmove->velocity[i] = SpeedCap;
