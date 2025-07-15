@@ -6,6 +6,8 @@
 
 #include "cbase.h"
 
+class CBasePlayer;
+
 struct SpawnList
 {
 	const char *Classname = nullptr;
@@ -35,6 +37,7 @@ public:
 namespace ZP
 {
 	void SpawnWeaponsFromRandomEntities();
+	void CheckHowManySpawnedItems( CBasePlayer *pPlayer );
 }
 
 #endif

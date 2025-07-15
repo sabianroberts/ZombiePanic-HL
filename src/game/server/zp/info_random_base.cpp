@@ -5,6 +5,39 @@
 #include "player.h"
 #include "zp/info_random_base.h"
 
+struct DebugSpawnList
+{
+	std::string Classname;
+	int Amount;
+};
+static std::vector<DebugSpawnList> s_SpawnedItems;
+static void OnItemCreated( const char *szClassname )
+{
+	for ( size_t i = 0; i < s_SpawnedItems.size(); i++ )
+	{
+		DebugSpawnList &item = s_SpawnedItems[i];
+		if ( FStrEq( item.Classname.c_str(), szClassname ) )
+		{
+			item.Amount++;
+			break;
+		}
+	}
+	DebugSpawnList item;
+	item.Amount = 1;
+	item.Classname = szClassname;
+	s_SpawnedItems.push_back( item );
+}
+
+void ZP::CheckHowManySpawnedItems( CBasePlayer *pPlayer )
+{
+	bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+	if ( !bIsCheatsEnabled ) return;
+	UTIL_PrintConsole( "Items Spawned this round:\n", pPlayer );
+	for (DebugSpawnList &i : s_SpawnedItems)
+		UTIL_PrintConsole( UTIL_VarArgs( "%s [%i]\n", i.Classname.c_str(), i.Amount ), pPlayer );
+	UTIL_PrintConsole( "--------------------\n", pPlayer );
+}
+
 void CRandomItemBase::SpawnItem(void)
 {
 	const char *szItemToSpawn = GetRandomClassname();
@@ -12,7 +45,10 @@ void CRandomItemBase::SpawnItem(void)
 	{
 		CBaseEntity *pSpawned = CBaseEntity::Create( (char *)szItemToSpawn, pev->origin + Vector( 0, 0, 2 ), pev->angles, nullptr );
 		if ( pSpawned )
+		{
 			pSpawned->SetSpawnedTroughRandomEntity( true );
+			OnItemCreated( szItemToSpawn );
+		}
 	}
 }
 
@@ -40,6 +76,9 @@ extern void ResetRandomAmmoSpawnList();
 
 void ZP::SpawnWeaponsFromRandomEntities()
 {
+	// Clear it
+	s_SpawnedItems.clear();
+
 	// Check all players first
 	CheckCurrentPlayers();
 

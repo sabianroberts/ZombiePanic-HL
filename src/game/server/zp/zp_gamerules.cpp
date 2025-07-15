@@ -9,6 +9,7 @@
 #include "zp_gamerules.h"
 #include "game.h"
 #include "shake.h"
+#include "zp/info_random_base.h"
 
 extern DLL_GLOBAL BOOL g_fGameOver;
 
@@ -546,6 +547,11 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	{
 		int iszItem = ALLOC_STRING( CMD_ARGV(1) ); // Make a copy of the classname
 		OnWeaponGive( pPlayer, STRING(iszItem) );
+		return TRUE;
+	}
+	else if (FStrEq(pcmd, "report_entities"))
+	{
+		ZP::CheckHowManySpawnedItems( pPlayer );
 		return TRUE;
 	}
 
