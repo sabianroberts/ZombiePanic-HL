@@ -589,9 +589,26 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	if ( pAttacker->IsPlayer() )
 		AddToAssistDamage( (CBasePlayer *)pAttacker, flDamage );
 
+	// Are we in buddha mode?
+	bool bBuddhaDamage = false;
+	if ( m_bBuddhaMode )
+	{
+		int iDamageCheck = (int)flDamage;
+		float tempHP = flHealthPrev;
+		tempHP -= iDamageCheck;
+		if ( tempHP <= 0 )
+		{
+			pev->health = 1;
+			bBuddhaDamage = true;
+		}
+	}
+
 	// this cast to INT is critical!!! If a player ends up with 0.5 health, the engine will get that
 	// as an int (zero) and think the player is dead! (this will incite a clientside screentilt, etc)
-	fTookDamage = CBaseMonster::TakeDamage(pevInflictor, pevAttacker, (int)flDamage, bitsDamageType);
+	if ( bBuddhaDamage )
+		fTookDamage = 1;
+	else
+		fTookDamage = CBaseMonster::TakeDamage(pevInflictor, pevAttacker, (int)flDamage, bitsDamageType);
 
 	// reset damage time countdown for each type of time based damage player just sustained
 
@@ -3481,6 +3498,7 @@ void CBasePlayer::Spawn(void)
 
 	m_iDeathFlags = 0;
 	m_bInZombieVision = false;
+	m_bBuddhaMode = false;
 
 	// We just spawned, allow auto weapon switch
 	m_bJustSpawned = true;

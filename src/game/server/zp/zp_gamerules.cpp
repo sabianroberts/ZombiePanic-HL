@@ -554,6 +554,17 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		ZP::CheckHowManySpawnedItems( pPlayer );
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "buddha"))
+	{
+		// Toggle it on/off
+		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+		if ( bIsCheatsEnabled )
+		{
+			pPlayer->m_bBuddhaMode = !pPlayer->m_bBuddhaMode;
+			UTIL_PrintConsole( UTIL_VarArgs( "Buddha mode has been turned %s\n", pPlayer->m_bBuddhaMode ? "on" : "off" ), pPlayer );
+		}
+		return TRUE;
+	}
 
 	if ( m_pGameMode->IsTestModeActive() )
 	{

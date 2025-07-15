@@ -430,6 +430,9 @@ public:
 
 	// Punish the late joiner.
 	bool m_bPunishLateJoiner = false;
+
+	// Buddha mode
+	bool m_bBuddhaMode = false;
 #endif
 
 	//-----------------------------------------------------
