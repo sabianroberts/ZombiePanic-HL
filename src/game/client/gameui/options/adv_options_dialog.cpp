@@ -30,7 +30,23 @@ CON_COMMAND(gameui_cl_open_adv_options, "Opens Advanced Options dialog")
 CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
     : BaseClass(pParent, "AdvOptionsDialog")
 {
-	SetBounds(0, 0, 512, 406);
+#if 0
+	switch ( gHUD.m_iRes )
+	{
+		default:
+		case 320:
+		case 640:
+		case 1280:
+		    SetBounds(0, 0, 512, 406);
+		break;
+		case 2560:
+		{
+			SetBounds(0, 0, 1124, 812);
+			SetProportional(true);
+		}
+		break;
+	}
+#endif
 	SetSizeable(false);
 	SetDeleteSelfOnClose(true);
 
