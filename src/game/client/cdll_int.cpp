@@ -585,3 +585,15 @@ public:
 };
 
 EXPOSE_SINGLE_INTERFACE(CClientExports, IGameClientExports, GAMECLIENTEXPORTS_INTERFACE_VERSION);
+
+
+CON_COMMAND( set, "Set cheat commands" )
+{
+	// We do this on the client end, because the server
+	// does not have a command for grabbing who is executing
+	// a console command, which is odd.
+	const char *pSetCommand = gEngfuncs.Cmd_Argv( 1 );
+	char szbuf[52];
+	Q_snprintf( szbuf, sizeof(szbuf), "_set %s", pSetCommand );
+	gEngfuncs.pfnClientCmd( szbuf );
+}

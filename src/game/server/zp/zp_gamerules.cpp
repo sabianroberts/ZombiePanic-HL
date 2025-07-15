@@ -565,6 +565,33 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		}
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "_set"))
+	{
+		const char *pSetCommand = CMD_ARGV(1);
+		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+		if ( bIsCheatsEnabled && pSetCommand && pSetCommand[0] )
+		{
+			if ( FStrEq( pSetCommand, "god" ) )
+			{
+				// If we have the godmode flag, remove it
+				if ( (pPlayer->pev->flags & FL_GODMODE) )
+					pPlayer->pev->flags &= ~FL_GODMODE;
+				else
+					pPlayer->pev->flags |= FL_GODMODE;
+				UTIL_PrintConsole( UTIL_VarArgs( "God mode has been turned %s\n", (pPlayer->pev->flags & FL_GODMODE) ? "on" : "off" ), pPlayer );
+			}
+			else if ( FStrEq( pSetCommand, "noclip" ) && ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR || pPlayer->pev->team == ZP::TEAM_ZOMBIE ) )
+			{
+				// If we have the godmode flag, remove it
+				if ( pPlayer->pev->movetype == MOVETYPE_NOCLIP )
+					pPlayer->pev->movetype = MOVETYPE_WALK;
+				else
+					pPlayer->pev->movetype = MOVETYPE_NOCLIP;
+				UTIL_PrintConsole( UTIL_VarArgs( "Noclip has been turned %s\n", (pPlayer->pev->movetype == MOVETYPE_NOCLIP) ? "on" : "off" ), pPlayer );
+			}
+		}
+		return TRUE;
+	}
 
 	if ( m_pGameMode->IsTestModeActive() )
 	{
