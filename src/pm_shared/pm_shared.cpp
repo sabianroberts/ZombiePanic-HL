@@ -104,6 +104,7 @@ typedef struct hull_s
 #define CHAR_TEX_GLASS			'Y'
 #define CHAR_TEX_FLESH			'F'
 #define CHAR_TEX_CARPET			'E'
+#define CHAR_TEX_CARDBOARD		'B'
 
 enum PlayerFootstepSoundTable
 {
@@ -121,6 +122,7 @@ enum PlayerFootstepSoundTable
 	STEP_GLASS,
 	STEP_FLESH,
 	STEP_CARPET,
+	STEP_CARDBOARD,
 };
 
 #define PLAYER_FATAL_FALL_SPEED      1024 // approx 60 feet
@@ -761,6 +763,25 @@ void PM_PlayStepSound(int step, float fvol)
 			break;
 		}
 		break;
+	case STEP_CARDBOARD:
+		switch (irand)
+		{
+		// right foot
+		case 0:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_cboard1.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		case 1:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_cboard3.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		// left foot
+		case 2:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_cboard2.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		case 3:
+			pmove->PM_PlaySound(CHAN_BODY, "player/pl_cboard4.wav", fvol, ATTN_NORM, 0, PITCH_NORM);
+			break;
+		}
+		break;
 	}
 }
 
@@ -793,6 +814,8 @@ int PM_MapTextureTypeStepType(char chTextureType)
 		return STEP_FLESH;
 	case CHAR_TEX_CARPET:
 		return STEP_CARPET;
+	case CHAR_TEX_CARDBOARD:
+		return STEP_CARDBOARD;
 	}
 }
 

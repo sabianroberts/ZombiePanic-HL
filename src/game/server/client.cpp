@@ -928,6 +928,11 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/pl_carpet3.wav");
 	PRECACHE_SOUND("player/pl_carpet4.wav");
 
+	PRECACHE_SOUND("player/pl_cboard1.wav"); // walk on cardboard
+	PRECACHE_SOUND("player/pl_cboard2.wav");
+	PRECACHE_SOUND("player/pl_cboard3.wav");
+	PRECACHE_SOUND("player/pl_cboard4.wav");
+
 	PRECACHE_SOUND("player/pl_wade1.wav"); // wade in water
 	PRECACHE_SOUND("player/pl_wade2.wav");
 	PRECACHE_SOUND("player/pl_wade3.wav");
