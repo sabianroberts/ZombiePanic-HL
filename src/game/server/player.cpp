@@ -5636,6 +5636,10 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount, Vector Dir, bool pukevel 
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 10 + RandomVector(-200, 200);
 	else
 		pAmmoItem->pev->velocity = gpGlobals->v_forward * 300;
+
+	// Play drop sound
+	EMIT_SOUND(ENT(pAmmoItem->pev), CHAN_VOICE, "player/pl_drop_ammo.wav", 1, ATTN_NORM);
+
 	return true;
 }
 

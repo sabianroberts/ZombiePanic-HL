@@ -855,6 +855,9 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/pl_headshot.wav");
 	PRECACHE_SOUND("player/pl_headshot2.wav");
 
+	PRECACHE_SOUND("player/pl_drop_ammo.wav");
+	//PRECACHE_SOUND("player/pl_drop_weapon.wav");
+
 	PRECACHE_SOUND("player/pl_step1.wav"); // walk on concrete
 	PRECACHE_SOUND("player/pl_step2.wav");
 	PRECACHE_SOUND("player/pl_step3.wav");
