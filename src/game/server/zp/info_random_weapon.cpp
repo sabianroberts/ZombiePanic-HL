@@ -13,8 +13,8 @@ public:
 LINK_ENTITY_TO_CLASS( info_random_weapon, CRandomItemWeapon );
 
 static std::vector<SpawnList> s_SpawnList = {
-	{ "weapon_sig", 3, 0, false },
-	{ "weapon_357", 3, 2, false },
+	{ "weapon_sig", 2, 0, false },
+	{ "weapon_357", 2, 2, false },
 	{ "weapon_556ar", 2, 4, false },
 	{ "weapon_mp5", 3, 3, false },
 	{ "weapon_shotgun", 2, 5, false }
