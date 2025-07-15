@@ -79,9 +79,11 @@ private:
 	{
 		// This is an std::string instead of uint64,
 		// since the AuthString in GoldSrc can be different
-		std::string AuthID;
+		std::string AuthID = "";
+		int EntIndex = -1;
 	};
 	std::vector<LastChoosenZombie> m_LastChoosenZombies;
+	void RemoveFromList( int entindex );
 };
 
 namespace ZP

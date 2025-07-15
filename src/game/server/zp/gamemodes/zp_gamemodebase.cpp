@@ -295,15 +295,33 @@ bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVer
 void CBaseGameMode::ShouldClearChoosenZombies()
 {
 	// How many players do we have? If everyone was choosen, purge the list.
-	int iAmountNotChoosen = 0;
+	int iAmountChoosen = 0;
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-		if ( plr && !WasAlreadyChoosenPreviously( plr, true ) )
-			iAmountNotChoosen++;
+		if ( plr && WasAlreadyChoosenPreviously( plr, true ) )
+			iAmountChoosen++;
+		else
+			RemoveFromList( i );
 	}
 
 	// There are no left
-	if ( iAmountNotChoosen == 0 )
+	if ( iAmountChoosen >= m_LastChoosenZombies.size() )
 		m_LastChoosenZombies.clear();
+}
+
+void CBaseGameMode::RemoveFromList( int entindex )
+{
+	int idx = -1;
+	for ( size_t i = 0; i < m_LastChoosenZombies.size(); i++ )
+	{
+		LastChoosenZombie choosen = m_LastChoosenZombies[i];
+		if ( choosen.EntIndex == entindex )
+		{
+			idx = i;
+			break;
+		}
+	}
+	if ( idx == -1 ) return;
+	m_LastChoosenZombies.erase( m_LastChoosenZombies.begin() + idx );
 }
