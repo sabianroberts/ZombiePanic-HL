@@ -947,7 +947,18 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 		m_iDeathFlags |= PLR_DEATH_FLAG_GIBBED;
 	// Headshot?
 	if (m_LastHitGroup == HITGROUP_HEAD)
+	{
 		m_iDeathFlags |= PLR_DEATH_FLAG_HEADSHOT;
+		switch (RANDOM_LONG(1, 2))
+		{
+		case 1:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_headshot.wav", 1, ATTN_NORM);
+			break;
+		case 2:
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_headshot2.wav", 1, ATTN_NORM);
+			break;
+		}
+	}
 	// Is our attacker valid, and also dead?
 	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
 	if ( pKiller && !pKiller->IsAlive() )
