@@ -4226,23 +4226,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 	switch (iImpulse)
 	{
 	case 101:
-		gEvilImpulse101 = TRUE;
-		GiveNamedItem("item_suit");
-		GiveNamedItem("item_battery");
-		GiveNamedItem("weapon_crowbar");
-		GiveNamedItem("weapon_sig");
-		GiveNamedItem("ammo_9mmclip");
-		GiveNamedItem("weapon_shotgun");
-		GiveNamedItem("ammo_buckshot");
-		GiveNamedItem("weapon_556ar");
-		GiveNamedItem("ammo_556ar");
-		GiveNamedItem("weapon_mp5");
-		GiveNamedItem("ammo_mp5clip");
-		GiveNamedItem("weapon_handgrenade");
-		GiveNamedItem("weapon_tripmine");
-		GiveNamedItem("weapon_357");
-		GiveNamedItem("ammo_357");
-		gEvilImpulse101 = FALSE;
+		ClientPrint(pev, HUD_PRINTCONSOLE, UTIL_VarArgs("Nice try.\n"));
 		break;
 
 	case 102:
