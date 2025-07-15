@@ -1075,6 +1075,29 @@ void CHudChat::Send(void)
 	char ansi[2 * MAX_CHAT_INPUT_STRING_LEN + 1];
 	g_pVGuiLocalize->ConvertUnicodeToANSI(szTextbuf, ansi, sizeof(ansi));
 
+	// If /table, then TABERU THROW
+	// Tell your thanks to Orphanage
+	if ( vgui2::FStrEq( ansi, "/table" ) )
+	{
+		// Clear it.
+		for ( int i = 0; i < sizeof( ansi ); i++ )
+			ansi[i] = 0;
+		// Let's populate our byte array
+		unsigned char bytes[] = {
+			0x28, 0xe2, 0x95, 0xaf,
+			0xc2, 0xb0, 0xe2, 0x96,
+			0xa1, 0xc2, 0xb0, 0xef,
+			0xbc, 0x89, 0xe2, 0x95,
+			0xaf, 0xef, 0xb8, 0xb5,
+			0x20, 0xe2, 0x94, 0xbb,
+			0xe2, 0x94, 0x81, 0xe2,
+			0x94, 0xbb
+		};
+		// Now, let's add everything we need.
+		for ( int i = 0; i < sizeof( bytes ); i++ )
+			ansi[i] = bytes[i];
+	}
+
 	int len = Q_strlen(ansi);
 
 	/*
