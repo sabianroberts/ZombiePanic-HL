@@ -952,10 +952,10 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 		switch (RANDOM_LONG(1, 2))
 		{
 		case 1:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_headshot.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_headshot.wav", 1, ATTN_NORM);
 			break;
 		case 2:
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_headshot2.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_headshot2.wav", 1, ATTN_NORM);
 			break;
 		}
 	}
