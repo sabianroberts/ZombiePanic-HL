@@ -6,20 +6,12 @@ add_sources(
 	../../public/vinterface/interface.h
 	activity.h
 	activitymap.h
-	aflock.cpp
-	agrunt.cpp
 	airtank.cpp
 	animating.cpp
 	animation.cpp
 	animation.h
-	apache.cpp
-	barnacle.cpp
-	barney.cpp
 	basemonster.h
-	bigmomma.cpp
-	bloater.cpp
 	bmodels.cpp
-	bullsquid.cpp
 	buttons.cpp
 	cbase.cpp
 	cbase.h
@@ -31,7 +23,6 @@ add_sources(
 	com_utils.cpp
 	com_utils.h
 	combat.cpp
-	controller.cpp
 	decals.h
 	defaultai.cpp
 	defaultai.h
@@ -51,28 +42,17 @@ add_sources(
 	game.cpp
 	gamerules.cpp
 	gamerules.h
-	gargantua.cpp
 	genericmonster.cpp
 	ggrenade.cpp
 	globals.cpp
-	gman.cpp
 	h_ai.cpp
 	h_battery.cpp
 	h_cine.cpp
 	h_cycler.cpp
 	h_export.cpp
-	hassassin.cpp
-	headcrab.cpp
 	healthkit.cpp
-	hgrunt.cpp
-	hornet.cpp
-	hornet.h
-	houndeye.cpp
-	ichthyosaur.cpp
-	islave.cpp
 	items.cpp
 	items.h
-	leech.cpp
 	lights.cpp
 	maprules.cpp
 	monsterevent.h
@@ -82,11 +62,9 @@ add_sources(
 	monsterstate.cpp
 	mortar.cpp
 	multiplay_gamerules.cpp
-	nihilanth.cpp
 	nodes.cpp
 	nodes.h
 	observer.cpp
-	osprey.cpp
 	path.cpp
 	path.h
 	pathcorner.cpp
@@ -101,7 +79,6 @@ add_sources(
 	saverestore.h
 	schedule.cpp
 	schedule.h
-	scientist.cpp
 	scripted.cpp
 	scripted.h
 	scriptevent.h
@@ -121,7 +98,6 @@ add_sources(
 	teamplay_gamerules.cpp
 	teamplay_gamerules.h
 	tempmonster.cpp
-	tentacle.cpp
 	trains.h
 	triggers.cpp
 	turret.cpp
@@ -134,8 +110,6 @@ add_sources(
 	weapons.cpp
 	weapons.h
 	world.cpp
-	xen.cpp
-	zombie.cpp
 )
 
 if( PLATFORM_WINDOWS )

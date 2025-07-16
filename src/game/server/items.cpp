@@ -189,12 +189,12 @@ class CItemSuit : public CItem
 	void Spawn(void)
 	{
 		Precache();
-		SET_MODEL(ENT(pev), "models/w_suit.mdl");
+		SET_MODEL(ENT(pev), "models/w_battery.mdl");
 		CItem::Spawn();
 	}
 	void Precache(void)
 	{
-		PRECACHE_MODEL("models/w_suit.mdl");
+		PRECACHE_MODEL("models/w_battery.mdl");
 	}
 	BOOL MyTouch(CBasePlayer *pPlayer)
 	{
@@ -275,31 +275,6 @@ class CItemBattery : public CItem
 
 LINK_ENTITY_TO_CLASS(item_battery, CItemBattery);
 
-class CItemAntidote : public CItem
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_antidote.mdl");
-		CItem::Spawn();
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_antidote.mdl");
-	}
-	BOOL MyTouch(CBasePlayer *pPlayer)
-	{
-		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
-			return false;
-		pPlayer->SetSuitUpdate("!HEV_DET4", FALSE, SUIT_NEXT_IN_1MIN);
-
-		pPlayer->m_rgItems[ITEM_ANTIDOTE] += 1;
-		return TRUE;
-	}
-};
-
-LINK_ENTITY_TO_CLASS(item_antidote, CItemAntidote);
-
 class CItemSecurity : public CItem
 {
 	void Spawn(void)
@@ -322,42 +297,3 @@ class CItemSecurity : public CItem
 };
 
 LINK_ENTITY_TO_CLASS(item_security, CItemSecurity);
-
-class CItemLongJump : public CItem
-{
-	void Spawn(void)
-	{
-		Precache();
-		SET_MODEL(ENT(pev), "models/w_longjump.mdl");
-		CItem::Spawn();
-	}
-	void Precache(void)
-	{
-		PRECACHE_MODEL("models/w_longjump.mdl");
-	}
-	BOOL MyTouch(CBasePlayer *pPlayer)
-	{
-		if ( pPlayer->pev->team == ZP::TEAM_ZOMBIE )
-			return false;
-
-		if (pPlayer->m_fLongJump)
-		{
-			return FALSE;
-		}
-
-		if ((pPlayer->pev->weapons & (1 << WEAPON_SUIT)))
-		{
-			pPlayer->m_fLongJump = TRUE; // player now has longjump module
-
-			g_engfuncs.pfnSetPhysicsKeyValue(pPlayer->edict(), "slj", "1");
-
-			CItem::SendItemPickup(pPlayer);
-
-			EMIT_SOUND_SUIT(pPlayer->edict(), "!HEV_A1"); // Play the longjump sound UNDONE: Kelly? correct sound?
-			return TRUE;
-		}
-		return FALSE;
-	}
-};
-
-LINK_ENTITY_TO_CLASS(item_longjump, CItemLongJump);

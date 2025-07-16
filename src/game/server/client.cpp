@@ -14,6 +14,7 @@
 ****/
 // Robin, 4-22-98: Moved set_suicide_frame() here from player.cpp to allow us to
 //				   have one without a hardcoded player.mdl in tf_client.cpp
+// Johan, 16-07-25: Changed player.mdl > player/survivor/survivor.mdl for ZP
 
 /*
 
@@ -1006,7 +1007,6 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zombiedeath2.wav");
 	PRECACHE_SOUND("player/zombiedeath3.wav");
 
-	PRECACHE_MODEL("models/player.mdl");
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
 	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
 

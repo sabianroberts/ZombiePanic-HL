@@ -1816,7 +1816,7 @@ typedef struct
 	*	@param eindex Entity index of this entity.
 	*	@param baseline Baseline to fill.
 	*	@param entity Entity to make the baseline for.
-	*	@param playermodelindex Index of the model "models/player.mdl".
+	*	@param playermodelindex Index of the model "models/player/survivor/survivor.mdl".
 	*	@param player_mins Array of the player minimum bounds for each hull.
 	*	@param player_maxs Array of the player maximum bounds for each hull.
 	*/
