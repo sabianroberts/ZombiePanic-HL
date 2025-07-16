@@ -5666,9 +5666,40 @@ bool CBasePlayer::DropAmmo( int ammoindex, int amount )
 void CBasePlayer::ChangeAmmoTypeToDrop()
 {
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
+	int iAmmo = 0;
+	int iStartLocation = m_iAmmoTypeToDrop;
 	int iAmmoType = m_iAmmoTypeToDrop;
-	iAmmoType++;
-	if ( iAmmoType > 3 ) iAmmoType = 0;
+	bool bHasLooped = false;
+	// TODO: Make this less shit.
+	// It works just fine, but... blegh...
+	do
+	{
+		// Increase each time
+		// If we looped, turn it off and don't increase.
+		// Because we want to include index 0 again.
+		// double 0 index check, yes i know this sucks and its bad.
+		// but I'm too tired right now...
+		if ( !bHasLooped )
+			iAmmoType++;
+		else
+			bHasLooped = false;
+
+		// We just looped back, stop.
+		if ( iStartLocation == iAmmoType )
+		{
+			iAmmo = 1;
+			break;
+		}
+		// We need to loop back
+		if ( iAmmoType > 3 )
+		{
+			iAmmoType = 0;
+			bHasLooped = true;
+		}
+		// We simply add 1, as our Ammo array starts at 1.
+		// As 0 is "none", to mimic Source Engine.
+		iAmmo = m_rgAmmo[ iAmmoType + 1 ];
+	} while ( iAmmo <= 0 );
 	m_iAmmoTypeToDrop = iAmmoType;
 }
 
