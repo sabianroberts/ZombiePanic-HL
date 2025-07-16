@@ -71,6 +71,12 @@ extern CGraph WorldGraph;
 
 #define ZVISION_BLIGHT 0
 
+#define BGROUP_BODY 0
+#define BGROUP_HEAD 1
+
+#define BGROUP_HEAD_DEFAULT 0
+#define BGROUP_HEAD_HEADSHOT 1
+
 constexpr int HalfPlayerHeight = 36;
 constexpr int HeightTolerance = 20;
 constexpr float ItemSearchRadius = 512;
@@ -975,6 +981,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_headshot2.wav", 1, ATTN_NORM);
 			break;
 		}
+		SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_HEADSHOT );
 	}
 	// Is our attacker valid, and also dead?
 	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
@@ -3569,7 +3576,11 @@ void CBasePlayer::Spawn(void)
 		UTIL_SetOrigin(plr->pev, pev->origin);
 	}
 
-	SET_MODEL(ENT(pev), "models/player.mdl");
+	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
+	SET_MODEL(ENT(pev), szModel );
+	pev->model = MODEL_INDEX( szModel );
+	SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_DEFAULT );
+
 	g_ulModelIndexPlayer = pev->modelindex;
 	pev->sequence = LookupActivity(ACT_IDLE);
 
@@ -5819,57 +5830,27 @@ BOOL CBasePlayer ::SwitchWeapon(CBasePlayerItem *pWeapon)
 }
 
 //=========================================================
-// Dead HEV suit prop
+// Player Corpse
 //=========================================================
-class CDeadHEV : public CBaseMonster
+class CPlayerCorpse : public CBaseMonster
 {
 public:
 	void Spawn(void);
 	int Classify(void) { return CLASS_HUMAN_MILITARY; }
-
-	void KeyValue(KeyValueData *pkvd);
-
-	int m_iPose; // which sequence to display	-- temporary, don't need to save
-	static char *m_szPoses[4];
 };
 
-char *CDeadHEV::m_szPoses[] = { "deadback", "deadsitting", "deadstomach", "deadtable" };
+LINK_ENTITY_TO_CLASS(player_corpse, CPlayerCorpse);
 
-void CDeadHEV::KeyValue(KeyValueData *pkvd)
+void CPlayerCorpse::Spawn(void)
 {
-	if (FStrEq(pkvd->szKeyName, "pose"))
-	{
-		m_iPose = atoi(pkvd->szValue);
-		pkvd->fHandled = TRUE;
-	}
-	else
-		CBaseMonster::KeyValue(pkvd);
-}
-
-LINK_ENTITY_TO_CLASS(monster_hevsuit_dead, CDeadHEV);
-
-//=========================================================
-// ********** DeadHEV SPAWN **********
-//=========================================================
-void CDeadHEV ::Spawn(void)
-{
-	PRECACHE_MODEL("models/player.mdl");
-	SET_MODEL(ENT(pev), "models/player.mdl");
+	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
+	SET_MODEL(ENT(pev), "models/player/survivor/survivor.mdl");
 
 	pev->effects = 0;
 	pev->yaw_speed = 8;
 	pev->sequence = 0;
 	pev->body = 1;
 	m_bloodColor = BLOOD_COLOR_RED;
-
-	pev->sequence = LookupSequence(m_szPoses[m_iPose]);
-
-	if (pev->sequence == -1)
-	{
-		ALERT(at_console, "Dead hevsuit with bad pose\n");
-		pev->sequence = 0;
-		pev->effects = EF_BRIGHTFIELD;
-	}
 
 	// Corpses have less health
 	pev->health = 8;

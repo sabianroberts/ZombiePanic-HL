@@ -64,7 +64,8 @@ char g_checkedPlayerModels[MAX_PLAYERS][MAX_TEAM_NAME]; // Used to store checked
  */
 void set_suicide_frame(entvars_t *pev)
 {
-	if (!FStrEq(STRING(pev->model), "models/player.mdl"))
+	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
+	if (!FStrEq(STRING(pev->model), szModel))
 		return; // allready gibbed
 
 	//	pev->frame		= $deatha11;
@@ -1006,6 +1007,8 @@ void ClientPrecache(void)
 	PRECACHE_SOUND("player/zombiedeath3.wav");
 
 	PRECACHE_MODEL("models/player.mdl");
+	PRECACHE_MODEL("models/player/undead/undead.mdl");
+	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
 
 	// hud sounds
 

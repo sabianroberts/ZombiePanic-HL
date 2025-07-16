@@ -630,7 +630,7 @@ R_StudioDrawPlayer
 */
 int R_StudioDrawPlayer(int flags, entity_state_t *pplayer)
 {
-	return g_StudioRenderer.StudioDrawPlayer(flags, pplayer);
+	return g_StudioRenderer.StudioDrawPlayer(flags, pplayer, false);
 }
 
 /*

@@ -1239,6 +1239,7 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 
 		// clear weapon, movement state
 		deadplayer.number = m_pCurrentEntity->curstate.renderamt;
+		deadplayer.modelindex = m_pCurrentEntity->curstate.modelindex;
 		deadplayer.weaponmodel = 0;
 		deadplayer.gaitsequence = 0;
 
@@ -1250,7 +1251,7 @@ int CStudioModelRenderer::StudioDrawModel(int flags)
 		m_fDoInterp = 0;
 
 		// draw as though it were a player
-		result = StudioDrawPlayer(flags, &deadplayer);
+		result = StudioDrawPlayer(flags, &deadplayer, true);
 
 		m_fDoInterp = save_interp;
 		return result;
@@ -1532,7 +1533,7 @@ StudioDrawPlayer
 
 ====================
 */
-int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer)
+int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer, bool bIsDead)
 {
 	alight_t lighting;
 	Vector dir;
@@ -1553,9 +1554,18 @@ int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer)
 	if (m_nPlayerIndex < 0 || m_nPlayerIndex >= gEngfuncs.GetMaxClients())
 		return 0;
 
-	m_pRenderModel = GetPlayerModel(m_nPlayerIndex);
+	// The dead model uses the previous crap.
+	if ( bIsDead )
+		m_pRenderModel = m_pCurrentEntity->model;
+	else
+		m_pRenderModel = GetPlayerModel(m_nPlayerIndex);
+
 	if (m_pRenderModel == NULL)
 		return 0;
+
+	// DEBUG
+	//if ( bIsDead )
+	//	gEngfuncs.Con_NPrintf( 10, "Drawing Dead Model: %s\n", m_pCurrentEntity->model->name);
 
 	m_pStudioHeader = (studiohdr_t *)IEngineStudio.Mod_Extradata(m_pRenderModel);
 	IEngineStudio.StudioSetHeader(m_pStudioHeader);
@@ -1628,6 +1638,7 @@ int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer)
 
 	if (flags & STUDIO_RENDER)
 	{
+#if defined(HL_CLIENT)
 		if (m_pCvarHiModels->value && m_pRenderModel != m_pCurrentEntity->model)
 		{
 			// show highest resolution multiplayer model
@@ -1638,6 +1649,7 @@ int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer)
 		{
 			m_pCurrentEntity->curstate.body = 1; // force helmet
 		}
+#endif
 
 		lighting.plightvec = dir;
 		IEngineStudio.StudioDynamicLight(m_pCurrentEntity, &lighting);
@@ -1649,7 +1661,9 @@ int CStudioModelRenderer::StudioDrawPlayer(int flags, entity_state_t *pplayer)
 
 		m_pPlayerInfo = IEngineStudio.PlayerInfo(m_nPlayerIndex);
 
+#if defined(HL_CLIENT)
 		SetPlayerRemapColors(m_nPlayerIndex);
+#endif
 
 		StudioRenderModel();
 		m_pPlayerInfo = NULL;

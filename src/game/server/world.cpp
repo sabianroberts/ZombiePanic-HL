@@ -272,11 +272,13 @@ void CopyToBodyQue(entvars_t *pev)
 	pevHead->deadflag = pev->deadflag;
 	pevHead->renderfx = kRenderFxDeadPlayer;
 	pevHead->renderamt = ENTINDEX(ENT(pev));
+	pevHead->skin = pev->skin;
+	pevHead->body = pev->body;
 
 	pevHead->effects = pev->effects | EF_NOINTERP;
 	//pevHead->goalstarttime = pev->goalstarttime;
 	//pevHead->goalframe	= pev->goalframe;
-	//pevHead->goalendtime = pev->goalendtime ;
+	//pevHead->goalendtime = pev->goalendtime;
 
 	pevHead->sequence = pev->sequence;
 	pevHead->animtime = pev->animtime;
