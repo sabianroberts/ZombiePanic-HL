@@ -11,6 +11,7 @@
 #include "options/adv_options_dialog.h"
 #include "zp/ui/achievements/C_AchievementDialog.h"
 #include "zp/ui/workshop/CWorkshopDialog.h"
+#include "CImageMenuButton.h"
 #include <FileSystem.h>
 #include <filesystem>
 #include <iostream>
@@ -40,6 +41,12 @@ CGameUIViewport::CGameUIViewport()
 
 	LoadWorkshopItems( false );
 	LoadWorkshop();
+
+	// Create our dialog right away!
+	// TODO: Make sure we move this to the right (up top, or down below)
+	m_hPatreonButton = new CImageMenuButton( this, "ui/patreon_button", "https://patreon.com/wuffesan" );
+	m_hPatreonButton->MakePopup( false, false );
+	m_hPatreonButton->SetContent( 50, 50, 256, 128 );
 }
 
 CGameUIViewport::~CGameUIViewport()

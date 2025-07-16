@@ -6,6 +6,8 @@ add_sources(
 	gameui_viewport.h
 	CCreateWorkshopInfoBox.cpp
 	CCreateWorkshopInfoBox.h
+	CImageMenuButton.cpp
+	CImageMenuButton.h
 )
 
 add_subdirectory( options )
