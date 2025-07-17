@@ -173,7 +173,6 @@ C_AchievementDialog::C_AchievementDialog(vgui2::Panel *pParent)
 
 	MoveToCenterOfScreen();
 
-	SetProportional(false);
 	SetTitleBarVisible(true);
 	SetMinimizeButtonVisible(false);
 	SetMaximizeButtonVisible(false);
