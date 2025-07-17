@@ -33,21 +33,6 @@ CGameUIViewport::CGameUIViewport()
 	SetParent(g_pEngineVGui->GetPanel(PANEL_GAMEUIDLL));
 	SetScheme(vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme"));
 
-	// We need to set it to proportional for 4K res.
-	// If we don't everything looks so damn tiny.
-	switch ( gHUD.m_iRes )
-	{
-		default:
-		case 320:
-		case 640:
-		case 1280:
-			SetProportional(false);
-		break;
-		case 2560:
-			SetProportional(true);
-		break;
-	}
-
 	SetSize(0, 0);
 
 	m_bPrepareForQueryDownload = false;
