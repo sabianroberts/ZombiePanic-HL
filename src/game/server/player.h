@@ -203,7 +203,7 @@ public:
 
 	void SpawnInPlace( bool state ) { m_bSpawnInPlace = state; }
 	virtual void Spawn(void);
-	void Pain(void);
+	void Pain(bool bDrown);
 
 	//	virtual void Think( void );
 	virtual void Jump(void);

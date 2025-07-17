@@ -316,18 +316,37 @@ void LinkUserMessages(void)
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
 
-void CBasePlayer ::Pain(void)
+void CBasePlayer ::Pain(bool bDrown)
 {
+	if ( pev->team == ZP::TEAM_ZOMBIE )
+	{
+		// TODO: Add pain sounds for zombies?
+		return;
+	}
+
 	float flRndSound; //sound randomizer
 
-	flRndSound = RANDOM_FLOAT(0, 1);
-
-	if (flRndSound <= 0.33)
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain5.wav", 1, ATTN_NORM);
-	else if (flRndSound <= 0.66)
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
+	if (bDrown)
+	{
+		switch (RANDOM_LONG(1, 4))
+		{
+			case 1: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning1.wav", 1, ATTN_NORM); break;
+			case 2: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning2.wav", 1, ATTN_NORM); break;
+			case 3: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning3.wav", 1, ATTN_NORM); break;
+			case 4: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning4.wav", 1, ATTN_NORM); break;
+		}
+	}
 	else
-		EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
+	{
+		flRndSound = RANDOM_FLOAT(0, 1);
+
+		if (flRndSound <= 0.33)
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain5.wav", 1, ATTN_NORM);
+		else if (flRndSound <= 0.66)
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
+		else
+			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
+	}
 }
 
 /* 
@@ -654,129 +673,10 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 	m_bitsDamageType |= bitsDamage; // Save this so we can report it to the client
 	m_bitsHUDDamage = -1; // make sure the damage bits get resent
 
-	while (fTookDamage && (!ftrivial || (bitsDamage & DMG_TIMEBASED)) && ffound && bitsDamage)
-	{
-		ffound = FALSE;
-
-		if (bitsDamage & DMG_CLUB)
-		{
-			if (fmajor)
-				SetSuitUpdate("!HEV_DMG4", FALSE, SUIT_NEXT_IN_30SEC); // minor fracture
-			bitsDamage &= ~DMG_CLUB;
-			ffound = TRUE;
-		}
-		if (bitsDamage & (DMG_FALL | DMG_CRUSH))
-		{
-			if (fmajor)
-				SetSuitUpdate("!HEV_DMG5", FALSE, SUIT_NEXT_IN_30SEC); // major fracture
-			else
-				SetSuitUpdate("!HEV_DMG4", FALSE, SUIT_NEXT_IN_30SEC); // minor fracture
-
-			bitsDamage &= ~(DMG_FALL | DMG_CRUSH);
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & DMG_BULLET)
-		{
-			if (m_lastDamageAmount > 5)
-				SetSuitUpdate("!HEV_DMG6", FALSE, SUIT_NEXT_IN_30SEC); // blood loss detected
-			//else
-			//	SetSuitUpdate("!HEV_DMG0", FALSE, SUIT_NEXT_IN_30SEC);	// minor laceration
-
-			bitsDamage &= ~DMG_BULLET;
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & DMG_SLASH)
-		{
-			if (fmajor)
-				SetSuitUpdate("!HEV_DMG1", FALSE, SUIT_NEXT_IN_30SEC); // major laceration
-			else
-				SetSuitUpdate("!HEV_DMG0", FALSE, SUIT_NEXT_IN_30SEC); // minor laceration
-
-			bitsDamage &= ~DMG_SLASH;
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & DMG_SONIC)
-		{
-			if (fmajor)
-				SetSuitUpdate("!HEV_DMG2", FALSE, SUIT_NEXT_IN_1MIN); // internal bleeding
-			bitsDamage &= ~DMG_SONIC;
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & (DMG_POISON | DMG_PARALYZE))
-		{
-			SetSuitUpdate("!HEV_DMG3", FALSE, SUIT_NEXT_IN_1MIN); // blood toxins detected
-			bitsDamage &= ~(DMG_POISON | DMG_PARALYZE);
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & DMG_ACID)
-		{
-			SetSuitUpdate("!HEV_DET1", FALSE, SUIT_NEXT_IN_1MIN); // hazardous chemicals detected
-			bitsDamage &= ~DMG_ACID;
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & DMG_NERVEGAS)
-		{
-			SetSuitUpdate("!HEV_DET0", FALSE, SUIT_NEXT_IN_1MIN); // biohazard detected
-			bitsDamage &= ~DMG_NERVEGAS;
-			ffound = TRUE;
-		}
-
-		if (bitsDamage & DMG_RADIATION)
-		{
-			SetSuitUpdate("!HEV_DET2", FALSE, SUIT_NEXT_IN_1MIN); // radiation detected
-			bitsDamage &= ~DMG_RADIATION;
-			ffound = TRUE;
-		}
-		if (bitsDamage & DMG_SHOCK)
-		{
-			bitsDamage &= ~DMG_SHOCK;
-			ffound = TRUE;
-		}
-	}
+	if ( fTookDamage )
+		Pain( (bitsDamage & DMG_DROWN) );
 
 	pev->punchangle.x = -2;
-
-	if (fTookDamage && !ftrivial && fmajor && flHealthPrev >= 75)
-	{
-		// first time we take major damage...
-		// turn automedic on if not on
-		SetSuitUpdate("!HEV_MED1", FALSE, SUIT_NEXT_IN_30MIN); // automedic on
-
-		// give morphine shot if not given recently
-		SetSuitUpdate("!HEV_HEAL7", FALSE, SUIT_NEXT_IN_30MIN); // morphine shot
-	}
-
-	if (fTookDamage && !ftrivial && fcritical && flHealthPrev < 75)
-	{
-
-		// already took major damage, now it's critical...
-		if (pev->health < 6)
-			SetSuitUpdate("!HEV_HLTH3", FALSE, SUIT_NEXT_IN_10MIN); // near death
-		else if (pev->health < 20)
-			SetSuitUpdate("!HEV_HLTH2", FALSE, SUIT_NEXT_IN_10MIN); // health critical
-
-		// give critical health warnings
-		if (!RANDOM_LONG(0, 3) && flHealthPrev < 50)
-			SetSuitUpdate("!HEV_DMG7", FALSE, SUIT_NEXT_IN_5MIN); //seek medical attention
-	}
-
-	// if we're taking time based damage, warn about its continuing effects
-	if (fTookDamage && (bitsDamageType & DMG_TIMEBASED) && flHealthPrev < 75)
-	{
-		if (flHealthPrev < 50)
-		{
-			if (!RANDOM_LONG(0, 3))
-				SetSuitUpdate("!HEV_DMG7", FALSE, SUIT_NEXT_IN_5MIN); //seek medical attention
-		}
-		else
-			SetSuitUpdate("!HEV_HLTH1", FALSE, SUIT_NEXT_IN_10MIN); // health dropping
-	}
 
 	// We got damaged!
 	m_bRegenUpdated = true;
