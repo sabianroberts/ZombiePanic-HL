@@ -41,7 +41,7 @@ CGameUIViewport::CGameUIViewport()
 		case 320:
 		case 640:
 		case 1280:
-	SetProportional(false);
+			SetProportional(false);
 		break;
 		case 2560:
 			SetProportional(true);
@@ -56,12 +56,6 @@ CGameUIViewport::CGameUIViewport()
 
 	LoadWorkshopItems( false );
 	LoadWorkshop();
-
-	// Create our dialog right away!
-	// TODO: Make sure we move this to the right (up top, or down below)
-	m_hPatreonButton = new CImageMenuButton( this, "ui/patreon_button", "https://patreon.com/wuffesan" );
-	m_hPatreonButton->MakePopup( false, false );
-	m_hPatreonButton->SetContent( 50, 50, 256, 128 );
 }
 
 CGameUIViewport::~CGameUIViewport()
@@ -134,6 +128,16 @@ void CGameUIViewport::OnThink()
 			m_bPreventEscape = false;
 			m_iDelayedPreventEscapeFrame = 0;
 		}
+	}
+
+	// Create our dialog right away!
+	if ( !m_hPatreonButton )
+	{
+		int wx, wy, ww, wt;
+		vgui2::surface()->GetWorkspaceBounds( wx, wy, ww, wt );
+		m_hPatreonButton = new CImageMenuButton( this, "ui/patreon_button", "https://patreon.com/wuffesan" );
+		m_hPatreonButton->MakePopup( false, false );
+		m_hPatreonButton->SetContent( (ww - 256) - 50, (wt - 128) - 50, 256, 128 );
 	}
 
 	if ( m_bPrepareForQueryDownload )
