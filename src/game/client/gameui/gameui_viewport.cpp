@@ -6,6 +6,7 @@
 #include "cl_util.h"
 #include "client_vgui.h"
 #include "gameui_viewport.h"
+#include "gameui_scale.h"
 #include "gameui_test_panel.h"
 #include "serverbrowser/CServerBrowser.h"
 #include "options/adv_options_dialog.h"
@@ -33,7 +34,11 @@ CGameUIViewport::CGameUIViewport()
 	SetParent(g_pEngineVGui->GetPanel(PANEL_GAMEUIDLL));
 	SetScheme(vgui2::scheme()->LoadSchemeFromFile(VGUI2_ROOT_DIR "resource/ClientSourceScheme.res", "ClientSourceScheme"));
 
-	SetSize(0, 0);
+	ComputeGUIScale();
+
+	SetProportional(true);
+
+	SetSize(ScreenWidth, ScreenHeight);
 
 	m_bPrepareForQueryDownload = false;
 	m_hWorkshopInfoBox = nullptr;

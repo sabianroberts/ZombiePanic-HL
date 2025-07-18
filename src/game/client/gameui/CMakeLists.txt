@@ -1,5 +1,7 @@
 add_sources(
 	CMakeLists.txt
+	gameui_scale.cpp
+	gameui_scale.h
 	gameui_test_panel.cpp
 	gameui_test_panel.h
 	gameui_viewport.cpp

@@ -52,6 +52,7 @@ CGameUITestPanel::CGameUITestPanel(vgui2::Panel *pParent)
 	m_pText->SetUnusedScrollbarInvisible(true);
 
 	SetScheme(CGameUIViewport::Get()->GetScheme());
+	CGameUIViewport::ComputeGUIScale();
 	InvalidateLayout();
 }
 

@@ -19,6 +19,8 @@ class CGameUIViewport : public vgui2::EditablePanel
 	DECLARE_CLASS_SIMPLE(CGameUIViewport, vgui2::EditablePanel);
 
 public:
+	static void ComputeGUIScale(); // Scale GUI elements up from 1080p.
+
 	static inline CGameUIViewport *Get()
 	{
 		return m_sInstance;

@@ -141,6 +141,8 @@ CFileBrowser::CFileBrowser(vgui2::Panel *pParent)
 
 void CFileBrowser::ApplySchemeSettings( vgui2::IScheme *pScheme )
 {
+	CGameUIViewport::ComputeGUIScale();
+
 	BaseClass::ApplySchemeSettings( pScheme );
 
 	// load the password icon
