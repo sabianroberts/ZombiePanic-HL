@@ -1014,6 +1014,8 @@ void ClientPrecache(void)
 
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
 	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
+	// Sticky gibs, used by headshots
+	PRECACHE_MODEL("models/stickygib.mdl");
 
 	// hud sounds
 
