@@ -218,7 +218,7 @@ void CCineBlood ::BloodGush(void)
 		if (tr.flFraction != 1.0)
 		{
 			// Decal with a bloodsplat
-			UTIL_BloodDecalTrace(&tr, BLOOD_COLOR_RED);
+			UTIL_BloodDecalTrace(&tr, BLOOD_COLOR_RED, true);
 		}
 	}
 }

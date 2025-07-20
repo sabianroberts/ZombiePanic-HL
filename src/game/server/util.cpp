@@ -1299,12 +1299,17 @@ Vector UTIL_RandomBloodVector(void)
 	return direction;
 }
 
-void UTIL_BloodDecalTrace(TraceResult *pTrace, int bloodColor)
+void UTIL_BloodDecalTrace(TraceResult *pTrace, int bloodColor, bool bExplode)
 {
 	if (UTIL_ShouldShowBlood(bloodColor))
 	{
 		if (bloodColor == BLOOD_COLOR_RED)
-			UTIL_DecalTrace(pTrace, DECAL_BLOOD1 + RANDOM_LONG(0, 5));
+		{
+			if ( bExplode )
+				UTIL_DecalTrace(pTrace, DECAL_BLOOD1 + RANDOM_LONG(0, 4));
+			else
+				UTIL_DecalTrace(pTrace, DECAL_BLOODSMALL1 + RANDOM_LONG(0, 4));
+		}
 		else
 			UTIL_DecalTrace(pTrace, DECAL_YBLOOD1 + RANDOM_LONG(0, 5));
 	}

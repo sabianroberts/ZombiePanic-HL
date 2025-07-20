@@ -3929,7 +3929,7 @@ void CBloodSplat::Spray(void)
 		UTIL_MakeVectors(pev->angles);
 		UTIL_TraceLine(pev->origin, pev->origin + gpGlobals->v_forward * 128, ignore_monsters, pev->owner, &tr);
 
-		UTIL_BloodDecalTrace(&tr, BLOOD_COLOR_RED);
+		UTIL_BloodDecalTrace(&tr, BLOOD_COLOR_RED, true);
 	}
 	SetThink(&CBloodSplat::SUB_Remove);
 	pev->nextthink = gpGlobals->time + 0.1;
@@ -4068,7 +4068,6 @@ void CBasePlayer ::ForceClientDllUpdate(void)
 ImpulseCommands
 ============
 */
-extern float g_flWeaponCheat;
 
 void CBasePlayer::ImpulseCommands()
 {
@@ -4151,10 +4150,8 @@ void CBasePlayer::ImpulseCommands()
 void CBasePlayer::CheatImpulseCommands(int iImpulse)
 {
 #if !defined(HLDEMO_BUILD)
-	if (g_flWeaponCheat == 0.0)
-	{
-		return;
-	}
+	bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+	if ( !bIsCheatsEnabled ) return;
 
 	CBaseEntity *pEntity;
 	TraceResult tr;

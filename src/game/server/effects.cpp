@@ -1808,7 +1808,7 @@ void CBlood::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType
 
 		UTIL_TraceLine(start, start + forward * BloodAmount() * 2, ignore_monsters, NULL, &tr);
 		if (tr.flFraction != 1.0)
-			UTIL_BloodDecalTrace(&tr, Color());
+			UTIL_BloodDecalTrace(&tr, Color(), false);
 	}
 }
 

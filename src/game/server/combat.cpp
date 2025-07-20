@@ -711,7 +711,7 @@ void CGib ::BounceGibTouch(CBaseEntity *pOther)
 			vecSpot = pev->origin + Vector(0, 0, 8); //move up a bit, and trace down.
 			UTIL_TraceLine(vecSpot, vecSpot + Vector(0, 0, -24), ignore_monsters, ENT(pev), &tr);
 
-			UTIL_BloodDecalTrace(&tr, m_bloodColor);
+			UTIL_BloodDecalTrace(&tr, m_bloodColor, true);
 
 			m_cBloodDecals--;
 		}
@@ -747,7 +747,7 @@ void CGib ::StickyGibTouch(CBaseEntity *pOther)
 
 	UTIL_TraceLine(pev->origin, pev->origin + pev->velocity * 32, ignore_monsters, ENT(pev), &tr);
 
-	UTIL_BloodDecalTrace(&tr, m_bloodColor);
+	UTIL_BloodDecalTrace(&tr, m_bloodColor, false);
 
 	pev->velocity = tr.vecPlaneNormal * -1;
 	pev->angles = UTIL_VecToAngles(pev->velocity);
@@ -1644,7 +1644,7 @@ void CBaseEntity ::TraceBleed(float flDamage, Vector vecDir, TraceResult *ptr, i
 
 		if (Bloodtr.flFraction != 1.0)
 		{
-			UTIL_BloodDecalTrace(&Bloodtr, BloodColor());
+			UTIL_BloodDecalTrace(&Bloodtr, BloodColor(), false);
 		}
 	}
 }
@@ -1697,7 +1697,7 @@ void CBaseMonster ::MakeDamageBloodDecal(int cCount, float flNoise, TraceResult 
 
 		if (Bloodtr.flFraction != 1.0)
 		{
-			UTIL_BloodDecalTrace(&Bloodtr, BloodColor());
+			UTIL_BloodDecalTrace(&Bloodtr, BloodColor(), false);
 		}
 	}
 }
