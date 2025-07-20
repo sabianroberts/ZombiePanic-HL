@@ -882,6 +882,9 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 			break;
 		}
 		SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_HEADSHOT );
+		// Now create some blood n' shit!
+		Vector headpos = pev->origin + Vector( 0, 0, 13 );
+		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
 	}
 	// Is our attacker valid, and also dead?
 	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
