@@ -108,9 +108,16 @@ void CCycler ::GenericCyclerSpawn(char *szModel, Vector vecMin, Vector vecMax)
 void CCycler ::Spawn()
 {
 	InitBoneControllers();
+#if defined( HL_CLIENT )
 	pev->solid = SOLID_SLIDEBOX;
-	pev->movetype = MOVETYPE_NONE;
 	pev->takedamage = DAMAGE_YES;
+#else
+	// Let's make sure cyclers is not solid on ZP1
+	pev->solid = SOLID_NOT;
+	// No damage
+	pev->takedamage = DAMAGE_NO;
+#endif
+	pev->movetype = MOVETYPE_NONE;
 	pev->effects = 0;
 	pev->health = 80000; // no cycler should die
 	pev->yaw_speed = 5;
