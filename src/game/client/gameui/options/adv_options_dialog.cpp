@@ -32,6 +32,9 @@ CAdvOptionsDialog::CAdvOptionsDialog(vgui2::Panel *pParent)
 {
 	LoadControlSettings(VGUI2_ROOT_DIR "resource/options/AdvancedOptions.res");
 
+	// So we don't become a tiny window
+	SetBounds(0, 0, 512, 406);
+
 	SetSizeable(false);
 	SetDeleteSelfOnClose(true);
 
