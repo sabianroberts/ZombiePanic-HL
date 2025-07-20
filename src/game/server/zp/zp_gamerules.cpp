@@ -569,7 +569,10 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 	{
 		const char *pSetCommand = CMD_ARGV(1);
 		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
-		if ( bIsCheatsEnabled && pSetCommand && pSetCommand[0] )
+		if ( bIsCheatsEnabled
+			&& pSetCommand
+			&& pSetCommand[0]
+			&& ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR || pPlayer->pev->team == ZP::TEAM_ZOMBIE ) )
 		{
 			if ( FStrEq( pSetCommand, "god" ) )
 			{
@@ -580,7 +583,7 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 					pPlayer->pev->flags |= FL_GODMODE;
 				UTIL_PrintConsole( UTIL_VarArgs( "God mode has been turned %s\n", (pPlayer->pev->flags & FL_GODMODE) ? "on" : "off" ), pPlayer );
 			}
-			else if ( FStrEq( pSetCommand, "noclip" ) && ( pPlayer->pev->team == ZP::TEAM_SURVIVIOR || pPlayer->pev->team == ZP::TEAM_ZOMBIE ) )
+			else if ( FStrEq( pSetCommand, "noclip" ) )
 			{
 				// If we have the godmode flag, remove it
 				if ( pPlayer->pev->movetype == MOVETYPE_NOCLIP )
@@ -588,6 +591,18 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 				else
 					pPlayer->pev->movetype = MOVETYPE_NOCLIP;
 				UTIL_PrintConsole( UTIL_VarArgs( "Noclip has been turned %s\n", (pPlayer->pev->movetype == MOVETYPE_NOCLIP) ? "on" : "off" ), pPlayer );
+			}
+			else if ( FStrEq( pSetCommand, "explode" ) )
+			{
+				entvars_t *pevWorld = VARS(INDEXENT(0));
+				pPlayer->TakeDamage(pevWorld, pevWorld, 10000, DMG_ALWAYSGIB);
+			}
+			else if ( FStrEq( pSetCommand, "die_h" ) )
+			{
+				entvars_t *pevWorld = VARS(INDEXENT(0));
+				pPlayer->m_LastHitGroup = 1; // HITGROUP_HEAD
+				pPlayer->TakeDamage(pevWorld, pevWorld, 10000, DMG_NEVERGIB);
+				pPlayer->m_LastHitGroup = 0;
 			}
 		}
 		return TRUE;
