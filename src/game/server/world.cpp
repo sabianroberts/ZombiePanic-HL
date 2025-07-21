@@ -224,6 +224,9 @@ void CDecal ::KeyValue(KeyValueData *pkvd)
 class CCorpse : public CBaseEntity
 {
 	virtual int ObjectCaps(void) { return FCAP_DONT_SAVE; }
+
+public:
+	void CreateBloodPool();
 };
 
 LINK_ENTITY_TO_CLASS(bodyque, CCorpse);
@@ -291,6 +294,11 @@ void CopyToBodyQue(entvars_t *pev)
 
 	UTIL_SetOrigin(pevHead, pev->origin);
 	UTIL_SetSize(pevHead, pev->mins, pev->maxs);
+
+	CCorpse *pDeadBody = (CCorpse *)GET_PRIVATE( g_pBodyQueueHead );
+	if ( pDeadBody )
+		pDeadBody->CreateBloodPool();
+
 	g_pBodyQueueHead = pevHead->owner;
 }
 
@@ -814,4 +822,13 @@ void CWorld ::KeyValue(KeyValueData *pkvd)
 	}
 	else
 		CBaseEntity::KeyValue(pkvd);
+}
+
+void CCorpse::CreateBloodPool()
+{
+	// Now create the large blood pool
+	TraceResult tr;
+	Vector vecSpot = pev->origin + Vector(0, 0, 8);
+	UTIL_TraceLine( vecSpot, pev->origin + Vector(0, 0, -136), ignore_monsters, ENT(pev), &tr );
+	UTIL_DecalTrace( &tr, DECAL_BLOODPOOL1 );
 }

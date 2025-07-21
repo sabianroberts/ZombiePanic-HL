@@ -887,10 +887,6 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 		// Now create some blood n' shit!
 		Vector headpos = pev->origin + Vector( 0, 0, 13 );
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
-		// Now create the large blood pool
-		TraceResult tr;
-		UTIL_TraceLine( pev->origin + Vector( 0, 0, 2 ), pev->origin - Vector( 0, 0, 25 ), ignore_monsters, ENT(pev), &tr );
-		UTIL_DecalTrace( &tr, DECAL_BLOODPOOL1 );
 	}
 	// Is our attacker valid, and also dead?
 	CBasePlayer *pKiller = (CBasePlayer *)CBaseEntity::Instance( pevAttacker );
