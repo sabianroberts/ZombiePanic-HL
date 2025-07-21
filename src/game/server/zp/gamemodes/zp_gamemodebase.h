@@ -30,6 +30,7 @@ public:
 	virtual void RestartRound() = 0;
 	virtual void OnPlayerDied(CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor) = 0;
 	virtual void OnPlayerSpawned(CBasePlayer *pPlayer) = 0;
+	virtual void OnPlayerDisconnected(CBasePlayer *pPlayer) = 0;
 	virtual WinState_e GetWinState() = 0;
 	virtual void SetWinState(WinState_e state) { }
 	virtual void GiveWeapons(CBasePlayer *pPlayer) = 0;
@@ -62,6 +63,7 @@ public:
 	virtual void GiveWeapons(CBasePlayer *pPlayer);
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor ) {}
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer );
+	virtual void OnPlayerDisconnected( CBasePlayer *pPlayer );
 	void UpdateClientTimer();
 
 protected:

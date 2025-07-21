@@ -259,6 +259,13 @@ void CBaseGameMode::OnPlayerSpawned( CBasePlayer *pPlayer )
 	UpdateClientTimer();
 }
 
+void CBaseGameMode::OnPlayerDisconnected(CBasePlayer *pPlayer)
+{
+	// We don't want the list to freak out, just delete this index.
+	RemoveFromList( pPlayer->entindex() );
+	// TODO: On round ongoing, make sure the player spawns in as zombie if they ragequit and come back.
+}
+
 void CBaseGameMode::UpdateClientTimer()
 {
 	float flTimeLimit = CVAR_GET_FLOAT( "mp_timelimit" ) * 60;
@@ -301,8 +308,6 @@ void CBaseGameMode::ShouldClearChoosenZombies()
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
 		if ( plr && WasAlreadyChoosenPreviously( plr, true ) )
 			iAmountChoosen++;
-		else
-			RemoveFromList( i );
 	}
 
 	// There are no left

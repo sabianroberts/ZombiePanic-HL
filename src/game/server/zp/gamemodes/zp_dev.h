@@ -16,6 +16,7 @@ protected:
 	virtual void RestartRound() {}
 	virtual void OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller, entvars_t *pInflictor ) {}
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer ) {}
+	virtual void OnPlayerDisconnected( CBasePlayer *pPlayer ) {}
 	virtual WinState_e GetWinState() { return WinState_e::State_None; }
 	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false ) { return false; }
 	virtual void ShouldClearChoosenZombies() {}
