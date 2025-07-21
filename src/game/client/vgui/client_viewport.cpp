@@ -510,6 +510,15 @@ void CClientViewport::MsgFunc_ValClass(const char *pszName, int iSize, void *pbu
 	// TODO: Class menu
 }
 
+void CClientViewport::MsgFunc_MouseFix(const char *pszName, int iSize, void *pbuf)
+{
+	// Fix the mouse!
+	// Quickly draw the scoreboard for one single frame, and then hide it, if we don't already have it open.
+	if ( IsScoreBoardVisible() ) return;
+	ShowScoreBoard();
+	HideScoreBoard();
+}
+
 void CClientViewport::MsgFunc_TeamNames(const char *pszName, int iSize, void *pbuf)
 {
 	BEGIN_READ(pbuf, iSize);

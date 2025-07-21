@@ -325,6 +325,7 @@ void CHud::Init(void)
 
 	EngineClientCmd("alias zpecial \"append _zpecial\"");
 
+	HookViewportMessage<&CClientViewport::MsgFunc_MouseFix>("MouseFix");
 	HookViewportMessage<&CClientViewport::MsgFunc_ValClass>("ValClass");
 	HookViewportMessage<&CClientViewport::MsgFunc_TeamNames>("TeamNames");
 	HookViewportMessage<&CClientViewport::MsgFunc_Feign>("Feign");

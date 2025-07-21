@@ -151,6 +151,7 @@ private:
 public:
 	// Messages
 	void MsgFunc_ValClass(const char *pszName, int iSize, void *pbuf);
+	void MsgFunc_MouseFix(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_TeamNames(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_Feign(const char *pszName, int iSize, void *pbuf);
 	void MsgFunc_Detpack(const char *pszName, int iSize, void *pbuf);

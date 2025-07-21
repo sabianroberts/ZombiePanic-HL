@@ -231,6 +231,7 @@ int gmsgObjective = 0;
 int gmsgAchievement = 0;
 int gmsgAchEarned = 0;
 int gmsgRoundTime = 0;
+int gmsgMouseFix = 0;
 
 const char *const gCustomMessages[] = {
 	"IconInfo",
@@ -312,6 +313,7 @@ void LinkUserMessages(void)
 	gmsgAchievement = REG_USER_MSG("GiveAch", -1);
 	gmsgAchEarned = REG_USER_MSG("AchEarn", -1);
 	gmsgRoundTime = REG_USER_MSG("RndTime", -1);
+	gmsgMouseFix = REG_USER_MSG("MouseFix", -1);
 }
 
 LINK_ENTITY_TO_CLASS(player, CBasePlayer);
@@ -3659,6 +3661,11 @@ void CBasePlayer::Spawn(void)
 
 	// Clear it
 	ShouldClearSpawnChecks(this, nullptr);
+
+	// Fix the mouse bugging out
+	// Probably from the chat and/or the scoreboard?
+	MESSAGE_BEGIN(MSG_ONE, gmsgMouseFix, NULL, pev);
+	MESSAGE_END();
 }
 
 void CBasePlayer ::Precache(void)
