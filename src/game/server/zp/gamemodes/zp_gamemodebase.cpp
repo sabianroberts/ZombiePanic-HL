@@ -320,12 +320,12 @@ void CBaseGameMode::ShouldClearChoosenZombies()
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-		if ( plr && WasAlreadyChoosenPreviously( plr, true ) )
+		if ( plr && plr->IsConnected() )
 			iAmountChoosen++;
 	}
 
 	// There are no left
-	if ( iAmountChoosen >= m_LastChoosenZombies.size() )
+	if ( m_LastChoosenZombies.size() >= iAmountChoosen )
 		m_LastChoosenZombies.clear();
 }
 
