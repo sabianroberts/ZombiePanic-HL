@@ -3053,6 +3053,100 @@ pt_end:
 #endif
 }
 
+struct PlayerLastSpawnPoint
+{
+	int Player;
+	int TeamID;
+	std::vector<int> Spawns;
+};
+static std::vector<PlayerLastSpawnPoint *> m_PlayerSpawnList;
+PlayerLastSpawnPoint *GrabLastSpawn( CBaseEntity *pPlayer )
+{
+	for ( size_t i = 0; i < m_PlayerSpawnList.size(); i++ )
+	{
+		PlayerLastSpawnPoint *found = m_PlayerSpawnList[i];
+		if ( found->Player == pPlayer->entindex() )
+			return found;
+	}
+	PlayerLastSpawnPoint *item = new PlayerLastSpawnPoint;
+	item->Player = pPlayer->entindex();
+	item->TeamID = pPlayer->pev->team;
+	m_PlayerSpawnList.push_back( item );
+	return item;
+}
+
+// Called from zp_gamerules.cpp
+void RemovePlayerLastSpawnPointData( CBasePlayer *pPlayer )
+{
+	PlayerLastSpawnPoint *found = nullptr;
+	int y = -1;
+	for ( size_t i = 0; i < m_PlayerSpawnList.size(); i++ )
+	{
+		found = m_PlayerSpawnList[i];
+		if ( found->Player == pPlayer->entindex() )
+		{
+			y = i;
+			break;
+		}
+	}
+	if ( y == -1 ) return;
+	if ( found )
+		delete found;
+	found = nullptr;
+	m_PlayerSpawnList.erase( m_PlayerSpawnList.begin() + y );
+}
+
+bool FoundSpawnPoint( PlayerLastSpawnPoint *item, CBaseEntity *pSpot )
+{
+	for ( size_t i = 0; i < item->Spawns.size(); i++ )
+	{
+		int found = item->Spawns[i];
+		if ( found == pSpot->entindex() )
+			return true;
+	}
+	return false;
+}
+
+bool IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot)
+{
+	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
+	return !FoundSpawnPoint(item, pSpot);
+}
+
+void ShouldClearSpawnChecks(CBaseEntity* pPlayer, CBaseEntity *pSpot)
+{
+	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
+	bool bShouldClearSpawns = false;
+
+	// Only used after we found a valid spawn.
+	// Fallback spawns are ignored.
+	if ( pSpot )
+	{
+		int iSpawnPoints = 0;
+		string_t strCheck = pSpot->pev->classname;
+		CBaseEntity *pEnt = UTIL_FindEntityByClassname(NULL, STRING(strCheck));
+
+		// Check if we have this spawn in our list!
+		while (NULL != pEnt)
+		{
+			iSpawnPoints++;
+			pEnt = UTIL_FindEntityByClassname(pEnt, STRING(strCheck));
+		}
+
+		// We found way more or equal to our size value, clear our spawns!
+		if (item->Spawns.size() >= iSpawnPoints)
+			bShouldClearSpawns = true;
+	}
+
+	// Not on the same team anymore? Clear it!
+	if ( item->TeamID != pPlayer->pev->team )
+		bShouldClearSpawns = true;
+
+	// Clear our spawns!
+	if ( bShouldClearSpawns )
+		item->Spawns.clear();
+}
+
 // checks if the spot is clear of players
 static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *pSpot, bool bIgnoreTrace)
 {
@@ -3067,6 +3161,10 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 	{
 		return SpawnPointValidity::NonValid;
 	}
+
+	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
+	if ( FoundSpawnPoint( item, pSpot ) )
+		return SpawnPointValidity::NonValid;
 
 	if ( bIgnoreTrace )
 	{
@@ -3364,6 +3462,13 @@ static CBaseEntity *EntSelectSpawnPointZP(CBaseEntity *pPlayer)
 	if (spotInfos[take].nValidity == SpawnPointValidity::HasPlayers)
 		ClearSpawn(spotInfos[take].pSpot, pPlayer->edict());
 
+	// Make sure we add the spawn!
+	PlayerLastSpawnPoint *item = GrabLastSpawn(pPlayer);
+	item->Spawns.push_back( spotInfos[take].pSpot->entindex() );
+
+	// We hit the limit? Clear it!
+	ShouldClearSpawnChecks(pPlayer, spotInfos[take].pSpot);
+
 	return spotInfos[take].pSpot;
 }
 
@@ -3547,6 +3652,13 @@ void CBasePlayer::Spawn(void)
 	m_flSuicideTimer = -1;
 
 	g_pGameRules->PlayerSpawn(this);
+
+	// Make sure to always update it!
+	PlayerLastSpawnPoint *item = GrabLastSpawn(this);
+	item->TeamID = pev->team;
+
+	// Clear it
+	ShouldClearSpawnChecks(this, nullptr);
 }
 
 void CBasePlayer ::Precache(void)

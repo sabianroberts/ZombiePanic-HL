@@ -698,6 +698,20 @@ void CZombiePanicGameRules::OnWeaponGive( CBasePlayer *pPlayer, const char *szIt
 	pPlayer->GiveNamedItem( szItem );
 }
 
+extern void RemovePlayerLastSpawnPointData( CBasePlayer *pPlayer );
+
+void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
+{
+	CBasePlayer *pPlayer = (CBasePlayer *)CBaseEntity::Instance(pClient);
+	if ( pPlayer )
+	{
+		RemovePlayerLastSpawnPointData( pPlayer );
+		m_pGameMode->OnPlayerDisconnected( pPlayer );
+	}
+
+	BaseClass::ClientDisconnected( pClient );
+}
+
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)
 {
 	int iTeam = pPlayer->pev->team;

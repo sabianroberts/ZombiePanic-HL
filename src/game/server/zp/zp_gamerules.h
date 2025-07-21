@@ -53,6 +53,8 @@ public:
 
 	void OnWeaponGive( CBasePlayer *pPlayer, const char *szItem );
 
+	void ClientDisconnected(edict_t *pClient) override;
+
 private:
 	void SetPlayerModel(CBasePlayer *pPlayer);
 
