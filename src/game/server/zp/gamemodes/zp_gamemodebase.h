@@ -44,6 +44,10 @@ public:
 	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false ) = 0;
 	virtual void ShouldClearChoosenZombies() = 0;
 
+	// Did the player leave mid round?
+	// If true, we will respawn as a zombie if they rejoin back.
+	virtual bool HasLeftMidRound( CBasePlayer *pPlayer ) { return false; }
+
 protected:
 	float m_flRoundTime = -1;
 
@@ -66,6 +70,8 @@ public:
 	virtual void OnPlayerDisconnected( CBasePlayer *pPlayer );
 	void UpdateClientTimer();
 
+	bool HasLeftMidRound( CBasePlayer *pPlayer ) override;
+
 protected:
 	float m_flRoundBeginsIn;
 	float m_flLastZombieCheck;
@@ -77,6 +83,7 @@ protected:
 	void ShouldClearChoosenZombies();
 
 private:
+	std::vector<int> m_LeftMidRoundList;
 	struct LastChoosenZombie
 	{
 		// This is an std::string instead of uint64,

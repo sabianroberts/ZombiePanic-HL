@@ -491,11 +491,14 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 					m_Volunteers.push_back( pPlayer->entindex() );
 			}
 			bool bLateJoin = ( m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundHasBegun ) ? true : false;
-			if ( bLateJoin && m_flRoundJustBegun - gpGlobals->time > 0 )
+			if ( bLateJoin
+				&& m_flRoundJustBegun - gpGlobals->time > 0
+				&& !m_pGameMode->HasLeftMidRound( pPlayer ) )
 			{
 				bLateJoin = false;
 				pPlayer->m_bPunishLateJoiner = true;
 			}
+
 			ChangePlayerTeam(pPlayer, ZP::Teams[ bLateJoin ? ZP::TEAM_ZOMBIE : ZP::TEAM_SURVIVIOR], FALSE, FALSE);
 			pPlayer->RemoveAllItems( TRUE );
 			pPlayer->StopWelcomeCam();

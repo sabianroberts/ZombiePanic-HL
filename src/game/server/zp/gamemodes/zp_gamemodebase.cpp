@@ -172,6 +172,8 @@ void CBaseGameMode::RestartRound()
 	SetWinState( WinState_e::State_None );
 	m_bAllSurvivorsDead = false;
 	m_bTimeRanOut = false;
+	// New round, clear it.
+	m_LeftMidRoundList.clear();
 	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
 	WRITE_SHORT( GetRoundState() );
 	MESSAGE_END();
@@ -263,7 +265,9 @@ void CBaseGameMode::OnPlayerDisconnected(CBasePlayer *pPlayer)
 {
 	// We don't want the list to freak out, just delete this index.
 	RemoveFromList( pPlayer->entindex() );
-	// TODO: On round ongoing, make sure the player spawns in as zombie if they ragequit and come back.
+	// Player left mid round, add them to the list!!
+	if ( GetRoundState() == ZP::RoundState_RoundHasBegun )
+		m_LeftMidRoundList.push_back( pPlayer->entindex() );
 }
 
 void CBaseGameMode::UpdateClientTimer()
@@ -274,6 +278,16 @@ void CBaseGameMode::UpdateClientTimer()
 	WRITE_FLOAT( m_flRoundTime );
 	WRITE_SHORT( time_remaining );
 	MESSAGE_END();
+}
+
+bool CBaseGameMode::HasLeftMidRound( CBasePlayer *pPlayer )
+{
+	for ( size_t i = 0; i < m_LeftMidRoundList.size(); i++ )
+	{
+		if ( m_LeftMidRoundList[i] == pPlayer->entindex() )
+			return true;
+	}
+	return false;
 }
 
 bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly )
