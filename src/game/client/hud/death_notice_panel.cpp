@@ -241,6 +241,7 @@ CHud::RegisteredIcon CHudDeathNoticePanel::GetFlagIcon( int flags )
 	else if ( ( flags & PLR_DEATH_FLAG_GIBBED ) != 0 ) return gHUD.GetRegisteredIcon( "d_gibbed" );
 	else if ( ( flags & PLR_DEATH_FLAG_FELL ) != 0 ) return gHUD.GetRegisteredIcon( "d_fell" );
 	else if ( ( flags & PLR_DEATH_FLAG_BEYOND_GRAVE ) != 0 ) return gHUD.GetRegisteredIcon( "d_grave" );
+	else if ( ( flags & PLR_DEATH_FLAG_TEAMKILLER ) != 0 ) return gHUD.GetRegisteredIcon( "d_teamkill" );
 	return CHud::RegisteredIcon();
 }
 

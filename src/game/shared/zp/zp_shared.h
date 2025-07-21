@@ -132,6 +132,7 @@ WeaponData GetWeaponSlotInfo( const char *szClassname );
 #define PLR_DEATH_FLAG_GIBBED			(1 << 1)			// Player got gibbed. Mmmm, free food
 #define PLR_DEATH_FLAG_FELL				(1 << 2)			// Player fell to their death. Good job
 #define PLR_DEATH_FLAG_BEYOND_GRAVE		(1 << 3)			// Player killed someone while already dead
+#define PLR_DEATH_FLAG_TEAMKILLER		(1 << 4)			// Player was a friend :(
 
 
 namespace ZP

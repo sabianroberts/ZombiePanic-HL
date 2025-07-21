@@ -738,22 +738,8 @@ void CZombiePanicGameRules::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller
 	if (pVictim && pKiller && pKiller->flags & FL_CLIENT)
 	{
 		CBasePlayer *pk = (CBasePlayer *)CBaseEntity::Instance(pKiller);
-
-		if (pk)
-		{
-			if ((pk != pVictim) && (PlayerRelationship(pVictim, pk) == GR_TEAMMATE))
-			{
-				MESSAGE_BEGIN(MSG_ALL, gmsgDeathMsg);
-				int iAttacker = ENTINDEX(ENT(pKiller));
-				WRITE_BYTE(iAttacker); // the killer
-				WRITE_BYTE(ENTINDEX(pVictim->edict())); // the victim
-				WRITE_BYTE(pVictim->GetBestKillAssist(iAttacker)); // the best kill assist
-				WRITE_SHORT(pVictim->m_iDeathFlags); // the death flag
-				WRITE_STRING("teammate"); // flag this as a teammate kill
-				MESSAGE_END();
-				return;
-			}
-		}
+		if (pk && (pk != pVictim) && (PlayerRelationship(pVictim, pk) == GR_TEAMMATE))
+			pVictim->m_iDeathFlags |= PLR_DEATH_FLAG_TEAMKILLER;
 	}
 
 	BaseClass::DeathNotice(pVictim, pKiller, pevInflictor);
