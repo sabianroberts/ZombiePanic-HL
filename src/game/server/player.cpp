@@ -887,7 +887,7 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 		CGib::SpawnStickyGibs( pev, headpos, RANDOM_LONG( 4, 8 ) );
 		// Now create the large blood pool
 		TraceResult tr;
-		UTIL_TraceLine( headpos, pev->origin - Vector( 0, 0, 5 ), ignore_monsters, ENT(pev), &tr );
+		UTIL_TraceLine( pev->origin + Vector( 0, 0, 2 ), pev->origin - Vector( 0, 0, 25 ), ignore_monsters, ENT(pev), &tr );
 		UTIL_DecalTrace( &tr, DECAL_BLOODPOOL1 );
 	}
 	// Is our attacker valid, and also dead?
@@ -4331,8 +4331,16 @@ int CBasePlayer::AddPlayerItem(CBasePlayerItem *pItem)
 			char *szAutoPickup = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "auto_switch" );
 			if ( szAutoPickup && szAutoPickup[0] && !m_bJustSpawned )
 			{
+				bool bRet = m_pActiveItem ? true : false;
+				if ( m_pActiveItem )
+				{
+					CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)m_pActiveItem;
+					// Force a switch.
+					if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) bRet = false;
+				}
+
 				// If 0, then do not auto switch to the weapon
-				if ( FStrEq( szAutoPickup, "0" ) ) return TRUE;
+				if ( FStrEq( szAutoPickup, "0" ) && bRet ) return TRUE;
 			}
 			SwitchWeapon(pItem);
 			m_bJustSpawned = false;
