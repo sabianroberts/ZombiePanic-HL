@@ -16,6 +16,10 @@ class CThrowableSatchelCharge : public CGrenade
 	void EXPORT SatchelThink(void);
 	void EXPORT SatchelUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
+#ifndef CLIENT_DLL
+	void IEDExplode();
+#endif
+
 public:
 	void Deactivate(void);
 	void DisallowPickupFor( float flDisallow ) { m_flDisallowPickup = gpGlobals->time + flDisallow; }
