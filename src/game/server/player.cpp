@@ -3514,7 +3514,11 @@ void CBasePlayer::Spawn(void)
 	m_bConnected = TRUE;
 
 	m_iDeathFlags = 0;
-	m_bInZombieVision = false;
+	char *szKeepZVision = g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( edict()), "keep_zvision" );
+	if ( szKeepZVision && szKeepZVision[0] )
+		m_bInZombieVision = true;
+	else
+		m_bInZombieVision = false;
 	m_bBuddhaMode = false;
 
 	// We just spawned, allow auto weapon switch

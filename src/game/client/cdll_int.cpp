@@ -67,6 +67,14 @@ static void UpdateAutoSwitchState()
 	gEngfuncs.PlayerInfo_SetValueForKey( "auto_switch", cl_autopickup.GetString() );
 }
 
+static int s_bKeepZVision = -1;
+ConVar cl_keepzombovision( "cl_keepzombovision", "1", FCVAR_BHL_ARCHIVE );
+static void UpdateZomboVision()
+{
+	s_bKeepZVision = cl_keepzombovision.GetInt();
+	gEngfuncs.PlayerInfo_SetValueForKey( "keep_zvision", cl_keepzombovision.GetString() );
+}
+
 /**
  * Checks that game is launched with working directory set to engine path.
  */
@@ -300,6 +308,7 @@ int CL_DLLEXPORT HUD_VidInit(void)
 	CResults::Get().Stop();
 	GetClientVoiceMgr()->VidInit();
 	s_bAutoPickupState = -1;
+	s_bKeepZVision = -1;
 
 	return 1;
 }
@@ -328,6 +337,7 @@ void CL_DLLEXPORT HUD_Init(void)
 	EngFuncs_UpdateHooks();
 	console::HudPostInit();
 	s_bAutoPickupState = -1;
+	s_bKeepZVision = -1;
 }
 
 /*
@@ -384,6 +394,7 @@ void CL_DLLEXPORT HUD_Reset(void)
 
 	gHUD.VidInit();
 	s_bAutoPickupState = -1;
+	s_bKeepZVision = -1;
 }
 
 /*
@@ -405,6 +416,9 @@ void CL_DLLEXPORT HUD_Frame(double time)
 
 	if ( s_bAutoPickupState != cl_autopickup.GetInt() )
 		UpdateAutoSwitchState();
+
+	if ( s_bKeepZVision != cl_keepzombovision.GetInt() )
+		UpdateZomboVision();
 }
 
 /*
