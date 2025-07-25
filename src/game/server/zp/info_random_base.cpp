@@ -5,6 +5,41 @@
 #include "player.h"
 #include "zp/info_random_base.h"
 
+// for std::vector random_shuffle
+#include <iterator>
+#include <random>
+#include <algorithm>
+
+struct PossibleRandomSpawnLocation
+{
+	int EntIndex;
+	ItemType Type;
+};
+static std::vector<PossibleRandomSpawnLocation> s_RandomSpawnLocations;
+static void SpawnItems( const ItemType &nType )
+{
+	for ( size_t i = 0; i < s_RandomSpawnLocations.size(); i++ )
+	{
+		PossibleRandomSpawnLocation SpawnLoc = s_RandomSpawnLocations[i];
+		if ( SpawnLoc.Type != nType ) continue;
+		edict_t *pEdict = INDEXENT( SpawnLoc.EntIndex );
+		if ( pEdict && !pEdict->free )
+		{
+			CRandomItemBase *pSpawner = (CRandomItemBase *)CBaseEntity::Instance( pEdict );
+			if ( pSpawner )
+				pSpawner->SpawnItem();
+		}
+	}
+}
+static void AddSpawnItem( const ItemType &nType, CBaseEntity *pEntity )
+{
+	if ( !pEntity ) return;
+	PossibleRandomSpawnLocation item;
+	item.EntIndex = pEntity->entindex();
+	item.Type = nType;
+	s_RandomSpawnLocations.push_back( item );
+}
+
 struct DebugSpawnList
 {
 	std::string Classname;
@@ -137,7 +172,7 @@ static void CheckCurrentPlayers()
 	int nPlayers = s_iCurrentPlayerAmount;
 	if ( nPlayers >= 18 )
 	{
-		nAmmoToSpawn[0] = 3; // 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 12; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 8; // 1 - ammo_mp5clip
 		nAmmoToSpawn[2] = 4; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 4; // 3 - ammo_buckshot
@@ -156,7 +191,7 @@ static void CheckCurrentPlayers()
 	}
 	else if ( nPlayers >= 15 )
 	{
-		nAmmoToSpawn[0] = 6; // 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 10; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 5; // 1 - ammo_mp5clip
 		nAmmoToSpawn[2] = 3; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 3; // 3 - ammo_buckshot
@@ -175,7 +210,7 @@ static void CheckCurrentPlayers()
 	}
 	else if ( nPlayers >= 12 )
 	{
-		nAmmoToSpawn[0] = 6; // 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 9; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 5; // 1 - ammo_mp5clip
 		nAmmoToSpawn[2] = 2; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 2; // 3 - ammo_buckshot
@@ -194,15 +229,15 @@ static void CheckCurrentPlayers()
 	}
 	else if ( nPlayers >= 8 )
 	{
-		nAmmoToSpawn[0] = 6; // 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 8; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 3; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 0; // 2 - ammo_556AR
+		nAmmoToSpawn[2] = 2; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 2; // 3 - ammo_buckshot
 		nAmmoToSpawn[4] = 3; // 4 - ammo_357
 
 		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
 		nWeaponToSpawn[1] = 2; // 1 - weapon_357
-		nWeaponToSpawn[2] = 0; // 2 - weapon_556ar
+		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
 		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 
@@ -213,7 +248,7 @@ static void CheckCurrentPlayers()
 	}
 	else if ( nPlayers >= 5 )
 	{
-		nAmmoToSpawn[0] = 5; // 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 7; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 2; // 1 - ammo_mp5clip
 		nAmmoToSpawn[2] = 0; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 1; // 3 - ammo_buckshot
@@ -232,7 +267,7 @@ static void CheckCurrentPlayers()
 	}
 	else if ( nPlayers >= 3 )
 	{
-		nAmmoToSpawn[0] = 4; // 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 7; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 0; // 1 - ammo_mp5clip
 		nAmmoToSpawn[2] = 0; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 0; // 3 - ammo_buckshot
@@ -251,7 +286,7 @@ static void CheckCurrentPlayers()
 	}
 	else
 	{
-		nAmmoToSpawn[0] = 4;	// 0 - ammo_9mmclip
+		nAmmoToSpawn[0] = 6;	// 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 0;	// 1 - ammo_mp5clip
 		nAmmoToSpawn[2] = 0;	// 2 - ammo_556AR
 		nAmmoToSpawn[3] = 0;	// 3 - ammo_buckshot
@@ -304,6 +339,7 @@ bool CRandomItemBase::IsLimited( SpawnList *item ) const
 void ZP::SpawnWeaponsFromRandomEntities()
 {
 	// Clear it
+	s_RandomSpawnLocations.clear();
 	s_SpawnedItems.clear();
 	for ( auto p : s_SpawnList )
 		delete p;
@@ -316,7 +352,7 @@ void ZP::SpawnWeaponsFromRandomEntities()
 	CRandomItemBase *pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_weapon" );
 	while ( pFind )
 	{
-		pFind->SpawnItem();
+		AddSpawnItem( ItemType::TypeWeapon, pFind );
 		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_weapon" );
 	}
 
@@ -324,7 +360,7 @@ void ZP::SpawnWeaponsFromRandomEntities()
 	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_ammo" );
 	while ( pFind )
 	{
-		pFind->SpawnItem();
+		AddSpawnItem( ItemType::TypeAmmo, pFind );
 		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_ammo" );
 	}
 
@@ -332,9 +368,17 @@ void ZP::SpawnWeaponsFromRandomEntities()
 	pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( nullptr, "info_random_item" );
 	while ( pFind )
 	{
-		pFind->SpawnItem();
+		AddSpawnItem( ItemType::TypeItem, pFind );
 		pFind = (CRandomItemBase *)UTIL_FindEntityByClassname( pFind, "info_random_item" );
 	}
+
+	std::random_device rd;
+	std::mt19937 g( rd() );
+	std::shuffle( s_RandomSpawnLocations.begin(), s_RandomSpawnLocations.end(), g );
+
+	SpawnItems( ItemType::TypeWeapon );
+	SpawnItems( ItemType::TypeItem );
+	SpawnItems( ItemType::TypeAmmo );
 
 	// Reset after use
 	for ( size_t i = 0; i < s_SpawnList.size(); i++ )
