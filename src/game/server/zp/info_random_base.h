@@ -8,30 +8,45 @@
 
 class CBasePlayer;
 
+enum ItemType
+{
+	TypeNone = 0,
+	TypeItem,
+	TypeAmmo,
+	TypeWeapon
+};
+
 struct SpawnList
 {
-	const char *Classname = nullptr;
-	int Limit = 0;
-	int PlayersRequired = 0;
+	char Classname[32];
+	int Limit = -1;
 	bool Full = false;
+	ItemType Type = ItemType::TypeNone;
+
+	// Empty string
+	SpawnList()
+	{
+		Classname[0] = 0;
+	}
+
+	// Creation
+	SpawnList( const char *szClassname, int iLimit, ItemType nSpawnType )
+	{
+		UTIL_strcpy( Classname, szClassname );
+		Limit = iLimit;
+		Full = false;
+		Type = nSpawnType;
+	}
 };
 
 class CRandomItemBase : public CPointEntity
 {
 	SET_BASECLASS( CPointEntity );
 public:
-	enum ItemType
-	{
-		TypeNone = 0,
-		TypeItem,
-		TypeAmmo,
-		TypeWeapon
-	};
-
 	void SpawnItem( void );
-	virtual const char *GetRandomClassname() const = 0;
+	string_t GetRandomClassname() const;
 	virtual ItemType GetType() const = 0;
-	bool IsLimited( SpawnList item ) const;
+	virtual bool IsLimited( SpawnList *item ) const;
 };
 
 namespace ZP
