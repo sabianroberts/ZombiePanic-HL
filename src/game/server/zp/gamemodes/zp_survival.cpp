@@ -103,7 +103,7 @@ bool ZPGameMode_Survival::HasNoRemainingZombies() const
 			if ( plr )
 			{
 				int iTeam = plr->pev->team;
-				if ( iTeam == ZP::TEAM_ZOMBIE && plr->IsAlive() )
+				if ( iTeam == ZP::TEAM_ZOMBIE && !plr->m_bNoLives )
 					iZombies++;
 			}
 		}
