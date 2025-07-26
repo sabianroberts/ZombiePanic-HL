@@ -27,8 +27,10 @@ add_sources(
 	options_hud.h
 	options_hud_colors.cpp
 	options_hud_colors.h
-	options_hud_root.cpp
-	options_hud_root.h
+	options_misc_root.cpp
+	options_misc_root.h
+	options_misc_general.cpp
+	options_misc_general.h
 	options_models.cpp
 	options_models.h
 	options_scoreboard.cpp

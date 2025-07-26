@@ -3,16 +3,18 @@
 #include <vgui_controls/PropertySheet.h>
 
 class CHudSubOptions;
+class CMiscSubOptions;
 class CHudSubOptionsColors;
 
-class CHudSubOptionsRoot : public vgui2::PropertySheet
+class CMiscSubOptionsRoot : public vgui2::PropertySheet
 {
 public:
-	DECLARE_CLASS_SIMPLE(CHudSubOptionsRoot, vgui2::PropertySheet);
+	DECLARE_CLASS_SIMPLE(CMiscSubOptionsRoot, vgui2::PropertySheet);
 
-	CHudSubOptionsRoot(vgui2::Panel *parent);
+	CMiscSubOptionsRoot(vgui2::Panel *parent);
 
 private:
+	CMiscSubOptions *m_pGeneral = nullptr;
 	CHudSubOptions *m_pOptions = nullptr;
 	CHudSubOptionsColors *m_pColors = nullptr;
 

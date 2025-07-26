@@ -41,9 +41,6 @@ CGeneralSubOptions::CGeneralSubOptions(vgui2::Panel *parent)
 	m_pMOTD = new CCvarCheckButton(this, "MOTD", "#ZP_AdvOptions_General_HTML", "cl_enable_html_motd");
 	m_pMOTDLabel = new vgui2::Label(this, "MOTDLabel", "#ZP_AdvOptions_General_HTML2");
 
-	m_pAutoSwitch = new CCvarCheckButton(this, "AutoSwitch", "#ZP_AdvOptions_General_AutoSwitch", "cl_autopickup");
-	m_pAutoSwitchLabel = new vgui2::Label(this, "AutoSwitchLabel", "#ZP_AdvOptions_General_AutoSwitch2");
-
 	m_pLogChat = new CCvarCheckButton(this, "LogChat", "#ZP_AdvOptions_General_LogChat", "results_log_chat");
 	m_pLogOther = new CCvarCheckButton(this, "LogOther", "#ZP_AdvOptions_General_LogOther", "results_log_other");
 	m_pAutoDemo = new CCvarCheckButton(this, "AutoDemo", "#ZP_AdvOptions_General_AutoDemo", "results_demo_autorecord");
@@ -82,7 +79,6 @@ void CGeneralSubOptions::OnResetData()
 	if (m_pMOTD->IsEnabled())
 		m_pMOTD->ResetData();
 
-	m_pAutoSwitch->ResetData();
 	m_pLogChat->ResetData();
 	m_pLogOther->ResetData();
 	m_pAutoDemo->ResetData();
@@ -98,7 +94,6 @@ void CGeneralSubOptions::OnApplyChanges()
 	if (m_pMOTD->IsEnabled())
 		m_pMOTD->ApplyChanges();
 
-	m_pAutoSwitch->ApplyChanges();
 	m_pLogChat->ApplyChanges();
 	m_pLogOther->ApplyChanges();
 	m_pAutoDemo->ApplyChanges();
