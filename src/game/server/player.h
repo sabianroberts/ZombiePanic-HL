@@ -433,6 +433,9 @@ public:
 
 	// Buddha mode
 	bool m_bBuddhaMode = false;
+
+	// Apply our correct model!
+	void SetTheCorrectPlayerModel();
 #endif
 
 	//-----------------------------------------------------

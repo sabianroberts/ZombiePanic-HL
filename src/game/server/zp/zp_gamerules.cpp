@@ -717,22 +717,8 @@ void CZombiePanicGameRules::ClientDisconnected(edict_t *pClient)
 
 void CZombiePanicGameRules::SetPlayerModel(CBasePlayer *pPlayer)
 {
-	int iTeam = pPlayer->pev->team;
-	g_engfuncs.pfnSetClientKeyValue(
-		pPlayer->entindex(),
-		g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ),
-		"model",
-	    iTeam == ZP::TEAM_ZOMBIE ? "undead" : "survivor"
-	);
-
-	if ( iTeam == ZP::TEAM_SURVIVIOR )
-		pPlayer->pev->maxspeed = ZP::MaxSpeeds[0];
-	else
-		pPlayer->pev->maxspeed = ZP::MaxSpeeds[1];
-
-	// Player models can have up to 5 random skins.
-	// Mostly used by the new "undead" model.
-	pPlayer->pev->skin = RANDOM_LONG( 0, 4 );
+	// Moved to this function instead.
+	pPlayer->SetTheCorrectPlayerModel();
 }
 
 //=========================================================

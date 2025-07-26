@@ -721,18 +721,18 @@ void CBasePlayer::PackDeadPlayerItems(void)
 			CBasePlayerItem *pPlayerItem = m_rgpPlayerItems[i];
 			while (pPlayerItem && iPW < MAX_WEAPONS)
 			{
-			CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
+				CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
 				bool bValidWeaponToDrop = true;
 				// Check if this is the crowbar, if so, do not pack it!
 				if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) || FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) )
 					bValidWeaponToDrop = false;
-			// If throwable, don't pack em up if they are active!
+				// If throwable, don't pack em up if they are active!
 				ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, false );
 				if ( throwablestate == ThrowableDropState::DELETE_ITEM || throwablestate == ThrowableDropState::DELETE_ITEM_AND_ACTIVE )
 					bValidWeaponToDrop = false;
 
 				if ( bValidWeaponToDrop )
-				rgpPackWeapons[iPW++] = pWeapon;
+					rgpPackWeapons[iPW++] = pWeapon;
 				pPlayerItem = pPlayerItem->m_pNext;
 			}
 		}
@@ -2069,6 +2069,26 @@ void CBasePlayer::NotifyOfEarnedAchivement( int eAchivement )
 	WRITE_SHORT( entindex() );
 	WRITE_SHORT( eAchivement );
 	MESSAGE_END();
+}
+
+void CBasePlayer::SetTheCorrectPlayerModel()
+{
+	int iTeam = pev->team;
+	g_engfuncs.pfnSetClientKeyValue(
+		entindex(),
+		g_engfuncs.pfnGetInfoKeyBuffer( edict() ),
+		"model",
+	    iTeam == ZP::TEAM_ZOMBIE ? "undead" : "survivor"
+	);
+
+	if ( iTeam == ZP::TEAM_SURVIVIOR )
+		pev->maxspeed = ZP::MaxSpeeds[0];
+	else
+		pev->maxspeed = ZP::MaxSpeeds[1];
+
+	// Player models can have up to 5 random skins.
+	// Mostly used by the new "undead" model.
+	pev->skin = RANDOM_LONG( 0, 4 );
 }
 
 #define CLIMB_SHAKE_FREQUENCY 22 // how many frames in between screen shakes when climbing
@@ -3666,6 +3686,11 @@ void CBasePlayer::Spawn(void)
 	// Probably from the chat and/or the scoreboard?
 	MESSAGE_BEGIN(MSG_ONE, gmsgMouseFix, NULL, pev);
 	MESSAGE_END();
+
+	// Fix the damn model,
+	// There is this weird, but very rare bug that can happen
+	// where the player (zombie specifically) uses the wrong model.
+	SetTheCorrectPlayerModel();
 }
 
 void CBasePlayer ::Precache(void)
@@ -5593,39 +5618,39 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 	if ( pWeapon->IsThrowable() )
 	{
 		if ( pWeapon->m_flStartThrow )
-	{
-		Vector angThrow = pev->v_angle + pev->punchangle;
-		if ( angThrow.x < 0 ) angThrow.x = -10 + angThrow.x * ((90 - 10) / 90.0);
-		else angThrow.x = -10 + angThrow.x * ((90 + 10) / 90.0);
+		{
+			Vector angThrow = pev->v_angle + pev->punchangle;
+			if ( angThrow.x < 0 ) angThrow.x = -10 + angThrow.x * ((90 - 10) / 90.0);
+			else angThrow.x = -10 + angThrow.x * ((90 + 10) / 90.0);
 
-		static float flMultiplier = 6.5f;
-		float flVel = (90 - angThrow.x) * flMultiplier;
-		if ( flVel > 1000 ) flVel = 1000;
+			static float flMultiplier = 6.5f;
+			float flVel = (90 - angThrow.x) * flMultiplier;
+			if ( flVel > 1000 ) flVel = 1000;
 
-		UTIL_MakeVectors( angThrow );
+			UTIL_MakeVectors( angThrow );
 
-		Vector vecSrc = pev->origin + pev->view_ofs + gpGlobals->v_forward * 16;
-		Vector vecThrow = gpGlobals->v_forward * flVel + pev->velocity;
+			Vector vecSrc = pev->origin + pev->view_ofs + gpGlobals->v_forward * 16;
+			Vector vecThrow = gpGlobals->v_forward * flVel + pev->velocity;
 
-		// alway explode 3 seconds after the pin was pulled
-		float time = pWeapon->m_flStartThrow - gpGlobals->time + 3.0;
-		if ( time < 0 ) time = 1.0;
+			// alway explode 3 seconds after the pin was pulled
+			float time = pWeapon->m_flStartThrow - gpGlobals->time + 3.0;
+			if ( time < 0 ) time = 1.0;
 
-		CGrenade::ShootTimed( pev, vecSrc, vecThrow, time );
+			CGrenade::ShootTimed( pev, vecSrc, vecThrow, time );
 
-		// Decrement
-		m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
-		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
-		return ThrowableDropState::IS_ACTIVE;
-	}
+			// Decrement
+			m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
+			if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
+			return ThrowableDropState::IS_ACTIVE;
+		}
 		else
-	{
+		{
 			// If not active, make sure we decrement it
 			// if we are droping it
-		if ( bOnDrop )
-			m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
-		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
-		return ThrowableDropState::NOT_ACTIVE_THROWABLE;
+			if ( bOnDrop )
+				m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
+			if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
+			return ThrowableDropState::NOT_ACTIVE_THROWABLE;
 		}
 	}
 	return ThrowableDropState::NOT_ACTIVE;
