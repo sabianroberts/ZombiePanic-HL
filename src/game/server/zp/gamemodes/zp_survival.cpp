@@ -62,7 +62,9 @@ void ZPGameMode_Survival::OnPlayerDied( CBasePlayer *pPlayer, entvars_t *pKiller
 			pPlayer->m_bNoLives = true;
 		bool bKillerIsZombie = ( pKiller && pKiller->team == ZP::TEAM_ZOMBIE ) ? true : false;
 		// We killed ourselves?
-		if ( pKiller == pInflictor ) bKillerIsZombie = true;
+		if ( pPlayer->pev == pKiller ) bKillerIsZombie = true;
+		// Not a client? (aka, died from the world/triggers
+		if ( !( pKiller->flags & FL_CLIENT ) ) bKillerIsZombie = true;
 		// Sorry, but you aren't allowed to reduce if
 		// killer is a zombie
 		if ( bKillerIsZombie ) return;
