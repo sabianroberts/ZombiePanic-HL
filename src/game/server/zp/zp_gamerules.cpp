@@ -120,7 +120,7 @@ void CZombiePanicGameRules ::Think(void)
 
 	last_time = time_remaining;
 
-	if ( eWinState >= IGameModeBase::WinState_e::State_Draw )
+	if ( eWinState >= IGameModeBase::WinState_e::State_Draw || m_pGameMode->GetRoundState() == ZP::RoundState::RoundState_RoundIsOver )
 	{
 		m_pGameMode->SetRoundState( ZP::RoundState::RoundState_RoundIsOver );
 		int iRoundLimit = (int)roundlimit.value;
