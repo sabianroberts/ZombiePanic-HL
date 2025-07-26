@@ -41,7 +41,8 @@ public:
 	virtual void OnRoundStateThink( ZP::RoundState state ) {};
 
 	// Was the player already choosen?
-	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false ) = 0;
+	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer ) = 0;
+	virtual void AddToChoosenList( CBasePlayer *pPlayer ) {}
 	virtual void ShouldClearChoosenZombies() = 0;
 
 	// Did the player leave mid round?
@@ -79,7 +80,8 @@ protected:
 	bool m_bAllSurvivorsDead = false;
 	bool m_bHasPlayersConnected = false;
 
-	bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false );
+	bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer );
+	void AddToChoosenList( CBasePlayer *pPlayer );
 	void ShouldClearChoosenZombies();
 
 private:

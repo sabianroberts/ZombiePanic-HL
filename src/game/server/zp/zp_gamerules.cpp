@@ -400,6 +400,7 @@ add_one_more_zombie:
 	{
 		ChangePlayerTeam( plr, ZP::Teams[ZP::TEAM_ZOMBIE], FALSE, FALSE );
 		plr->Spawn();
+		m_pGameMode->AddToChoosenList( plr );
 		iMoreRequired--;
 	}
 

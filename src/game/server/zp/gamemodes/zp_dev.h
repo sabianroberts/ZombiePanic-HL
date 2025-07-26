@@ -18,7 +18,7 @@ protected:
 	virtual void OnPlayerSpawned( CBasePlayer *pPlayer ) {}
 	virtual void OnPlayerDisconnected( CBasePlayer *pPlayer ) {}
 	virtual WinState_e GetWinState() { return WinState_e::State_None; }
-	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly = false ) { return false; }
+	virtual bool WasAlreadyChoosenPreviously( CBasePlayer *pPlayer ) { return false; }
 	virtual void ShouldClearChoosenZombies() {}
 	virtual void GiveWeapons(CBasePlayer *pPlayer) {}
 };

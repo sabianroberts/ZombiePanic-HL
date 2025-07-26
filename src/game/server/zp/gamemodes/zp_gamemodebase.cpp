@@ -290,7 +290,7 @@ bool CBaseGameMode::HasLeftMidRound( CBasePlayer *pPlayer )
 	return false;
 }
 
-bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVerifyOnly )
+bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer )
 {
 	const char *authId = GETPLAYERAUTHID( pPlayer->edict() );
 	if ( authId )
@@ -299,18 +299,19 @@ bool CBaseGameMode::WasAlreadyChoosenPreviously( CBasePlayer *pPlayer, bool bVer
 		{
 			LastChoosenZombie choosen = m_LastChoosenZombies[i];
 			if ( FStrEq( choosen.AuthID.c_str(), authId ) )
-			{
 				return true;
-			}
-		}
-		if ( !bVerifyOnly )
-		{
-			LastChoosenZombie choosen;
-			choosen.AuthID = authId;
-			m_LastChoosenZombies.push_back( choosen );
 		}
 	}
 	return false;
+}
+
+void CBaseGameMode::AddToChoosenList( CBasePlayer *pPlayer )
+{
+	const char *authId = GETPLAYERAUTHID( pPlayer->edict() );
+	if ( !authId ) return;
+	LastChoosenZombie choosen;
+	choosen.AuthID = authId;
+	m_LastChoosenZombies.push_back( choosen );
 }
 
 void CBaseGameMode::ShouldClearChoosenZombies()
@@ -320,7 +321,7 @@ void CBaseGameMode::ShouldClearChoosenZombies()
 	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
 		CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
-		if ( plr && plr->IsConnected() )
+		if ( plr && plr->IsConnected() && ( !plr->IsObserver() || plr->pev->team == ZP::TEAM_OBSERVER ) )
 			iAmountChoosen++;
 	}
 
