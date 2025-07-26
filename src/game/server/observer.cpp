@@ -211,6 +211,9 @@ void CBasePlayer::Observer_FindNextPlayer(bool bReverse, bool bOverview)
 		// Don't spectate observers
 		if (pPlayer->IsObserver())
 			continue;
+		// Do not spectate those in Observer team
+		if ( pPlayer->pev->team == ZP::TEAM_OBSERVER )
+			continue;
 
 		m_hObserverTarget = pPlayer;
 		break;
