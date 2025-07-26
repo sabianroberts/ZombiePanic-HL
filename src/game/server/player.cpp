@@ -719,19 +719,19 @@ void CBasePlayer::PackDeadPlayerItems(void)
 		{
 			// there's a weapon here. Should I pack it?
 			CBasePlayerItem *pPlayerItem = m_rgpPlayerItems[i];
-
-			// Check if this is the crowbar, if so, do not pack it!
-			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) ) continue;
-			if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) ) continue;
-			CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
-			// You ain't allowed to drop shit.
-			if ( pWeapon->IsThrowable() && m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) continue;
-			// If throwable, don't pack em up if they are active!
-			ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, true );
-			if ( throwablestate == ThrowableDropState::IS_ACTIVE || throwablestate == ThrowableDropState::DELETE_ITEM_AND_ACTIVE ) continue;
-
 			while (pPlayerItem && iPW < MAX_WEAPONS)
 			{
+			CBasePlayerWeapon *pWeapon = (CBasePlayerWeapon *)pPlayerItem;
+				bool bValidWeaponToDrop = true;
+				// Check if this is the crowbar, if so, do not pack it!
+				if ( FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_crowbar" ) || FStrEq( STRING( pPlayerItem->pev->classname ), "weapon_swipe" ) )
+					bValidWeaponToDrop = false;
+			// If throwable, don't pack em up if they are active!
+				ThrowableDropState throwablestate = IsThrowableAndActive( pWeapon, false );
+				if ( throwablestate == ThrowableDropState::DELETE_ITEM || throwablestate == ThrowableDropState::DELETE_ITEM_AND_ACTIVE )
+					bValidWeaponToDrop = false;
+
+				if ( bValidWeaponToDrop )
 				rgpPackWeapons[iPW++] = pWeapon;
 				pPlayerItem = pPlayerItem->m_pNext;
 			}
@@ -5590,7 +5590,9 @@ void CBasePlayer::DropSelectedAmmo()
 
 CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWeapon *pWeapon, bool bOnDrop )
 {
-	if ( pWeapon->IsThrowable() && pWeapon->m_flStartThrow )
+	if ( pWeapon->IsThrowable() )
+	{
+		if ( pWeapon->m_flStartThrow )
 	{
 		Vector angThrow = pev->v_angle + pev->punchangle;
 		if ( angThrow.x < 0 ) angThrow.x = -10 + angThrow.x * ((90 - 10) / 90.0);
@@ -5616,13 +5618,15 @@ CBasePlayer::ThrowableDropState CBasePlayer::IsThrowableAndActive( CBasePlayerWe
 		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return ThrowableDropState::DELETE_ITEM_AND_ACTIVE;
 		return ThrowableDropState::IS_ACTIVE;
 	}
-	else if ( pWeapon->IsThrowable() )
+		else
 	{
-		// If not active, make sure we decrement it!
+			// If not active, make sure we decrement it
+			// if we are droping it
 		if ( bOnDrop )
 			m_rgAmmo[pWeapon->m_iPrimaryAmmoType]--;
 		if ( m_rgAmmo[pWeapon->m_iPrimaryAmmoType] == 0 ) return CBasePlayer::ThrowableDropState::DELETE_ITEM;
 		return ThrowableDropState::NOT_ACTIVE_THROWABLE;
+		}
 	}
 	return ThrowableDropState::NOT_ACTIVE;
 }
