@@ -250,13 +250,13 @@ static void CheckCurrentPlayers()
 	{
 		nAmmoToSpawn[0] = 7; // 0 - ammo_9mmclip
 		nAmmoToSpawn[1] = 2; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 0; // 2 - ammo_556AR
+		nAmmoToSpawn[2] = 2; // 2 - ammo_556AR
 		nAmmoToSpawn[3] = 1; // 3 - ammo_buckshot
 		nAmmoToSpawn[4] = 2; // 4 - ammo_357
 
 		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
 		nWeaponToSpawn[1] = 1; // 1 - weapon_357
-		nWeaponToSpawn[2] = 0; // 2 - weapon_556ar
+		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
 		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
 		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 
@@ -268,16 +268,16 @@ static void CheckCurrentPlayers()
 	else if ( nPlayers >= 3 )
 	{
 		nAmmoToSpawn[0] = 7; // 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 0; // 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 0; // 2 - ammo_556AR
-		nAmmoToSpawn[3] = 0; // 3 - ammo_buckshot
+		nAmmoToSpawn[1] = 1; // 1 - ammo_mp5clip
+		nAmmoToSpawn[2] = 1; // 2 - ammo_556AR
+		nAmmoToSpawn[3] = 1; // 3 - ammo_buckshot
 		nAmmoToSpawn[4] = 2; // 4 - ammo_357
 
 		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
 		nWeaponToSpawn[1] = 1; // 1 - weapon_357
-		nWeaponToSpawn[2] = 0; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 0; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 0; // 4 - weapon_shotgun
+		nWeaponToSpawn[2] = 1; // 2 - weapon_556ar
+		nWeaponToSpawn[3] = 1; // 3 - weapon_mp5
+		nWeaponToSpawn[4] = 1; // 4 - weapon_shotgun
 
 		nItemToSpawn[0] = 2; // 0 - item_healthkit
 		nItemToSpawn[1] = 1; // 1 - item_battery
@@ -287,16 +287,16 @@ static void CheckCurrentPlayers()
 	else
 	{
 		nAmmoToSpawn[0] = 6;	// 0 - ammo_9mmclip
-		nAmmoToSpawn[1] = 0;	// 1 - ammo_mp5clip
-		nAmmoToSpawn[2] = 0;	// 2 - ammo_556AR
+		nAmmoToSpawn[1] = 1;	// 1 - ammo_mp5clip
+		nAmmoToSpawn[2] = 1;	// 2 - ammo_556AR
 		nAmmoToSpawn[3] = 0;	// 3 - ammo_buckshot
-		nAmmoToSpawn[4] = 0;	// 4 - ammo_357
+		nAmmoToSpawn[4] = 1;	// 4 - ammo_357
 
 		nWeaponToSpawn[0] = 2;	// 0 - weapon_sig
-		nWeaponToSpawn[1] = 0;	// 1 - weapon_357
-		nWeaponToSpawn[2] = 0;	// 2 - weapon_556ar
-		nWeaponToSpawn[3] = 0;	// 3 - weapon_mp5
-		nWeaponToSpawn[4] = 0;	// 4 - weapon_shotgun
+		nWeaponToSpawn[1] = 1;	// 1 - weapon_357
+		nWeaponToSpawn[2] = 1;	// 2 - weapon_556ar
+		nWeaponToSpawn[3] = 1;	// 3 - weapon_mp5
+		nWeaponToSpawn[4] = 1;	// 4 - weapon_shotgun
 
 		nItemToSpawn[0] = 1;	// 0 - item_healthkit
 		nItemToSpawn[1] = 1;	// 1 - item_battery
