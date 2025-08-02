@@ -178,16 +178,16 @@ static void CheckCurrentPlayers()
 		nAmmoToSpawn[3] = 4; // 3 - ammo_buckshot
 		nAmmoToSpawn[4] = 4; // 4 - ammo_357
 
-		nWeaponToSpawn[0] = 2; // 0 - weapon_sig
-		nWeaponToSpawn[1] = 2; // 1 - weapon_357
-		nWeaponToSpawn[2] = 2; // 2 - weapon_556ar
-		nWeaponToSpawn[3] = 2; // 3 - weapon_mp5
-		nWeaponToSpawn[4] = 2; // 4 - weapon_shotgun
+		nWeaponToSpawn[0] = 3; // 0 - weapon_sig
+		nWeaponToSpawn[1] = 3; // 1 - weapon_357
+		nWeaponToSpawn[2] = 3; // 2 - weapon_556ar
+		nWeaponToSpawn[3] = 3; // 3 - weapon_mp5
+		nWeaponToSpawn[4] = 3; // 4 - weapon_shotgun
 
 		nItemToSpawn[0] = 3; // 0 - item_healthkit
 		nItemToSpawn[1] = 3; // 1 - item_battery
 		nItemToSpawn[2] = 3; // 2 - weapon_satchel
-		nItemToSpawn[3] = 3; // 3 - weapon_handgrenade
+		nItemToSpawn[3] = 4; // 3 - weapon_handgrenade
 	}
 	else if ( nPlayers >= 15 )
 	{
