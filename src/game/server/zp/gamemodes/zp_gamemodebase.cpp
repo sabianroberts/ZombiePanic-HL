@@ -177,6 +177,8 @@ void CBaseGameMode::RestartRound()
 	MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
 	WRITE_SHORT( GetRoundState() );
 	MESSAGE_END();
+	m_flRoundTime = -1;
+	UpdateClientTimer();
 }
 
 void CBaseGameMode::CheckZombieAmount()
