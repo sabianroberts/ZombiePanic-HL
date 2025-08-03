@@ -55,6 +55,8 @@ public:
 
 	void ClientDisconnected(edict_t *pClient) override;
 
+	BOOL FAllowMonsters( void ) override { return FALSE; }
+
 private:
 	void SetPlayerModel(CBasePlayer *pPlayer);
 
