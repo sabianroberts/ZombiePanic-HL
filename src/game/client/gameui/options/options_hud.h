@@ -34,7 +34,6 @@ private:
 	CCvarCheckButton *m_pCenterIdCvar = nullptr;
 	CCvarCheckButton *m_pRainbowCvar = nullptr;
 
-	CCVarComboBox *m_pTimerBox = nullptr;
 	CCVarComboBox *m_pScaleBox = nullptr;
 
 	MESSAGE_FUNC_PARAMS(OnSliderMoved, "SliderMoved", kv);
