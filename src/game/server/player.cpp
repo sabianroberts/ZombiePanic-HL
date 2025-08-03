@@ -711,6 +711,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 	iAmmoRules = g_pGameRules->DeadPlayerAmmo(this);
 
 	bool bInPanic = IsInPanic();
+	bool bHasItems = false;
 
 	// go through all of the weapons and make a list of the ones to pack
 	for (i = 0; i < MAX_ITEM_TYPES && iPW < MAX_WEAPONS; i++)
@@ -734,6 +735,7 @@ void CBasePlayer::PackDeadPlayerItems(void)
 				if ( bValidWeaponToDrop )
 					rgpPackWeapons[iPW++] = pWeapon;
 				pPlayerItem = pPlayerItem->m_pNext;
+				bHasItems = true;
 			}
 		}
 	}
@@ -745,8 +747,12 @@ void CBasePlayer::PackDeadPlayerItems(void)
 		{
 			// player has some ammo of this type.
 			iPackAmmo[iPA++] = i;
+			bHasItems = true;
 		}
 	}
+
+	// We have nothing to drop.
+	if ( !bHasItems ) return;
 
 	// create a box to pack the stuff into.
 	CWeaponBox *pWeaponBox = (CWeaponBox *)CBaseEntity::Create("weaponbox", pev->origin, pev->angles, edict());
@@ -2159,6 +2165,13 @@ void CBasePlayer::PreThink(void)
 	{
 		PlayerDeathThink();
 		return;
+	}
+
+	// Fix our player model bug
+	if ( m_flFixModelBug != -1 && m_flFixModelBug - gpGlobals->time <= 0 )
+	{
+		SetTheCorrectPlayerModel();
+		m_flFixModelBug = -1;
 	}
 
 	// So the correct flags get sent to client asap.
@@ -3691,6 +3704,8 @@ void CBasePlayer::Spawn(void)
 	// Fix the damn model,
 	// There is this weird, but very rare bug that can happen
 	// where the player (zombie specifically) uses the wrong model.
+	m_flFixModelBug = gpGlobals->time + 1.0f;
+
 	SetTheCorrectPlayerModel();
 }
 
