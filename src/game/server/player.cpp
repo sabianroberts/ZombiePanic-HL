@@ -332,10 +332,10 @@ void CBasePlayer ::Pain(bool bDrown)
 	{
 		switch (RANDOM_LONG(1, 4))
 		{
-			case 1: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning1.wav", 1, ATTN_NORM); break;
-			case 2: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning2.wav", 1, ATTN_NORM); break;
-			case 3: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning3.wav", 1, ATTN_NORM); break;
-			case 4: EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_drowning4.wav", 1, ATTN_NORM); break;
+			case 1: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning1.wav", 1, ATTN_NORM); break;
+			case 2: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning2.wav", 1, ATTN_NORM); break;
+			case 3: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning3.wav", 1, ATTN_NORM); break;
+			case 4: EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_drowning4.wav", 1, ATTN_NORM); break;
 		}
 	}
 	else
@@ -343,11 +343,11 @@ void CBasePlayer ::Pain(bool bDrown)
 		flRndSound = RANDOM_FLOAT(0, 1);
 
 		if (flRndSound <= 0.33)
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain5.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_pain5.wav", 1, ATTN_NORM);
 		else if (flRndSound <= 0.66)
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain6.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_pain6.wav", 1, ATTN_NORM);
 		else
-			EMIT_SOUND(ENT(pev), CHAN_VOICE, "player/pl_pain7.wav", 1, ATTN_NORM);
+			EMIT_SOUND(ENT(pev), CHAN_AUTO, "player/pl_pain7.wav", 1, ATTN_NORM);
 	}
 }
 
