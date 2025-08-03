@@ -2078,7 +2078,7 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 		entindex(),
 		g_engfuncs.pfnGetInfoKeyBuffer( edict() ),
 		"model",
-	    iTeam == ZP::TEAM_ZOMBIE ? "undead" : "survivor"
+	    iTeam == ZP::TEAM_SURVIVIOR ? "survivor" : "undead"
 	);
 
 	if ( iTeam == ZP::TEAM_SURVIVIOR )
@@ -3204,7 +3204,8 @@ static SpawnPointValidity IsSpawnPointValid(CBaseEntity *pPlayer, CBaseEntity *p
 				TraceResult tr;
 				UTIL_TraceLine( pSpot->Center(), ent->Center(), dont_ignore_monsters, pSpot->edict(), &tr );
 				if ( tr.flFraction != 1.0 && tr.pHit == ent->edict() )
-					return SpawnPointValidity::HasPlayers;
+					return SpawnPointValidity::NonValid;
+				return SpawnPointValidity::HasPlayers;
 			}
 		}
 	}
@@ -5804,6 +5805,7 @@ void CBasePlayer::DropUnuseableAmmo()
 
 void CBasePlayer::DoPanic()
 {
+	if ( !IsAlive() ) return;
 	if ( ZP::GetCurrentRoundState() < ZP::RoundState::RoundState_RoundHasBegun ) return;
 	if ( IsInPanic() ) return;
 	if ( !CanPanicSinceLastTime() ) return;
