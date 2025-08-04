@@ -733,9 +733,11 @@ void CBasePlayer::PackDeadPlayerItems(void)
 					bValidWeaponToDrop = false;
 
 				if ( bValidWeaponToDrop )
+				{
 					rgpPackWeapons[iPW++] = pWeapon;
+					bHasItems = true;
+				}
 				pPlayerItem = pPlayerItem->m_pNext;
-				bHasItems = true;
 			}
 		}
 	}
