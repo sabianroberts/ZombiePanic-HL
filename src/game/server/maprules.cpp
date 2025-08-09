@@ -655,6 +655,116 @@ void CGamePlayerHurt::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYP
 }
 
 //
+// CGameTimer / game_timer	-- Game Timer, a clone of logic_timer from Source Engine
+// Flag: Fire once
+// Flag: Reset on Fire
+
+#define SF_GAMETIMER_DISABLED (1<<0)
+
+class CGameTimer : public CRulePointEntity
+{
+public:
+	void KeyValue(KeyValueData *pkvd);
+	void Spawn(void);
+	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
+
+private:
+	void StartTimer();
+	void StopTimer();
+	void OnTimerThink();
+
+	bool m_bDisabled = false;
+	float m_flTime = -1;
+	float m_flMinTime = 0.5f;
+	float m_flMaxTime = 1.0f;
+	int m_iRetryAmount = 1;
+};
+
+LINK_ENTITY_TO_CLASS(game_timer, CGameTimer);
+
+void CGameTimer::Spawn(void)
+{
+	CRulePointEntity::Spawn();
+
+	if ( (pev->spawnflags & SF_GAMETIMER_DISABLED) )
+		m_bDisabled = true;
+	else
+		m_bDisabled = false;
+
+	if ( !m_bDisabled )
+		StartTimer();
+}
+
+void CGameTimer::KeyValue(KeyValueData *pkvd)
+{
+	if (FStrEq(pkvd->szKeyName, "time_min"))
+	{
+		m_flMinTime = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "time_max"))
+	{
+		m_flMaxTime = atof(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "amount"))
+	{
+		m_iRetryAmount = atoi(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else if (FStrEq(pkvd->szKeyName, "target"))
+	{
+		pev->target = ALLOC_STRING(pkvd->szValue);
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CRulePointEntity::KeyValue(pkvd);
+}
+
+void CGameTimer::StartTimer()
+{
+	m_flTime = gpGlobals->time + RANDOM_FLOAT( m_flMinTime, m_flMaxTime );
+	SetThink(&CGameTimer::OnTimerThink);
+	pev->nextthink = gpGlobals->time + 0.1f;
+}
+
+void CGameTimer::StopTimer()
+{
+	SetThink(NULL);
+}
+
+void CGameTimer::OnTimerThink()
+{
+	if ( m_flTime - gpGlobals->time <= 0 )
+	{
+		// Fire our target.
+		SUB_UseTargets( this, USE_TOGGLE, 0 );
+
+		if ( m_iRetryAmount == 0 )
+		{
+			StopTimer();
+			return;
+		}
+
+		if ( m_iRetryAmount > 0 )
+			m_iRetryAmount--;
+
+		StartTimer();
+	}
+	pev->nextthink = gpGlobals->time + 0.1f;
+}
+
+void CGameTimer::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
+{
+	if ( m_bDisabled )
+		StartTimer();
+	else
+		StopTimer();
+	// Toggle it
+	m_bDisabled = !m_bDisabled;
+}
+
+//
 // CGameCounter / game_counter	-- Counts events and fires target
 // Flag: Fire once
 // Flag: Reset on Fire
