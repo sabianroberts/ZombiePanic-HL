@@ -666,6 +666,7 @@ class CGameTimer : public CRulePointEntity
 public:
 	void KeyValue(KeyValueData *pkvd);
 	void Spawn(void);
+	void Restart(void);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 private:
@@ -685,6 +686,19 @@ LINK_ENTITY_TO_CLASS(game_timer, CGameTimer);
 void CGameTimer::Spawn(void)
 {
 	CRulePointEntity::Spawn();
+
+	if ( (pev->spawnflags & SF_GAMETIMER_DISABLED) )
+		m_bDisabled = true;
+	else
+		m_bDisabled = false;
+
+	if ( !m_bDisabled )
+		StartTimer();
+}
+
+void CGameTimer::Restart()
+{
+	StopTimer();
 
 	if ( (pev->spawnflags & SF_GAMETIMER_DISABLED) )
 		m_bDisabled = true;

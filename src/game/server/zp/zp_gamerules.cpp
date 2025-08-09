@@ -51,6 +51,8 @@ static const char *s_EntitiesRestarts[] = {
 	"info_objective",
 	"game_counter",
 	"game_counter_set",
+	"game_timer",
+	"path_track",
 	"", // END Marker
 };
 
@@ -558,17 +560,6 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		ZP::CheckHowManySpawnedItems( pPlayer );
 		return TRUE;
 	}
-	else if (FStrEq(pcmd, "buddha"))
-	{
-		// Toggle it on/off
-		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
-		if ( bIsCheatsEnabled )
-		{
-			pPlayer->m_bBuddhaMode = !pPlayer->m_bBuddhaMode;
-			UTIL_PrintConsole( UTIL_VarArgs( "Buddha mode has been turned %s\n", pPlayer->m_bBuddhaMode ? "on" : "off" ), pPlayer );
-		}
-		return TRUE;
-	}
 	else if (FStrEq(pcmd, "_set"))
 	{
 		const char *pSetCommand = CMD_ARGV(1);
@@ -586,6 +577,12 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 				else
 					pPlayer->pev->flags |= FL_GODMODE;
 				UTIL_PrintConsole( UTIL_VarArgs( "God mode has been turned %s\n", (pPlayer->pev->flags & FL_GODMODE) ? "on" : "off" ), pPlayer );
+			}
+			else if ( FStrEq( pSetCommand, "buddha" ) )
+			{
+				// If we have the godmode flag, remove it
+				pPlayer->m_bBuddhaMode = !pPlayer->m_bBuddhaMode;
+				UTIL_PrintConsole( UTIL_VarArgs( "Buddha mode has been turned %s\n", (pPlayer->m_bBuddhaMode) ? "on" : "off" ), pPlayer );
 			}
 			else if ( FStrEq( pSetCommand, "noclip" ) )
 			{

@@ -219,6 +219,12 @@ void CPathTrack ::Spawn(void)
 #endif
 }
 
+void CPathTrack::Restart(void)
+{
+	m_pnext = NULL;
+	Activate();
+}
+
 void CPathTrack::Activate(void)
 {
 	if (!FStringNull(pev->targetname)) // Link to next, and back-link

@@ -38,6 +38,7 @@ class CPathTrack : public CPointEntity
 {
 public:
 	void Spawn(void);
+	void Restart(void);
 	void Activate(void);
 	void KeyValue(KeyValueData *pkvd);
 
