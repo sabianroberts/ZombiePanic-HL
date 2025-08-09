@@ -28,6 +28,10 @@
 #include "appversion.h"
 #include "CBugfixedServer.h"
 
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
+
 // Version cvar
 // You can remove it, but remember that this will lower amount of people getting knowing about that HLSDK release.
 // And thus reducing good comments, suggestion and bugfixes.
@@ -1050,4 +1054,8 @@ void GameDLLInit(void)
 			}
 		}
 	}
+
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::ScriptFunctionCall( ScriptSystem::ScriptFunctionCall_t::GAMEDLL_INIT );
+#endif
 }

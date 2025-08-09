@@ -5,7 +5,7 @@
 #include "player.h"
 #include "zp/info_random_base.h"
 #ifdef SCRIPT_SYSTEM
-#include <scriptsystem/core.h>
+#include "core.h"
 #endif
 
 // for std::vector random_shuffle
@@ -157,6 +157,13 @@ string_t CRandomItemBase::GetRandomClassname() const
 	return ALLOC_STRING( item->Classname );
 }
 
+#ifdef SCRIPT_SYSTEM
+void OnScriptCallback( KeyValues *pData, AvailableScripts_t nScriptType )
+{
+	// TODO: Make AvailableScripts_t::Angelscript call this callback if the function was a success
+}
+#endif
+
 static int s_iCurrentPlayerAmount = 0;
 static void CheckCurrentPlayers()
 {
@@ -167,19 +174,18 @@ static void CheckCurrentPlayers()
 			s_iCurrentPlayerAmount++;
 	}
 
-	// TODO: Uncomment this once our script system is finished.
-	// And make sure to change these functions, since we need to call the spawn stuff from AS instead!
 #ifdef SCRIPT_SYSTEM
 	// Call our script system, and make sure we are calling Angelscript
 	// and setup our item stuff.
 	ScriptSystem::CallScript(
-		ScriptSystem::Scripts::Angelscript,
+		AvailableScripts_t::Angelscript,
 		OnScriptCallback,
 		"CalculatePlayerAmount",
 		s_iCurrentPlayerAmount,
 		MAKE_STRING( gpGlobals->mapname )
 	);
 #endif
+	// TODO: Put this under #else once AvailableScripts_t::Angelscript is complete.
 #define ItemSpawner s_SpawnList
 	int nAmmoToSpawn[5];
 	int nWeaponToSpawn[5];

@@ -55,6 +55,10 @@ CBaseEntity
 #include "monsterevent.h"
 #endif
 
+#ifdef SCRIPT_SYSTEM
+#include "KeyValues.h"
+#endif
+
 // C functions for external declarations that call the appropriate C++ methods
 
 #define CBASE_DLLEXPORT EXPORT
@@ -217,6 +221,9 @@ public:
 
 	// fundamental callbacks
 	void (CBaseEntity ::*m_pfnThink)(void);
+#ifdef SCRIPT_SYSTEM
+	void (CBaseEntity ::*m_pfnScriptCallback)(KeyValues *pData);
+#endif
 	void (CBaseEntity ::*m_pfnTouch)(CBaseEntity *pOther);
 	void (CBaseEntity ::*m_pfnUse)(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 	void (CBaseEntity ::*m_pfnBlocked)(CBaseEntity *pOther);
@@ -226,6 +233,13 @@ public:
 		if (m_pfnThink)
 			(this->*m_pfnThink)();
 	};
+#ifdef SCRIPT_SYSTEM
+	virtual void ScriptCallback(KeyValues *pData)
+	{
+		if (m_pfnScriptCallback)
+			(this->*m_pfnScriptCallback)(pData);
+	};
+#endif
 	virtual void Touch(CBaseEntity *pOther)
 	{
 		if (m_pfnTouch)
@@ -405,7 +419,10 @@ protected:
 
 #else
 
-#define SetThink(a)   m_pfnThink = static_cast<void (CBaseEntity::*)(void)>(a)
+#define SetThink(a) m_pfnThink = static_cast<void (CBaseEntity::*)(void)>(a)
+#ifdef SCRIPT_SYSTEM
+#define SetEntityScriptCallback(a) m_pfnScriptCallback = static_cast<void (CBaseEntity::*)(KeyValues * pData)>(a)
+#endif
 #define SetTouch(a)   m_pfnTouch = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(a)
 #define SetUse(a)     m_pfnUse = static_cast<void (CBaseEntity::*)(CBaseEntity * pActivator, CBaseEntity * pCaller, USE_TYPE useType, float value)>(a)
 #define SetBlocked(a) m_pfnBlocked = static_cast<void (CBaseEntity::*)(CBaseEntity *)>(a)
@@ -832,6 +849,7 @@ typedef struct _SelAmmo
 class CWorld : public CBaseEntity
 {
 public:
+	~CWorld();
 	void Spawn(void);
 	void Precache(void);
 	void OnWorldCreated();

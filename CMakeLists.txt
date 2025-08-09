@@ -385,6 +385,7 @@ set( GAME_COMMON_DEFINES
 
 set( GAME_COMMON_INCLUDE_PATHS
 	${CMAKE_CURRENT_SOURCE_DIR}/src/game/server
+	${CMAKE_CURRENT_SOURCE_DIR}/src/game/scriptsystem
 	${CMAKE_CURRENT_SOURCE_DIR}/src/game/shared
 	${CMAKE_CURRENT_SOURCE_DIR}/src/public
 	${CMAKE_CURRENT_SOURCE_DIR}/src/common
@@ -576,6 +577,8 @@ add_sources( "${GAME_COMMON_SRCS}" )
 
 # Add in the sources
 add_subdirectory( src/game/server )
+# Our script system, only used by the server side.
+add_subdirectory( src/game/scriptsystem )
 
 preprocess_sources()
 add_library( hl SHARED ${PREP_SRCS} )
@@ -593,6 +596,7 @@ target_compile_definitions( hl PRIVATE
 	${GAME_COMMON_DEFINES}
 	${SOURCE_SDK_DEFINES}
 	SERVER_DLL
+	SCRIPT_SYSTEM
 	MATHLIB_USE_C_ASSERT
 	MATHLIB_VECTOR_NONTRIVIAL
 )

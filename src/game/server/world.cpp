@@ -40,6 +40,10 @@
 #include <tier1/tier1.h>
 #include "../../source_sdk/tier2/KeyValuesCompat.h"
 
+#ifdef SCRIPT_SYSTEM
+#include "core.h"
+#endif
+
 static bool s_bHasLoadedLibs = false;
 
 extern CGraph WorldGraph;
@@ -509,6 +513,13 @@ LINK_ENTITY_TO_CLASS(worldspawn, CWorld);
 extern DLL_GLOBAL BOOL g_fGameOver;
 float g_flWeaponCheat;
 
+CWorld::~CWorld()
+{
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::ScriptFunctionCall( ScriptSystem::ScriptFunctionCall_t::LEVEL_SHUTDOWN );
+#endif
+}
+
 void CWorld ::Spawn(void)
 {
 	InitTier1Lib();
@@ -516,6 +527,10 @@ void CWorld ::Spawn(void)
 	g_fGameOver = FALSE;
 	Precache();
 	g_flWeaponCheat = CVAR_GET_FLOAT("sv_cheats"); // Is the impulse 101 command allowed?
+
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::ScriptFunctionCall( ScriptSystem::ScriptFunctionCall_t::LEVEL_INIT );
+#endif
 
 	SetThink(&CWorld::OnWorldCreated);
 	pev->nextthink = gpGlobals->time + 5.0f;
@@ -749,6 +764,10 @@ void CWorld::OnWorldCreated()
 	}
 
 	SetThink( NULL );
+
+#ifdef SCRIPT_SYSTEM
+	ScriptSystem::ScriptFunctionCall( ScriptSystem::ScriptFunctionCall_t::POST_LEVEL_INIT );
+#endif
 }
 
 //
