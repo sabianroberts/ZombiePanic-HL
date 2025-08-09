@@ -573,6 +573,11 @@ int CBasePlayer ::TakeDamage(entvars_t *pevInflictor, entvars_t *pevAttacker, fl
 		flBonus *= 2;
 	}
 
+	// Check the round state before we take any damage!
+	ZP::RoundState nRoundState = ZP::GetCurrentRoundState();
+	// Round isn't even going, don't allow any damage!
+	if ( nRoundState != ZP::RoundState::RoundState_RoundHasBegun ) return 0;
+
 	// Already dead
 	if (!IsAlive())
 		return 0;
