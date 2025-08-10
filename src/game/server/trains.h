@@ -67,6 +67,7 @@ public:
 
 	float m_length;
 	string_t m_altName;
+	string_t m_savedmsg;
 	CPathTrack *m_pnext;
 	CPathTrack *m_pprevious;
 	CPathTrack *m_paltpath;

@@ -222,11 +222,16 @@ void CPathTrack ::Spawn(void)
 void CPathTrack::Restart(void)
 {
 	m_pnext = NULL;
+	m_pprevious = NULL;
+	pev->message = m_savedmsg;
 	Activate();
 }
 
 void CPathTrack::Activate(void)
 {
+	if ( m_savedmsg == 0 )
+		m_savedmsg = pev->message;
+
 	if (!FStringNull(pev->targetname)) // Link to next, and back-link
 		Link();
 }
