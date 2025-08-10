@@ -46,6 +46,7 @@ static const char *s_EntitiesRestarts[] = {
 	"multisource",
 	"env_beam",
 	"env_laser",
+	"trigger_relay",
 	"trigger_auto",
 	"trigger_multiple",
 	"info_objective",

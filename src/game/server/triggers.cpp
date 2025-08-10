@@ -182,6 +182,7 @@ class CTriggerRelay : public CBaseDelay
 public:
 	void KeyValue(KeyValueData *pkvd);
 	void Spawn(void);
+	void Restart(void);
 	void Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
 	int ObjectCaps(void) { return CBaseDelay::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
@@ -192,6 +193,7 @@ public:
 
 private:
 	USE_TYPE triggerType;
+	bool m_bKilled;
 };
 LINK_ENTITY_TO_CLASS(trigger_relay, CTriggerRelay);
 
@@ -226,13 +228,20 @@ void CTriggerRelay::KeyValue(KeyValueData *pkvd)
 
 void CTriggerRelay::Spawn(void)
 {
+	m_bKilled = false;
+}
+
+void CTriggerRelay::Restart(void)
+{
+	m_bKilled = false;
 }
 
 void CTriggerRelay::Use(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value)
 {
+	if ( m_bKilled ) return;
 	SUB_UseTargets(this, triggerType, 0);
 	if (pev->spawnflags & SF_RELAY_FIREONCE)
-		UTIL_Remove(this);
+		m_bKilled = true;
 }
 
 //**********************************************************
