@@ -1340,10 +1340,11 @@ void CBasePlayer::PlayerDeathThink(void)
 		// will sometimes crash coming back from CBasePlayer::Killed() if they kill their owner because the
 		// player class sometimes is freed. It's safer to manipulate the weapons once we know
 		// we aren't calling into any of their code anymore through the player pointer.
-		if ( pev->team == ZP::TEAM_ZOMBIE )
-			RemoveAllItems( TRUE );
-		else
+		if ( pev->team == ZP::TEAM_SURVIVIOR )
 			PackDeadPlayerItems();
+
+		// Clear our items
+		RemoveAllItems( TRUE );
 	}
 
 	// Clear inclination came from client view
