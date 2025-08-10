@@ -321,8 +321,8 @@ void CBaseDoor::Spawn()
 void CBaseDoor::Restart()
 {
 	SetMovedir(pev);
-	m_toggle_state = TS_AT_BOTTOM;
 	DoorGoDown();
+	m_toggle_state = TS_AT_BOTTOM;
 
 	if (pev->spawnflags & SF_DOOR_USE_ONLY)
 		SetTouch(nullptr);
