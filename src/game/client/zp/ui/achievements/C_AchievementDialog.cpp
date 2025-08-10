@@ -21,10 +21,7 @@ enum
 {
 	CATEGORY_SHOWALL = 0,
 	CATEGORY_GENERAL,
-	CATEGORY_MAPS_HUM_OBJ,
-	CATEGORY_MAPS_HUM,
-	CATEGORY_MAPS_ZOM_OBJ,
-	CATEGORY_MAPS_ZOM,
+	CATEGORY_MAPS,
 	CATEGORY_KILLS,
 
 	MAX_CATEGORIES
@@ -32,6 +29,7 @@ enum
 
 enum EStats
 {
+	INVALID_STAT = -1,
 	ZP_KILLS_CROWBAR = 0,
 	ZP_KILLS_PISTOL,
 	ZP_KILLS_REVOLVER,
@@ -40,9 +38,77 @@ enum EStats
 	ZP_KILLS_SATCHEL,
 	ZP_KILLS_TNT,
 	ZP_KILLS_ZOMBIE,
+	ZP_FLEEESH,
+	ZP_ITS_A_MASSACRE,
+	ZP_PANIC_100,
+	ZP_PUMPUPSHOTGUN,
+	ZP_CHILDOFGRAVE,
+	ZP_KILLS_MP5,
 
 	STAT_MAX
 };
+
+struct StatData_t
+{
+	EStats ID;
+	const char *Name;
+	int32 Value;
+};
+
+#define _STAT_ID(id) { id, #id, 0 }
+StatData_t g_SteamStats[] =
+{
+	// INVALID STAT, MUST BE INDEX 0
+	_STAT_ID(INVALID_STAT),
+
+	_STAT_ID(ZP_KILLS_CROWBAR),
+	_STAT_ID(ZP_KILLS_PISTOL),
+	_STAT_ID(ZP_KILLS_REVOLVER),
+	_STAT_ID(ZP_KILLS_RIFLE),
+	_STAT_ID(ZP_KILLS_SHOTGUN),
+	_STAT_ID(ZP_KILLS_SATCHEL),
+	_STAT_ID(ZP_KILLS_TNT),
+	_STAT_ID(ZP_KILLS_ZOMBIE),
+	_STAT_ID(ZP_KILLS_MP5),
+	_STAT_ID(ZP_FLEEESH),
+	_STAT_ID(ZP_ITS_A_MASSACRE),
+	_STAT_ID(ZP_PANIC_100),
+	_STAT_ID(ZP_PUMPUPSHOTGUN),
+	_STAT_ID(ZP_CHILDOFGRAVE),
+};
+
+StatData_t GrabStat( EStats nID )
+{
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t stat = g_SteamStats[i];
+		if ( stat.ID == nID ) return stat;
+	}
+	return g_SteamStats[0];
+}
+
+void SetStat( EStats nID, int32 value )
+{
+	for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+	{
+		StatData_t &stat = g_SteamStats[i];
+		if ( stat.ID == nID )
+			stat.Value = value;
+	}
+}
+
+StatData_t GrabStat( const char *szName )
+{
+	if ( szName && szName[0] )
+	{
+		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+		{
+			StatData_t stat = g_SteamStats[i];
+			if ( FStrEq( stat.Name, szName ) ) return stat;
+		}
+	}
+	return g_SteamStats[0];
+}
 
 DialogAchievement_t g_DAchievements[] =
 {
@@ -50,17 +116,44 @@ DialogAchievement_t g_DAchievements[] =
 	_ACH_ID(KILLS_PISTOL,					CATEGORY_KILLS,			ZP_KILLS_PISTOL, 40),
 	_ACH_ID(KILLS_REVOLVER,					CATEGORY_KILLS,			ZP_KILLS_REVOLVER, 25),
 	_ACH_ID(KILLS_RIFLE,					CATEGORY_KILLS,			ZP_KILLS_RIFLE, 30),
+	_ACH_ID(KILLS_MP5,						CATEGORY_KILLS,			ZP_KILLS_MP5, 25),
 	_ACH_ID(KILLS_SHOTGUN,					CATEGORY_KILLS,			ZP_KILLS_SHOTGUN, 35),
 	_ACH_ID(KILLS_SATCHEL,					CATEGORY_KILLS,			ZP_KILLS_SATCHEL, 5),
 	_ACH_ID(KILLS_TNT,						CATEGORY_KILLS,			ZP_KILLS_TNT, 10),
 	_ACH_ID(KILLS_ZOMBIE,					CATEGORY_KILLS,			ZP_KILLS_ZOMBIE, 20),
 	_ACH_ID(YOU_WILL_DIE_WITH_ME,			CATEGORY_KILLS,			NULL, 0),
 	_ACH_ID(UNSAFE_HANDLING,				CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(JACKOFTRADES,					CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(PANICRUSH,						CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(FLEEESH,						CATEGORY_KILLS,			ZP_FLEEESH, 50),
+	_ACH_ID(ZOMBIEDESSERT,					CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(SCREAM4ME,						CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(INLINEP2,						CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(CUTYOUDOWN,						CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(RABBITBEAST,					CATEGORY_KILLS,			NULL, 0),
+	_ACH_ID(ITS_A_MASSACRE,					CATEGORY_KILLS,			ZP_ITS_A_MASSACRE, 25),
+
+	_ACH_ID(FIRST_SURVIVAL,			CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(FIRST_OBJECTIVE,		CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(PARTOFHORDE,			CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(CLOCKOUT,				CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(THE_ATEAM,				CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(PARTNERINCRIME,			CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(LASTMANSTAND,			CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(MARATHON,				CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(PLAY_ALL_SURVIVAL,		CATEGORY_MAPS, NULL, 0),
+	_ACH_ID(PLAY_ALL_OBJECTIVE,		CATEGORY_MAPS, NULL, 0),
 
 	_ACH_ID(PANIC_ATTACK,			CATEGORY_GENERAL, NULL, 0),
+	_ACH_ID(PANIC_100,				CATEGORY_GENERAL, ZP_PANIC_100, 100),
 	_ACH_ID(I_FELL,					CATEGORY_GENERAL, NULL, 0),
 	_ACH_ID(ONE_OF_US,				CATEGORY_GENERAL, NULL, 0),
 	_ACH_ID(FIRST_TO_DIE,			CATEGORY_GENERAL, NULL, 0),
+	_ACH_ID(TABLE_FLIP,				CATEGORY_GENERAL, NULL, 0),
+	_ACH_ID(ZMASH,					CATEGORY_GENERAL, NULL, 0),
+	_ACH_ID(DIE_BY_DOOR,			CATEGORY_GENERAL, NULL, 0),
+	_ACH_ID(PUMPUPSHOTGUN,			CATEGORY_GENERAL, ZP_PUMPUPSHOTGUN, 777),
+	_ACH_ID(CHILDOFGRAVE,			CATEGORY_GENERAL, ZP_CHILDOFGRAVE, 666),
 };
 
 // ===================================
@@ -73,15 +166,6 @@ private:
 	int64 m_iAppID;						// Our current AppID
 	bool m_bInitialized;				// Have we called Request stats and received the callback?
 
-	int						m_iAchKills_Crowbar;
-	int						m_iAchKills_Pistol;
-	int						m_iAchKills_Revolver;
-	int						m_iAchKills_Rifle;
-	int						m_iAchKills_Shotgun;
-	int						m_iAchKills_Satchel;
-	int						m_iAchKills_TNT;
-	int						m_iAchKills_Zombie;
-
 public:
 	CSteamAchievementsDialog(DialogAchievement_t *Achievements, int NumAchievements);
 	~CSteamAchievementsDialog();
@@ -90,6 +174,7 @@ public:
 	int m_iNumAchievements;				// The number of Achievements
 	bool RequestStats();
 	int RequestValue( const char *ID );
+	void GetStat( UserStatsReceived_t *pCallback, EStats id );
 
 	STEAM_CALLBACK(CSteamAchievementsDialog, OnUserStatsReceived, UserStatsReceived_t,
 		m_CallbackUserStatsReceived);
@@ -128,39 +213,34 @@ void CSteamAchievementsDialog::OnUserStatsReceived(UserStatsReceived_t *pCallbac
 		if (k_EResultOK == pCallback->m_eResult)
 			m_bInitialized = true;
 
-#define GetStat( _ACH, _DATA ) \
-int s##_DATA = 0; \
-GetSteamAPI()->SteamUserStats()->GetUserStat( pCallback->m_steamIDUser, #_ACH, &s##_DATA ); \
-_DATA = s##_DATA;
-
-		GetStat( ZP_KILLS_COWBAR, m_iAchKills_Crowbar );
-		GetStat( ZP_KILLS_PISTOL, m_iAchKills_Pistol );
-		GetStat( ZP_KILLS_REVOLVER, m_iAchKills_Revolver );
-		GetStat( ZP_KILLS_RIFLE, m_iAchKills_Rifle );
-		GetStat( ZP_KILLS_SHOTGUN, m_iAchKills_Shotgun );
-		GetStat( ZP_KILLS_SATCHEL, m_iAchKills_Satchel );
-		GetStat( ZP_KILLS_TNT, m_iAchKills_TNT );
-		GetStat( ZP_KILLS_ZOMBIES, m_iAchKills_Zombie );
+		// Go through our stats
+		for ( int i = 0; i < ARRAYSIZE(g_SteamStats); i++ )
+		{
+			StatData_t stat = g_SteamStats[i];
+			GetStat( pCallback, stat.ID );
+		}
 	}
 }
 
 int CSteamAchievementsDialog::RequestValue( const char *ID )
 {
 	int returnvalue = 0;
-	if ( !Q_strcmp( "ZP_KILLS_COWBAR", ID ) ) returnvalue = m_iAchKills_Crowbar;
-	else if ( !Q_strcmp( "ZP_KILLS_PISTOL", ID ) ) returnvalue = m_iAchKills_Pistol;
-	else if ( !Q_strcmp( "ZP_KILLS_REVOLVER", ID ) ) returnvalue = m_iAchKills_Revolver;
-	else if ( !Q_strcmp( "ZP_KILLS_RIFLE", ID ) ) returnvalue = m_iAchKills_Rifle;
-	else if ( !Q_strcmp( "ZP_KILLS_SHOTGUN", ID ) ) returnvalue = m_iAchKills_Shotgun;
-	else if ( !Q_strcmp( "ZP_KILLS_SATCHEL", ID ) ) returnvalue = m_iAchKills_Satchel;
-	else if ( !Q_strcmp( "ZP_KILLS_TNT", ID ) ) returnvalue = m_iAchKills_TNT;
-	else if ( !Q_strcmp( "ZP_KILLS_ZOMBIES", ID ) ) returnvalue = m_iAchKills_Zombie;
+	StatData_t stat = GrabStat( ID );
+	returnvalue = stat.Value;
 
 	// Don't return negative values
 	if ( returnvalue < 0 )
 		returnvalue = 0;
 
 	return returnvalue;
+}
+
+void CSteamAchievementsDialog::GetStat( UserStatsReceived_t *pCallback, EStats id )
+{
+	StatData_t stat = GrabStat( id );
+	int32 iData = 0;
+	GetSteamAPI()->SteamUserStats()->GetUserStat( pCallback->m_steamIDUser, stat.Name, &iData );
+	SetStat( id, iData );
 }
 
 CSteamAchievementsDialog*	g_DSteamAchievements = NULL;
@@ -213,10 +293,7 @@ C_AchievementDialog::C_AchievementDialog(vgui2::Panel *pParent)
 	ui_AchvList->SetSize(235, 24);
 	ui_AchvList->AddItem( "#ZP_UI_Achievements_Show_All_Achievements", kv);
 	ui_AchvList->AddItem( "#ZP_UI_Achievements_General", kv);
-	ui_AchvList->AddItem( "#ZP_UI_Achievements_Objective_Humans", kv);
-	ui_AchvList->AddItem( "#ZP_UI_Achievements_Survival_Humans", kv);
-	ui_AchvList->AddItem( "#ZP_UI_Achievements_Objective_Zombies", kv);
-	ui_AchvList->AddItem( "#ZP_UI_Achievements_Survival_Zombies", kv);
+	ui_AchvList->AddItem( "#ZP_UI_Achievements_Map", kv);
 	ui_AchvList->AddItem( "#ZP_UI_Achievements_Kills", kv);
 	// Auto select "Show All Achievements"
 	ui_AchvList->ActivateItem(0);
@@ -372,9 +449,11 @@ ReadAchievement:
 
 	int iValue = 0;
 	int imValue = 0;
-	
-	if ( Q_stricmp(ach.m_cStatName, "NULL") && ach.tmp_mvalue > 0
-		&& ach.tmp_ivalue < ach.tmp_mvalue && !ach.m_bAchieved )
+
+	if ( ( ach.m_cStatName && ach.m_cStatName[0] )
+		&& ach.tmp_mvalue > 0
+		&& ach.tmp_ivalue < ach.tmp_mvalue
+		&& !ach.m_bAchieved )
 	{
 		Q_snprintf( buffer, sizeof(buffer), "%d / %d", ach.tmp_ivalue, ach.tmp_mvalue );
 		label_achievement_progress_num = new vgui2::Label(this, "AchievementProgress", buffer);

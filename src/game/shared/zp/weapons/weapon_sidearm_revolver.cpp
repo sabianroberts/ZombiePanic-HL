@@ -61,6 +61,10 @@ void CWeaponSideArmRevolver::Precache(void)
 
 BOOL CWeaponSideArmRevolver::Deploy()
 {
+#if defined( SERVER_DLL )
+	if ( m_pPlayer )
+		m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 	return DefaultDeploy("models/v_357.mdl", "models/p_357.mdl", PYTHON_DRAW, "python", UseDecrement());
 }
 
@@ -68,8 +72,11 @@ void CWeaponSideArmRevolver::Holster(int skiplocal /* = 0 */)
 {
 	m_fInReload = FALSE; // cancel any reload in progress.
 	m_pPlayer->m_flNextAttack = UTIL_WeaponTimeBase() + 1.0;
+#if defined( SERVER_DLL )
+	m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat(m_pPlayer->random_seed, 10, 15);
-	SendWeaponAnim(PYTHON_HOLSTER);
+	SendWeaponAnim( PYTHON_HOLSTER );
 }
 
 void CWeaponSideArmRevolver::PrimaryAttack()
@@ -146,6 +153,9 @@ void CWeaponSideArmRevolver::Reload(void)
 
 	if (DefaultReload(PYTHON_RELOAD, 2.0, bUseScope))
 	{
+#if defined( SERVER_DLL )
+		m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 		m_flSoundDelay = 1.5;
 	}
 }

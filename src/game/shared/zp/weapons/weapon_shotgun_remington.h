@@ -15,6 +15,7 @@ public:
 	void Precache( void );
 	int AddToPlayer( CBasePlayer *pPlayer );
 	BOOL Deploy();
+	void Holster( int skiplocal = 0 );
 	void OnRequestedAnimation( SingleActionAnimReq act );
 	void OnWeaponPrimaryAttack();
 };

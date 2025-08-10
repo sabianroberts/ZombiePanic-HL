@@ -35,6 +35,127 @@ ConVar cl_mute_all_comms("cl_mute_all_comms", "1", FCVAR_BHL_ARCHIVE, "If 1, the
 constexpr const char CHAT_SOUND_FILE[] = "misc/talk.wav";
 constexpr const char CHAT_SOUND_FALLBACK[] = "misc/talk_bhl_fallback.wav";
 
+bool CLIENT_UTIL_IsSpecialAchievement( int iAchievement )
+{
+	if ( iAchievement == EAchievements::JACKOFTRADES ) return true;
+	if ( iAchievement == EAchievements::PARTNERINCRIME ) return true;
+	if ( iAchievement == EAchievements::MARATHON ) return true;
+	if ( iAchievement == EAchievements::PLAY_ALL_SURVIVAL ) return true;
+	if ( iAchievement == EAchievements::PLAY_ALL_OBJECTIVE ) return true;
+	return false;
+}
+
+bool CLIENT_UTIL_HasEarnedAchievement( int iAchievement )
+{
+	bool bEarned = false;
+	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( iAchievement ).m_pchAchievementID, &bEarned );
+	return bEarned;
+}
+
+int32 CLIENT_UTIL_GetStatAchievement( int iAchievement )
+{
+	int32 value;
+	GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( iAchievement ).m_cStatName, &value );
+	return value;
+}
+
+static bool PlayingWithAFriend()
+{
+	for (int i = 1; i <= MAX_PLAYERS; i++)
+	{
+		CPlayerInfo *pi = GetPlayerInfo(i)->Update();
+		if ( !pi ) continue;
+		if ( !pi->IsConnected() ) continue;
+		CSteamID steamfriend( pi->GetValidSteamID64() );
+		if ( !steamfriend.IsValid() ) continue;
+		if ( GetSteamAPI()->SteamFriends()->GetFriendRelationship( steamfriend ) == k_EFriendRelationshipFriend )
+			return true;
+	}
+	return false;
+}
+
+void CLIENT_UTIL_GiveAchievement( int iAchievement )
+{
+	if ( !GetSteamAPI() ) return;
+	if ( !GetSteamAPI()->SteamUserStats() ) return;
+
+	bool bEarned = false;
+	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( iAchievement ).m_pchAchievementID, &bEarned );
+
+	// Already have it? Skip.
+	if ( bEarned ) return;
+
+	// If jack of trades, check
+	if ( CLIENT_UTIL_IsSpecialAchievement( iAchievement ) )
+	{
+		switch ( iAchievement )
+		{
+			case EAchievements::JACKOFTRADES:
+			{
+				// Check each of these, and make sure we got them all first!
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_CROWBAR ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_MP5 ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_PISTOL ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_REVOLVER ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_RIFLE ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_SATCHEL ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_SHOTGUN ) ) return;
+			    if ( !CLIENT_UTIL_GetStatAchievement( EAchievements::KILLS_TNT ) ) return;
+			}
+			break;
+
+		    case EAchievements::PARTNERINCRIME:
+			{
+				// Make sure we are playing with a friend.
+				// And make sure we are on the same team!
+			    if ( !PlayingWithAFriend() ) return;
+			}
+			break;
+
+		    case EAchievements::MARATHON:
+		    {
+				// TODO: Implement this once all official maps are done.
+			    return;
+			}
+			break;
+
+		    case EAchievements::PLAY_ALL_SURVIVAL:
+		    {
+			    // TODO: Implement this once all official maps are done.
+			    return;
+			}
+			break;
+
+		    case EAchievements::PLAY_ALL_OBJECTIVE:
+		    {
+			    // TODO: Implement this once all official maps are done.
+			    return;
+			}
+			break;
+		}
+	}
+
+	// Do we have a stat value?
+	if ( GetAchievementByID( iAchievement ).m_cStatName )
+	{
+		int32 value;
+		GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( iAchievement ).m_cStatName, &value );
+
+		// Increase it by one.
+		value++;
+		GetSteamAPI()->SteamUserStats()->SetStat( GetAchievementByID( iAchievement ).m_cStatName, value );
+
+		// Check if we have enough.
+		if ( value < GetAchievementByID( iAchievement ).tmp_mvalue ) return;
+	}
+
+	// Give the achievement.
+	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( iAchievement ).m_pchAchievementID );
+
+	// Tell the server, that we earned it!
+	gEngfuncs.pfnServerCmd( vgui2::VarArgs( "achearn %i", iAchievement ) );
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 // Input  : *parent -
@@ -1096,6 +1217,9 @@ void CHudChat::Send(void)
 		// Now, let's add everything we need.
 		for ( int i = 0; i < sizeof( bytes ); i++ )
 			ansi[i] = bytes[i];
+
+		// Let's also give the achievement
+		CLIENT_UTIL_GiveAchievement( EAchievements::TABLE_FLIP );
 	}
 
 	int len = Q_strlen(ansi);
@@ -1189,35 +1313,7 @@ int CHudChat::MsgFunc_GiveAch(const char *pszName, int iSize, void *pbuf)
 	BEGIN_READ(pbuf, iSize);
 
 	int achievement = READ_SHORT(); // the achivement we got
-
-	if ( !GetSteamAPI() ) return 1;
-	if ( !GetSteamAPI()->SteamUserStats() ) return 1;
-
-	bool bEarned = false;
-	GetSteamAPI()->SteamUserStats()->GetAchievement( GetAchievementByID( achievement ).m_pchAchievementID, &bEarned );
-
-	// Already have it? Skip.
-	if ( bEarned ) return 1;
-
-	// Do we have a stat value?
-	if ( GetAchievementByID( achievement ).m_cStatName )
-	{
-		int32 value;
-		GetSteamAPI()->SteamUserStats()->GetStat( GetAchievementByID( achievement ).m_cStatName, &value );
-
-		// Increase it by one.
-		value++;
-		GetSteamAPI()->SteamUserStats()->SetStat( GetAchievementByID( achievement ).m_cStatName, value );
-
-		// Check if we have enough.
-		if ( value < GetAchievementByID( achievement ).tmp_mvalue ) return 1;
-	}
-
-	// Give the achievement.
-	GetSteamAPI()->SteamUserStats()->SetAchievement( GetAchievementByID( achievement ).m_pchAchievementID );
-
-	// Tell the server, that we earned it!
-	gEngfuncs.pfnServerCmd( vgui2::VarArgs( "achearn %i", achievement ) );
+	CLIENT_UTIL_GiveAchievement( achievement );
 
 	return 1;
 }

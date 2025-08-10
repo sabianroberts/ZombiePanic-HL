@@ -60,7 +60,18 @@ int CWeaponShotgunRemington::AddToPlayer( CBasePlayer *pPlayer )
 
 BOOL CWeaponShotgunRemington::Deploy()
 {
+#if defined( SERVER_DLL )
+	if ( m_pPlayer )
+		m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 	return DefaultDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW, "shotgun" );
+}
+
+void CWeaponShotgunRemington::Holster( int skiplocal )
+{
+#if defined( SERVER_DLL )
+	m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 }
 
 void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
@@ -88,6 +99,10 @@ void CWeaponShotgunRemington::OnRequestedAnimation( SingleActionAnimReq act )
 			    EMIT_SOUND_DYN( ENT(m_pPlayer->pev), CHAN_ITEM, "weapons/reload3.wav", 1, ATTN_NORM, 0, 85 + RANDOM_LONG(0, 0x1f) );
 
 		    SendWeaponAnim( SHOTGUN_RELOAD );
+
+#if defined( SERVER_DLL )
+			m_pPlayer->m_iWeaponKillCount = 0;
+#endif
 
 		    m_flNextReload = UTIL_WeaponTimeBase() + 0.5;
 		    m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.5;
@@ -119,6 +134,10 @@ void CWeaponShotgunRemington::OnWeaponPrimaryAttack()
 	vecDir = m_pPlayer->FireBulletsPlayer(iBullets(), vecSrc, vecAiming, GetSpreadVector( PrimaryWeaponSpread() ), 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed);
 
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_nEventPrimary, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
+
+#if defined( SERVER_DLL )
+	m_pPlayer->GiveAchievement( EAchievements::PUMPUPSHOTGUN );
+#endif
 }
 
 

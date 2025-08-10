@@ -908,6 +908,8 @@ void CBasePlayer::Killed(entvars_t *pevAttacker, int iGib)
 
 	g_pGameRules->PlayerKilled(this, pevAttacker, g_pevLastInflictor);
 
+	GiveAchievement( EAchievements::CHILDOFGRAVE );
+
 	if (m_pTank != NULL)
 	{
 		m_pTank->Use(this, this, USE_OFF, 0);
@@ -2012,6 +2014,27 @@ void CBasePlayer::WantsToSuicide()
 		// have the player kill themself
 		pev->health = 0;
 		Killed( pev, GIB_NEVER );
+		GiveAchievement( EAchievements::ZMASH );
+	}
+}
+
+void CBasePlayer::JustKilledWithExplosives()
+{
+	// If the value is -1, stop.
+	if ( m_flResetExplosiveKillNotice == -1 ) return;
+
+	// Already dead? stop.
+	if ( !IsAlive() )
+	{
+		m_flResetExplosiveKillNotice = -1;
+		return;
+	}
+
+	// If we reach 0 (or less), turn off.
+	if ( m_flResetExplosiveKillNotice - gpGlobals->time <= 0 )
+	{
+		m_flResetExplosiveKillNotice = -1;
+		m_bJustKilledWithExplosive = false;
 	}
 }
 
@@ -3035,6 +3058,9 @@ pt_end:
 	// Do the player want to die?
 	WantsToSuicide();
 
+	// Recently killed someone with explosives
+	JustKilledWithExplosives();
+
 #if defined(CLIENT_WEAPONS)
 	// Decay timers on weapons
 	// go through all of the weapons and make a list of the ones to pack
@@ -3570,6 +3596,9 @@ void CBasePlayer::Spawn(void)
 		m_bInZombieVision = false;
 	m_bBuddhaMode = false;
 
+	if ( pev->team == ZP::TEAM_SURVIVIOR )
+		m_iWeaponKillCount = 0;
+
 	// We just spawned, allow auto weapon switch
 	m_bJustSpawned = true;
 
@@ -3698,6 +3727,9 @@ void CBasePlayer::Spawn(void)
 	// This will be reset back to 20 when the round begins
 	m_flCanSuicide = gpGlobals->time + 20.0f;
 	m_flSuicideTimer = -1;
+
+	m_flResetExplosiveKillNotice = -1;
+	m_bJustKilledWithExplosive = false;
 
 	g_pGameRules->PlayerSpawn(this);
 
@@ -5846,6 +5878,10 @@ void CBasePlayer::DoPanic()
 
 	// Drop everything in a backpack.
 	PackDeadPlayerItems();
+
+	// Give our achievements
+	GiveAchievement( EAchievements::PANIC_ATTACK );
+	GiveAchievement( EAchievements::PANIC_100 );
 }
 
 //=========================================================

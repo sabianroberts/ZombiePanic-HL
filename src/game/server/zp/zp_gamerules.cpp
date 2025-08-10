@@ -266,13 +266,64 @@ void CZombiePanicGameRules::ResetRound()
 {
 	if ( m_flRoundRestartDelay == -1 )
 	{
+		IGameModeBase::WinState_e winner = m_pGameMode->GetWinState();
+
 		// Fade out to black!
 		UTIL_ScreenFadeAll( Vector( 0, 0, 0 ), 1.0f, 5.0f, 255, FFADE_OUT );
 		MESSAGE_BEGIN( MSG_ALL, gmsgRoundState );
 		WRITE_SHORT( m_pGameMode->GetRoundState() );
-		WRITE_SHORT( m_pGameMode->GetWinState() );
+		WRITE_SHORT( winner );
 		MESSAGE_END();
 		m_flRoundRestartDelay = gpGlobals->time + 5.0f;
+
+		int iPlayers = 0;
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			if ( plr && plr->IsConnected() && plr->pev->team == ZP::TEAM_SURVIVIOR )
+				iPlayers++;
+		}
+
+		for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+			if ( plr )
+			{
+				// For these, we do not care about team etc.
+				plr->GiveAchievement( EAchievements::MARATHON );
+				plr->GiveAchievement( EAchievements::PLAY_ALL_SURVIVAL );
+				plr->GiveAchievement( EAchievements::PLAY_ALL_OBJECTIVE );
+
+				int iTeam = plr->pev->team;
+				if ( iTeam == ZP::TEAM_SURVIVIOR && winner == IGameModeBase::WinState_e::State_SurvivorWin )
+				{
+					// Last survivor?
+					if ( iPlayers == 1 )
+						plr->GiveAchievement( EAchievements::LASTMANSTAND );
+					// 4 or more players?
+					if ( iPlayers >= 4 )
+						plr->GiveAchievement( EAchievements::THE_ATEAM );
+					plr->GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
+					switch ( m_pGameMode->GetGameModeType() )
+					{
+						case GameModeType_e::GM_SURVIVAL:
+						{
+							if ( m_pGameMode->HasTimeRanOut() )
+								plr->GiveAchievement( EAchievements::CLOCKOUT );
+							plr->GiveAchievement( EAchievements::FIRST_SURVIVAL );
+						}
+						break;
+
+						case GameModeType_e::GM_OBJECTIVE: plr->GiveAchievement( EAchievements::FIRST_OBJECTIVE ); break;
+					}
+				}
+				else if ( iTeam == ZP::TEAM_ZOMBIE && winner == IGameModeBase::WinState_e::State_ZombieWin )
+				{
+					plr->GiveAchievement( EAchievements::PARTNERINCRIME ); // Only give this if we are actually winning
+					plr->GiveAchievement( EAchievements::PARTOFHORDE );
+				}
+			}
+		}
 		return;
 	}
 	if ( m_flRoundRestartDelay - gpGlobals->time > 0 ) return;
@@ -748,8 +799,23 @@ void CZombiePanicGameRules::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller
 	if (pVictim && pKiller && pKiller->flags & FL_CLIENT)
 	{
 		CBasePlayer *pk = (CBasePlayer *)CBaseEntity::Instance(pKiller);
-		if (pk && (pk != pVictim) && (PlayerRelationship(pVictim, pk) == GR_TEAMMATE))
-			pVictim->m_iDeathFlags |= PLR_DEATH_FLAG_TEAMKILLER;
+		if (pk && (pk != pVictim))
+		{
+			if ( (PlayerRelationship(pVictim, pk) == GR_TEAMMATE) )
+				pVictim->m_iDeathFlags |= PLR_DEATH_FLAG_TEAMKILLER;
+			else if ( pVictim->pev->team == ZP::TEAM_SURVIVIOR && pk->pev->team == ZP::TEAM_ZOMBIE )
+			{
+				int iPlayers = 0;
+				for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+				{
+					CBasePlayer *plr = (CBasePlayer *)UTIL_PlayerByIndex( i );
+					if ( plr && plr->IsConnected() && plr->pev->team == ZP::TEAM_SURVIVIOR )
+						iPlayers++;
+				}
+				if ( iPlayers == 1 )
+					pk->GiveAchievement( EAchievements::ZOMBIEDESSERT );
+			}
+		}
 	}
 
 	BaseClass::DeathNotice(pVictim, pKiller, pevInflictor);
@@ -763,6 +829,10 @@ void CZombiePanicGameRules ::PlayerKilled(CBasePlayer *pVictim, entvars_t *pKill
 	{
 		m_pGameMode->OnPlayerDied( pVictim, pKiller, pInflictor );
 		BaseClass::PlayerKilled(pVictim, pKiller, pInflictor);
+
+		CBasePlayer *pk = (CBasePlayer *)CBaseEntity::Instance(pKiller);
+		if (pk && (pk != pVictim))
+			pVictim->GiveAchievement( EAchievements::FIRST_TO_DIE );
 	}
 }
 

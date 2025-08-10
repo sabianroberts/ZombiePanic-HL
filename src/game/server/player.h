@@ -98,6 +98,10 @@ public:
 	// Fall to their death?
 	int m_iDeathFlags;
 
+	// Recently killed an enemy with an explosive
+	bool m_bJustKilledWithExplosive;
+	float m_flResetExplosiveKillNotice;
+
 	// Observer camera
 	EHANDLE m_hObserverTarget;
 	float m_flNextObserverInput;
@@ -392,6 +396,7 @@ public:
 	bool IsInPanic();
 	bool CanPanicSinceLastTime();
 	void WantsToSuicide();
+	void JustKilledWithExplosives();
 
 	bool m_bInZombieVision;
 	bool m_bJustSpawned;
@@ -436,6 +441,8 @@ public:
 
 	// Apply our correct model!
 	void SetTheCorrectPlayerModel();
+
+	int m_iWeaponKillCount = 0;
 #endif
 
 	//-----------------------------------------------------

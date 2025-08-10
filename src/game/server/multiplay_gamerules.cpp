@@ -806,6 +806,8 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	if (pVictim->pev == pKiller)
 	{
 		// killed self
+		if (!strcmp(killer_weapon_name, "handgrenade")) pVictim->GiveAchievement( KILLS_TNT );
+		if (pVictim->m_bJustKilledWithExplosive) pVictim->GiveAchievement( YOU_WILL_DIE_WITH_ME );
 
 		// team match?
 		if (g_teamplay)
@@ -856,6 +858,64 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			    GETPLAYERUSERID(pVictim->edict()),
 			    killer_weapon_name);
 		}
+
+		CBasePlayer *pAttacker = (CBasePlayer *)UTIL_PlayerByIndex( killer_index );
+		if ( pAttacker )
+		{
+			if (!strcmp(killer_weapon_name, "crowbar")) pAttacker->GiveAchievement( KILLS_CROWBAR );
+			else if (!strcmp(killer_weapon_name, "sig")) pAttacker->GiveAchievement( KILLS_PISTOL );
+			else if (!strcmp(killer_weapon_name, "357"))
+			{
+				pAttacker->GiveAchievement( KILLS_REVOLVER );
+				// 6 headshots, no reload.
+				if ( ( pVictim->m_iDeathFlags & PLR_DEATH_FLAG_HEADSHOT ) != 0 )
+				{
+					pAttacker->m_iWeaponKillCount++;
+					if ( pAttacker->m_iWeaponKillCount == 6 )
+						pAttacker->GiveAchievement( INLINEP2 );
+				}
+			}
+			else if (!strcmp(killer_weapon_name, "556ar")) pAttacker->GiveAchievement( KILLS_RIFLE );
+			else if (!strcmp(killer_weapon_name, "mp5")) pAttacker->GiveAchievement( KILLS_MP5 );
+			else if (!strcmp(killer_weapon_name, "shotgun"))
+			{
+				pAttacker->GiveAchievement( KILLS_SHOTGUN );
+				pAttacker->m_iWeaponKillCount++;
+				if ( pAttacker->m_iWeaponKillCount == 4 )
+					pAttacker->GiveAchievement( CUTYOUDOWN );
+			}
+			else if (!strcmp(killer_weapon_name, "satchel"))
+			{
+				pAttacker->m_bJustKilledWithExplosive = true;
+				pAttacker->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+				pAttacker->GiveAchievement( KILLS_SATCHEL );
+			}
+			else if (!strcmp(killer_weapon_name, "grenade"))
+			{
+				pAttacker->m_bJustKilledWithExplosive = true;
+				pAttacker->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+				pAttacker->GiveAchievement( KILLS_TNT );
+			}
+			else if (!strcmp(killer_weapon_name, "swipe"))
+			{
+				pAttacker->GiveAchievement( KILLS_ZOMBIE );
+				if ( pVictim->pev->team == ZP::TEAM_SURVIVIOR )
+					pAttacker->GiveAchievement( FLEEESH );
+				pAttacker->m_iWeaponKillCount++;
+				if ( pAttacker->m_iWeaponKillCount == 3 )
+					pAttacker->GiveAchievement( RABBITBEAST );
+			}
+
+			pAttacker->GiveAchievement( JACKOFTRADES );
+
+			if ( pVictim->IsInPanic() )
+				pAttacker->GiveAchievement( SCREAM4ME );
+			else if ( pAttacker->IsInPanic() && pVictim->pev->team == ZP::TEAM_ZOMBIE )
+				pAttacker->GiveAchievement( PANICRUSH );
+
+			if ( ( pVictim->m_iDeathFlags & PLR_DEATH_FLAG_GIBBED ) != 0 )
+				pAttacker->GiveAchievement( EAchievements::ITS_A_MASSACRE );
+		}
 	}
 	else
 	{
@@ -881,6 +941,9 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			    killer_weapon_name);
 		}
 	}
+
+	if (!strcmp(killer_weapon_name, "door") && pVictim)
+		pVictim->GiveAchievement( EAchievements::DIE_BY_DOOR );
 
 	MESSAGE_BEGIN(MSG_SPEC, SVC_DIRECTOR);
 	WRITE_BYTE(9); // command length in bytes

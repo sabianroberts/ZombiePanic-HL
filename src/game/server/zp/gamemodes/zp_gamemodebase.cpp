@@ -231,6 +231,8 @@ void CBaseGameMode::CheckZombieAmount()
 		plr->SendScoreInfo();
 		plr->SpawnInPlace( true );
 		plr->Spawn();
+		plr->GiveAchievement( ONE_OF_US );
+		plr->m_iWeaponKillCount = 0;
 	}
 }
 

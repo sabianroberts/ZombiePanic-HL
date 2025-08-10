@@ -11,6 +11,15 @@ extern int gmsgZombieLives;
 extern int gmsgRoundState;
 extern int gmsgRoundTime;
 
+enum GameModeType_e
+{
+	GM_DEV = 0,
+	GM_SURVIVAL,
+	GM_OBJECTIVE,
+	GM_DM,
+	GM_HARDCORE
+};
+
 class IGameModeBase
 {
 public:
@@ -22,6 +31,7 @@ public:
 		State_SurvivorWin
 	};
 
+	virtual GameModeType_e GetGameModeType() = 0;
 	virtual bool IsTestModeActive() const = 0;
 	virtual void OnHUDInit(CBasePlayer *pPlayer) = 0;
 	virtual void GetZombieLifeData( int &current, int &max ) { current = max = 0; };
@@ -49,6 +59,8 @@ public:
 	// If true, we will respawn as a zombie if they rejoin back.
 	virtual bool HasLeftMidRound( CBasePlayer *pPlayer ) { return false; }
 
+	virtual bool HasTimeRanOut() { return false; }
+
 protected:
 	float m_flRoundTime = -1;
 
@@ -72,6 +84,7 @@ public:
 	void UpdateClientTimer();
 
 	bool HasLeftMidRound( CBasePlayer *pPlayer ) override;
+	bool HasTimeRanOut() override { return m_bTimeRanOut; }
 
 protected:
 	float m_flRoundBeginsIn;
