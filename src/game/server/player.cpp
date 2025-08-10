@@ -2094,7 +2094,7 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	    iTeam == ZP::TEAM_SURVIVIOR ? "survivor" : "undead"
 	);
 
-	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
+	const char *szModel = ( iTeam == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
 	SET_MODEL(ENT(pev), szModel );
 	pev->model = MODEL_INDEX( szModel );
 
