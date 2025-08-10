@@ -419,7 +419,7 @@ void CBaseButton::KeyValue(KeyValueData *pkvd)
 		m_sounds = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
 	}
-	else if (FStrEq(pkvd->szKeyName, "users"))
+	else if (FStrEq(pkvd->szKeyName, "users") || FStrEq(pkvd->szKeyName, "filter"))
 	{
 		m_teamfilter = atoi(pkvd->szValue);
 		pkvd->fHandled = TRUE;
