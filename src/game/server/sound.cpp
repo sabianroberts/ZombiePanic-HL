@@ -267,17 +267,24 @@ void CAmbientGeneric::Restart()
 	InitModulationParms();
 	pev->nextthink = gpGlobals->time + 0.1f;
 
-	if (!(pev->spawnflags & AMBIENT_SOUND_NOT_LOOPING))
-	{
-		m_fLooping = TRUE;
-		m_fActive = TRUE;
-	}
-	else
+	if (FBitSet(pev->spawnflags, AMBIENT_SOUND_NOT_LOOPING))
 		m_fLooping = FALSE;
+	else
+		m_fLooping = TRUE;
+
+	if (!FBitSet(pev->spawnflags, AMBIENT_SOUND_START_SILENT))
+	{
+		// start the sound ASAP
+		if (m_fLooping)
+			m_fActive = TRUE;
+	}
 
 	if (m_fActive)
 	{
-		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile, (m_dpv.vol * 0.01f), m_flAttenuation, 0, m_dpv.pitch);
+		UTIL_EmitAmbientSound(ENT(pev), pev->origin, szSoundFile,
+		    (m_dpv.vol * 0.01), m_flAttenuation, SND_SPAWNING, m_dpv.pitch);
+
+		pev->nextthink = gpGlobals->time + 0.1;
 	}
 }
 
