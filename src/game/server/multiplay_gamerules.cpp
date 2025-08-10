@@ -806,7 +806,17 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 	if (pVictim->pev == pKiller)
 	{
 		// killed self
-		if (!strcmp(killer_weapon_name, "handgrenade")) pVictim->GiveAchievement( KILLS_TNT );
+		if (!strcmp(killer_weapon_name, "satchel"))
+		{
+			pVictim->m_bJustKilledWithExplosive = true;
+			pVictim->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+		}
+		else if (!strcmp(killer_weapon_name, "grenade"))
+		{
+			pVictim->m_bJustKilledWithExplosive = true;
+			pVictim->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+			pVictim->GiveAchievement( UNSAFE_HANDLING );
+		}
 		if (pVictim->m_bJustKilledWithExplosive) pVictim->GiveAchievement( YOU_WILL_DIE_WITH_ME );
 
 		// team match?
@@ -886,14 +896,24 @@ void CHalfLifeMultiplay::DeathNotice(CBasePlayer *pVictim, entvars_t *pKiller, e
 			}
 			else if (!strcmp(killer_weapon_name, "satchel"))
 			{
-				pAttacker->m_bJustKilledWithExplosive = true;
-				pAttacker->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+				// If we managed to die beforehand, but still did a explosive kill.
+				if (pAttacker->m_bJustKilledWithExplosive) pAttacker->GiveAchievement( YOU_WILL_DIE_WITH_ME );
+				else
+				{
+					pAttacker->m_bJustKilledWithExplosive = true;
+					pAttacker->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+				}
 				pAttacker->GiveAchievement( KILLS_SATCHEL );
 			}
 			else if (!strcmp(killer_weapon_name, "grenade"))
 			{
-				pAttacker->m_bJustKilledWithExplosive = true;
-				pAttacker->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+				// If we managed to die beforehand, but still did a explosive kill.
+				if (pAttacker->m_bJustKilledWithExplosive) pAttacker->GiveAchievement( YOU_WILL_DIE_WITH_ME );
+				else
+				{
+					pAttacker->m_bJustKilledWithExplosive = true;
+					pAttacker->m_flResetExplosiveKillNotice = gpGlobals->time + 3.0f;
+				}
 				pAttacker->GiveAchievement( KILLS_TNT );
 			}
 			else if (!strcmp(killer_weapon_name, "swipe"))
