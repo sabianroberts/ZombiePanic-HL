@@ -561,6 +561,14 @@ BOOL CZombiePanicGameRules::ClientCommand(CBasePlayer *pPlayer, const char *pcmd
 		ZP::CheckHowManySpawnedItems( pPlayer );
 		return TRUE;
 	}
+	else if (FStrEq(pcmd, "ent_fire"))
+	{
+		const char *pSetCommand = CMD_ARGV(1);
+		bool bIsCheatsEnabled = CVAR_GET_FLOAT("sv_cheats") >= 1 ? true : false;
+		if ( bIsCheatsEnabled && pSetCommand && pSetCommand[0] )
+			FireTargets( pSetCommand, pPlayer, pPlayer, USE_TOGGLE, 0);
+		return TRUE;
+	}
 	else if (FStrEq(pcmd, "_set"))
 	{
 		const char *pSetCommand = CMD_ARGV(1);
