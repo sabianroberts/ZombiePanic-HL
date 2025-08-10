@@ -2094,6 +2094,12 @@ void CBasePlayer::SetTheCorrectPlayerModel()
 	    iTeam == ZP::TEAM_SURVIVIOR ? "survivor" : "undead"
 	);
 
+	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
+	SET_MODEL(ENT(pev), szModel );
+	pev->model = MODEL_INDEX( szModel );
+
+	SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_DEFAULT );
+
 	if ( iTeam == ZP::TEAM_SURVIVIOR )
 		pev->maxspeed = ZP::MaxSpeeds[0];
 	else
@@ -2172,13 +2178,6 @@ void CBasePlayer::PreThink(void)
 	{
 		PlayerDeathThink();
 		return;
-	}
-
-	// Fix our player model bug
-	if ( m_flFixModelBug != -1 && m_flFixModelBug - gpGlobals->time <= 0 )
-	{
-		SetTheCorrectPlayerModel();
-		m_flFixModelBug = -1;
 	}
 
 	// So the correct flags get sent to client asap.
@@ -3631,10 +3630,7 @@ void CBasePlayer::Spawn(void)
 		UTIL_SetOrigin(plr->pev, pev->origin);
 	}
 
-	const char *szModel = ( pev->team == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
-	SET_MODEL(ENT(pev), szModel );
-	pev->model = MODEL_INDEX( szModel );
-	SetBodygroup( BGROUP_HEAD, BGROUP_HEAD_DEFAULT );
+	SetTheCorrectPlayerModel();
 
 	g_ulModelIndexPlayer = pev->modelindex;
 	pev->sequence = LookupActivity(ACT_IDLE);
@@ -3707,13 +3703,6 @@ void CBasePlayer::Spawn(void)
 	// Probably from the chat and/or the scoreboard?
 	MESSAGE_BEGIN(MSG_ONE, gmsgMouseFix, NULL, pev);
 	MESSAGE_END();
-
-	// Fix the damn model,
-	// There is this weird, but very rare bug that can happen
-	// where the player (zombie specifically) uses the wrong model.
-	m_flFixModelBug = gpGlobals->time + 1.0f;
-
-	SetTheCorrectPlayerModel();
 }
 
 void CBasePlayer ::Precache(void)
@@ -4106,6 +4095,7 @@ void CBloodSplat::Spray(void)
 
 void CBasePlayer::GiveNamedItem(const char *pszName)
 {
+	if (!IsAlive()) return;
 	edict_t *pent;
 
 	int istr = MAKE_STRING(pszName);
