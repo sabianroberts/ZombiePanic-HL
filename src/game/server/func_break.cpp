@@ -778,7 +778,8 @@ void CBreakable::Restart()
 	m_angle = pev->angles.y;
 	pev->angles.y = 0;
 
-	pev->targetname = m_savedname;
+	if ( m_savedname != 0 )
+		pev->targetname = m_savedname;
 
 	SET_MODEL(ENT(pev), STRING(pev->model));
 	SetTouch(&CBreakable::BreakTouch);
