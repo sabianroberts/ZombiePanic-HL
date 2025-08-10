@@ -546,17 +546,35 @@ void CBaseButton::Restart()
 {
 	m_hActivator = nullptr;
 	SetMovedir(pev);
-	ButtonReturn();
 
-	if (pev->spawnflags & SF_BUTTON_TOUCH_ONLY)
-	{
+	if (pev->speed == 0)
+		pev->speed = 40;
+
+	if (pev->health > 0)
+		pev->takedamage = DAMAGE_YES;
+
+	if (m_flWait == 0)
+		m_flWait = 1;
+
+	if (m_flLip == 0)
+		m_flLip = 4;
+
+	m_fStayPushed = (m_flWait == -1 ? TRUE : FALSE);
+	m_fRotating = FALSE;
+
+	// if the button is flagged for USE button activation only, take away it's touch function and add a use function
+	if (FBitSet(pev->spawnflags, SF_BUTTON_TOUCH_ONLY)) // touchable button
 		SetTouch(&CBaseButton::ButtonTouch);
-	}
 	else
 	{
-		SetTouch(nullptr);
+		SetTouch(NULL);
 		SetUse(&CBaseButton::ButtonUse);
 	}
+
+	SetMoveDone(&CBaseButton::ButtonBackHome);
+	LinearMove(m_vecPosition1, 500);
+	pev->frame = 0; // use normal textures
+	m_toggle_state = TS_AT_BOTTOM;
 }
 
 // Button sound table.
