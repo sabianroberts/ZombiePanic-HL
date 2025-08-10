@@ -249,6 +249,7 @@ class CMultiManager : public CBaseToggle
 public:
 	void KeyValue(KeyValueData *pkvd);
 	void Spawn(void);
+	void Restart(void);
 	void EXPORT ManagerThink(void);
 	void EXPORT ManagerUse(CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value);
 
@@ -351,6 +352,13 @@ void CMultiManager ::Spawn(void)
 			}
 		}
 	}
+}
+
+void CMultiManager::Restart(void)
+{
+	// Stop thinking, and enable ourselves to be used again, if we were already used etc.
+	SetThink(NULL);
+	SetUse(&CMultiManager::ManagerUse); // allow manager re-use
 }
 
 BOOL CMultiManager::HasTarget(string_t targetname)

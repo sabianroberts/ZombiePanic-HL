@@ -49,6 +49,7 @@ static const char *s_EntitiesRestarts[] = {
 	"trigger_auto",
 	"trigger_multiple",
 	"info_objective",
+	"multi_manager",
 	"game_counter",
 	"game_counter_set",
 	"game_timer",
