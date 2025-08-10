@@ -2088,14 +2088,22 @@ void CBasePlayer::NotifyOfEarnedAchivement( int eAchivement )
 void CBasePlayer::SetTheCorrectPlayerModel()
 {
 	int iTeam = pev->team;
-	g_engfuncs.pfnSetClientKeyValue(
-		entindex(),
-		g_engfuncs.pfnGetInfoKeyBuffer( edict() ),
-		"model",
-	    iTeam == ZP::TEAM_SURVIVIOR ? "survivor" : "undead"
-	);
+	const char *szModel = nullptr;
 
-	const char *szModel = ( iTeam == ZP::TEAM_ZOMBIE ) ? "models/player/undead/undead.mdl" : "models/player/survivor/survivor.mdl";
+	if ( iTeam == ZP::TEAM_ZOMBIE )
+		szModel = "undead";
+	else
+	{
+		if ( RANDOM_LONG( 0, 4 ) == 2 )
+			szModel = "survivor2";
+		else
+			szModel = "survivor";
+	}
+
+	g_engfuncs.pfnSetClientKeyValue( entindex(), g_engfuncs.pfnGetInfoKeyBuffer( edict() ), "model", szModel );
+
+	szModel = UTIL_VarArgs( "models/player/%s/%s.mdl", szModel, szModel );
+
 	SET_MODEL(ENT(pev), szModel );
 	pev->model = MODEL_INDEX( szModel );
 

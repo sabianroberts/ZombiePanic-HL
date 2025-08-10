@@ -1014,6 +1014,7 @@ void ClientPrecache(void)
 
 	PRECACHE_MODEL("models/player/undead/undead.mdl");
 	PRECACHE_MODEL("models/player/survivor/survivor.mdl");
+	PRECACHE_MODEL("models/player/survivor2/survivor2.mdl");
 	// Sticky gibs, used by headshots
 	PRECACHE_MODEL("models/stickygib.mdl");
 
