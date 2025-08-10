@@ -90,6 +90,7 @@ public:
 	int m_iszGibModel;
 	int m_iszSpawnObject;
 	float m_flHealth;
+	string_t m_savedname;
 };
 
 #endif // FUNC_BREAK_H

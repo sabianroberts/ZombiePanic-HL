@@ -728,6 +728,7 @@ void CBreakable::Die(CBaseEntity *pActivator)
 	}
 
 	// Don't fire something that could fire myself
+	m_savedname = pev->targetname;
 	pev->targetname = 0;
 
 	pev->solid = SOLID_NOT;
@@ -776,6 +777,8 @@ void CBreakable::Restart()
 	pev->effects &= ~EF_NODRAW;
 	m_angle = pev->angles.y;
 	pev->angles.y = 0;
+
+	pev->targetname = m_savedname;
 
 	SET_MODEL(ENT(pev), STRING(pev->model));
 	SetTouch(&CBreakable::BreakTouch);
